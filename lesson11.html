@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 11 — შედარება, ლოგიკური ოპერატორები და Coercion</title>
+  <meta name="description" content="JavaScript-ის შედარებისა და ლოგიკური ოპერატორები, if/else, switch, ternary და მონაცემთა ტიპების იძულებითი კონვერტაცია (coercion)." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 11
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 11/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        შედარება, ლოგიკური ოპერატორები და Coercion
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        პროგრამირება დიდწილად არის გადაწყვეტილებების მიღება: „თუ ეს მართალია, გააკეთე ეს, თუ არადა —
+        სხვა". ამ გაკვეთილში ვისწავლით, როგორ ვწერთ ამ პირობებს JavaScript-ში.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. შედარების ოპერატორები</h2>
+      <pre><code><span class="attr">let</span> a = 5, b = "5";
+
+a == b     <span class="cmt">// true  — ტოლობა ტიპის კონვერტაციით (loose equality)</span>
+a === b    <span class="cmt">// false — ტოლობა ტიპის შემოწმებითაც (strict equality)</span>
+
+a != b     <span class="cmt">// false — არატოლობა, ტიპის კონვერტაციით</span>
+a !== b    <span class="cmt">// true  — მკაცრი არატოლობა</span>
+
+5 > 3      <span class="cmt">// true</span>
+5 >= 5     <span class="cmt">// true</span>
+3 < 5      <span class="cmt">// true</span></code></pre>
+      <p>
+        <strong>საუკეთესო პრაქტიკა:</strong> ყოველთვის გამოიყენე <code>===</code> და <code>!==</code>
+        (მკაცრი შედარება) და არა <code>==</code>/<code>!=</code>. ეს გამორიცხავს JavaScript-ის
+        ავტომატური ტიპის კონვერტაციისგან გამოწვეულ მოულოდნელ ბაგებს.
+      </p>
+
+      <h2>2. ლოგიკური ოპერატორები</h2>
+      <pre><code><span class="attr">let</span> age = 20;
+<span class="attr">let</span> hasTicket = true;
+
+age >= 18 <span class="tag">&&</span> hasTicket   <span class="cmt">// AND — ორივე პირობა უნდა იყოს true</span>
+age < 18 <span class="tag">||</span> !hasTicket    <span class="cmt">// OR — საკმარისია ერთ-ერთი იყოს true</span>
+<span class="tag">!</span>hasTicket               <span class="cmt">// NOT — ცვლის true/false-ს საწინააღმდეგოთი</span></code></pre>
+
+      <h2>3. if / else — პირობითი კონსტრუქცია</h2>
+      <pre><code><span class="attr">let</span> temperature = 3;
+
+<span class="tag">if</span> (temperature > 25) {
+  console.log("ცხელა — ჩაიცვი მსუბუქი ტანსაცმელი");
+} <span class="tag">else if</span> (temperature > 10) {
+  console.log("ზომიერია — ჯემპერი საკმარისია");
+} <span class="tag">else</span> {
+  console.log("ცივა — გჭირდება ქურთუკი");
+}
+<span class="cmt">// output: "ცივა — გჭირდება ქურთუკი"</span></code></pre>
+
+      <h2>4. switch — მრავალვარიანტიანი არჩევანი</h2>
+      <p>
+        როცა ერთ ცვლადს ვადარებთ ბევრ კონკრეტულ მნიშვნელობას, <code>switch</code> ხშირად უფრო
+        წაკითხვადია, ვიდრე გრძელი <code>if/else if</code> ჯაჭვი. <code>break</code> აუცილებელია, თორემ
+        შესრულება „ჩამოვარდება" შემდეგ <code>case</code>-ზეც (fall-through).
+      </p>
+      <pre><code><span class="attr">let</span> day = "სამშაბათი";
+
+<span class="tag">switch</span> (day) {
+  <span class="tag">case</span> "ორშაბათი":
+    console.log("კვირის დასაწყისი");
+    <span class="tag">break</span>;
+  <span class="tag">case</span> "სამშაბათი":
+  <span class="tag">case</span> "ოთხშაბათი":
+    console.log("კვირის შუა ნაწილი");
+    <span class="tag">break</span>;
+  <span class="tag">default</span>:
+    console.log("სხვა დღე");
+}
+<span class="cmt">// output: "კვირის შუა ნაწილი"</span></code></pre>
+
+      <h2>5. Ternary ოპერატორი — მოკლე if/else</h2>
+      <p>
+        Ternary საშუალებას გვაძლევს ერთ ხაზზე ჩავწეროთ მარტივი პირობა. ფორმა:
+        <code>პირობა ? თუ_true : თუ_false</code>.
+      </p>
+      <pre><code><span class="attr">let</span> age = 20;
+<span class="attr">const</span> status = age >= 18 ? "სრულწლოვანი" : "არასრულწლოვანი";
+console.log(status); <span class="cmt">// "სრულწლოვანი"</span>
+
+<span class="cmt">// ხშირად გამოიყენება JSX-ში (React-ში ვნახავთ) პირობითი რენდერისთვის</span></code></pre>
+
+      <h2>6. Coercion — ტიპების იძულებითი კონვერტაცია</h2>
+      <p>
+        JavaScript ავტომატურად „აკონვერტირებს" მონაცემის ტიპს, როცა ეს საჭიროა ოპერაციის
+        შესასრულებლად — ამას <strong>coercion</strong> ეწოდება. სამი ძირითადი ტიპია:
+      </p>
+      <pre><code><span class="cmt">// String coercion — რიცხვი ტექსტად</span>
+"5" + 3        <span class="cmt">// "53" — + ოპერატორი, თუ ერთ-ერთი მხარე String-ია, აწებავს ტექსტებს</span>
+String(123)    <span class="cmt">// "123" — ცხადი (explicit) კონვერტაცია</span>
+
+<span class="cmt">// Numeric coercion — ტექსტი რიცხვად</span>
+"5" - 3        <span class="cmt">// 2 — მინუსი, ამრავლება, გაყოფა ყოველთვის რიცხვად აქცევს</span>
+Number("42")   <span class="cmt">// 42 — ცხადი კონვერტაცია</span>
+Number("abc")  <span class="cmt">// NaN — "Not a Number"</span>
+
+<span class="cmt">// Boolean coercion — ნებისმიერი მნიშვნელობა true/false-ად</span>
+Boolean(0)     <span class="cmt">// false</span>
+Boolean("")    <span class="cmt">// false</span>
+Boolean(null)  <span class="cmt">// false</span>
+Boolean("0")   <span class="cmt">// true  — არა-ცარიელი სტრიქონი ყოველთვის true-ა!</span>
+Boolean(1)     <span class="cmt">// true</span></code></pre>
+      <p>
+        მნიშვნელობებს, რომლებიც <code>Boolean()</code>-ში <code>false</code>-ად იქცევა, ეწოდება
+        <strong>falsy</strong> მნიშვნელობები: <code>0</code>, <code>""</code>, <code>null</code>,
+        <code>undefined</code>, <code>NaN</code>, <code>false</code>. ყველა დანარჩენი — <strong>truthy</strong>-ა.
+        სწორედ ამიტომ არის <code>===</code> (მკაცრი შედარება) ასეთი მნიშვნელოვანი — ის თავიდან
+        გვაცილებს coercion-ით გამოწვეულ მოულოდნელობებს.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/ifelse" target="_blank" rel="noopener">JavaScript.info — Conditional branching</a></li>
+          <li><a href="https://javascript.info/switch" target="_blank" rel="noopener">JavaScript.info — The "switch" statement</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator" target="_blank" rel="noopener">MDN — Conditional (ternary) operator</a></li>
+          <li><a href="https://javascript.info/type-conversions" target="_blank" rel="noopener">JavaScript.info — Type conversions</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაწერე <code>if/else if/else</code> კონსტრუქცია, რომელიც შეაფასებს ქულას (0–100) და დაბეჭდავს „ჩავარდა" / „საშუალო" / „კარგი" / „ბრწყინვალე".</li>
+          <li>იგივე ლოგიკა გადათარგმნე <code>switch</code>-ის გამოყენებით (მაგ. თვის ნომრით სეზონის დასადგენად).</li>
+          <li>დაწერე ternary გამონათქვამი, რომელიც ერთ ხაზზე ამოწმებს, არის თუ არა რიცხვი ლუწი.</li>
+          <li>Console-ში გამოსცადე 5 coercion-ის მაგალითი (მაგ. <code>"10" + 5</code>, <code>"10" - 5</code>, <code>Boolean("")</code>) და ჩამწერე მოსალოდნელი და რეალური შედეგები.</li>
+          <li><em>(რთული)</em> დაწერე ლოგიკური გამონათქვამი <code>&&</code> და <code>||</code>-ის კომბინაციით, რომელიც ამოწმებს, არის თუ არა მომხმარებელი „სავალდებულო ასაკის და ტიკეტის" პირობის შესაბამისი, და ახსენი, რატომ დააბრუნა JS-მ ზუსტად ის მნიშვნელობა, რაც დააბრუნა (მოძებნე „short-circuit evaluation" ტერმინი).</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson10.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson12.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> ‚</div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
