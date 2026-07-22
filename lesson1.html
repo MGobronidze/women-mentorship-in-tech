@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 01 — ინტერნეტი, HTTP და Front-end პროფესია</title>
+  <meta name="description" content="ინტერნეტის მუშაობის პრინციპები, HTTP, Client-Server მოდელი, Front-end დეველოპერის როლი და დეველოპერული გარემოს გაცნობა." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">HTML მოდული</a> / გაკვეთილი 01
+      </div>
+      <span class="lesson-mod" style="--card-color: var(--mod-html); --card-bg: var(--mod-html-bg); background: var(--mod-html-bg); color: var(--mod-html);">HTML · 01/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        ინტერნეტი, HTTP და Front-end დეველოპერის პროფესია
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        სანამ ერთ ხაზ კოდსაც კი დავწერთ, უნდა გავიგოთ, რა ხდება მაშინ, როცა ბრაუზერში ვწერთ მისამართს და
+        ვაწვებით Enter-ს. ეს გაკვეთილი გვაძლევს იმ საფუძველს, რომელზეც აშენდება მთელი კურსი.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. რა არის ინტერნეტი და როგორ მუშაობს ვები</h2>
+      <p>
+        ინტერნეტი არის მილიონობით ერთმანეთთან დაკავშირებული კომპიუტერის გლობალური ქსელი, რომლებიც ერთმანეთს
+        „ესაუბრებიან" საერთო წესების — <strong>პროტოკოლების</strong> — მეშვეობით. ვები (World Wide Web) კი ამ
+        ინტერნეტის ზემოთ აშენებული სისტემაა, რომელიც საშუალებას გვაძლევს ბრაუზერით ვნახოთ დოკუმენტები, სურათები,
+        ვიდეო და ინტერაქტიული აპლიკაციები.
+      </p>
+      <p>
+        ვების საფუძველია <strong>Client-Server მოდელი</strong>:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Client (კლიენტი)</strong> — ეს არის შენი ბრაუზერი (Chrome, Firefox, Safari), რომელიც <em>ითხოვს</em> ინფორმაციას.</li>
+        <li><strong>Server (სერვერი)</strong> — დისტანციური კომპიუტერი, რომელიც ინახავს საიტის ფაილებს და <em>პასუხობს</em> კლიენტის მოთხოვნას.</li>
+      </ul>
+
+      <h3>HTTP — კლიენტისა და სერვერის „საერთო ენა"</h3>
+      <p>
+        როცა ბრაუზერში აკრეფ მისამართს, ბრაუზერი უგზავნის სერვერს <strong>HTTP მოთხოვნას (request)</strong>.
+        სერვერი ამუშავებს მოთხოვნას და აბრუნებს <strong>პასუხს (response)</strong> — HTML დოკუმენტს, სურათს ან სხვა რესურსს.
+        <strong>HTTPS</strong> იგივე პროტოკოლის დაშიფრული, უსაფრთხო ვერსიაა.
+      </p>
+      <pre><code><span class="cmt">// გამარტივებული request → response ციკლი</span>
+<span class="tag">Client</span> (ბრაუზერი)
+  │
+  │  1. HTTP GET request → https://example.com
+  ▼
+<span class="tag">Server</span>
+  │
+  │  2. HTTP Response (status: 200 OK, body: HTML)
+  ▼
+<span class="tag">Client</span> ბრაუზერი აწყობს გვერდს (რენდერს)</code></pre>
+      <p>
+        ყოველ პასუხს ახლავს <strong>სტატუს კოდი</strong>, რომელიც გვეუბნება, რა მოხდა: <code>200</code> — წარმატება,
+        <code>404</code> — გვერდი ვერ მოიძებნა, <code>500</code> — სერვერის შეცდომა.
+      </p>
+
+      <h2>2. რა არის Front-End Development</h2>
+      <p>
+        ვებ დეველოპმენტი პირობითად იყოფა ორ დიდ მიმართულებად:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Front-End</strong> — ყველაფერი, რასაც მომხმარებელი ხედავს და პირდაპირ ურთიერთქმედებს ბრაუზერში: სტრუქტურა, დიზაინი, ანიმაციები, ინტერაქტივობა.</li>
+        <li><strong>Back-End</strong> — სერვერის მხარე: მონაცემთა ბაზები, ბიზნეს-ლოგიკა, API-ები, რომლებიც Front-End-ს „კვებავენ" მონაცემებით.</li>
+      </ul>
+      <p>
+        Front-End დეველოპერი მუშაობს სამი ძირითადი ტექნოლოგიით, რომელთაგან თითოეულს თავისი, მკაფიოდ განსაზღვრული როლი აქვს:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>HTML</strong> — გვერდის <em>სტრუქტურა და შინაარსი</em> (რა არის გვერდზე).</li>
+        <li><strong>CSS</strong> — გვერდის <em>გარეგნობა</em> (როგორ გამოიყურება).</li>
+        <li><strong>JavaScript</strong> — გვერდის <em>ქცევა და ინტერაქტივობა</em> (როგორ რეაგირებს მოქმედებებზე).</li>
+      </ul>
+      <p>ეს დაყოფა კარგად ჩანს ერთ მარტივ მაგალითში — სამივე ტექნოლოგია ერთ ფაილშია, მხოლოდ საილუსტრაციოდ:</p>
+      <pre><code>&lt;<span class="tag">!DOCTYPE html</span>&gt;
+&lt;<span class="tag">html</span> <span class="attr">lang</span>=<span class="str">"ka"</span>&gt;
+&lt;<span class="tag">head</span>&gt;
+  &lt;<span class="tag">style</span>&gt;             <span class="cmt">/* CSS — გარეგნობა */</span>
+    button { background: #146B5C; color: white; }
+  &lt;/<span class="tag">style</span>&gt;
+&lt;/<span class="tag">head</span>&gt;
+&lt;<span class="tag">body</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">id</span>=<span class="str">"greet"</span>&gt;დაწკაპუნება&lt;/<span class="tag">button</span>&gt;  <span class="cmt">&lt;!-- HTML — სტრუქტურა --&gt;</span>
+
+  &lt;<span class="tag">script</span>&gt;               <span class="cmt">// JavaScript — ქცევა</span>
+    document.getElementById("greet")
+      .addEventListener("click", () => alert("გამარჯობა!"));
+  &lt;/<span class="tag">script</span>&gt;
+&lt;/<span class="tag">body</span>&gt;
+&lt;/<span class="tag">html</span>&gt;</code></pre>
+
+      <h2>3. დეველოპერული გარემო: კოდის ედიტორი</h2>
+      <p>
+        კურსის განმავლობაში გამოვიყენებთ <strong>Visual Studio Code</strong>-ს (VS Code) — უფასო, ღია კოდის ედიტორს,
+        რომელიც დღეს ინდუსტრიის სტანდარტია. მისი მთავარი უპირატესობებია:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ჩაშენებული ტერმინალი და Git-ინტეგრაცია;</li>
+        <li>გაფართოებების (Extensions) ეკოსისტემა — მაგ. <strong>Live Server</strong>, რომელიც ცოცხლად ამოწმებს ცვლილებებს ბრაუზერში;</li>
+        <li>ავტომატური ფორმატირება (<strong>Prettier</strong>) და Syntax Highlighting.</li>
+      </ul>
+      <p>
+        ინსტალაციის შემდეგ, ჩვენს პროექტს ექნება მარტივი, მაგრამ მოწესრიგებული სტრუქტურა — ზუსტად ისეთი, როგორსაც
+        ამ კურსშივე ვაწყობთ:
+      </p>
+      <pre><code>front-end-course/
+├── index.html
+├── style.css
+├── script.js
+└── lesson1.html … lesson24.html</code></pre>
+
+      <h2>4. ბრაუზერის დეველოპერული ხელსაწყოები (DevTools)</h2>
+      <p>
+        ყველა თანამედროვე ბრაუზერს აქვს ჩაშენებული <strong>DevTools</strong> — ინსტრუმენტების ნაკრები, რომელიც
+        დეველოპერს აძლევს საშუალებას საცოცხლედ დაინახოს და გამართოს გვერდი. იხსნება კლავიშით <code>F12</code>
+        (ან <code>Cmd + Option + I</code> — macOS-ზე). ყველაზე ხშირად გამოსაყენებელი ტაბებია:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Elements</strong> — HTML-ის სტრუქტურის და CSS-სტილების ცოცხლად დათვალიერება/რედაქტირება.</li>
+        <li><strong>Console</strong> — JavaScript-ის კოდის გაშვება, შეცდომების და <code>console.log()</code>-ის შედეგების ნახვა.</li>
+        <li><strong>Network</strong> — ყველა HTTP მოთხოვნის (request/response) მონიტორინგი — ზუსტად ის, რასაც ზემოთ ვისწავლეთ.</li>
+      </ul>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work" target="_blank" rel="noopener">MDN — How does the Internet work?</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_web_server" target="_blank" rel="noopener">MDN — What is a web server?</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web" target="_blank" rel="noopener">MDN — Getting started with the web</a></li>
+          <li><a href="https://code.visualstudio.com/docs" target="_blank" rel="noopener">Visual Studio Code — ოფიციალური დოკუმენტაცია</a></li>
+          <li><a href="https://developer.chrome.com/docs/devtools/" target="_blank" rel="noopener">Chrome DevTools — ოფიციალური დოკუმენტაცია</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დააინსტალირე VS Code და დაამატე <strong>Live Server</strong> გაფართოება.</li>
+          <li>შექმენი ცარიელი <code>index.html</code> ფაილი სწორი <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;head&gt;</code> და <code>&lt;body&gt;</code> სტრუქტურით და გახსენი ის Live Server-ის მეშვეობით.</li>
+          <li>გახსენი ბრაუზერის DevTools (<code>F12</code>), გადადი <strong>Console</strong> ტაბზე და გაუშვი ბრძანება <code>console.log("გამარჯობა, ვები!")</code>.</li>
+          <li>DevTools-ის <strong>Network</strong> ტაბში გახსენი ნებისმიერი საიტი და იპოვე ერთი მოთხოვნა, რომლის სტატუს კოდიც <code>200</code>-ია. ჩამწერე, რომელი ფაილი ჩაიტვირთა.</li>
+          <li><em>(რთული)</em> საკუთარი სიტყვებით, 5–6 წინადადებით აღწერე, რა ხდება იმ მომენტიდან, როცა ბრაუზერში აკრეფ საიტის მისამართს, მანამ, სანამ გვერდი ეკრანზე გამოჩნდება.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <span class="pager-btn" style="opacity: .4; pointer-events: none;">← წინა გაკვეთილი</span>
+      <a class="pager-btn" href="lesson2.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

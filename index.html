@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Front-End Development — 24 გაკვეთილიანი კურსი</title>
+  <meta name="description" content="HTML, CSS და JavaScript-ზე დაფუძნებული Front-End Development კურსი — 24 გაკვეთილი, თეორია, კოდის მაგალითები და პრაქტიკული დავალებები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="#modules">მოდულები</a></li>
+        <li><a href="#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">24 გაკვეთილი · HTML → CSS → JS → React</span>
+          <h1>ისწავლე ვებ-გვერდის აწყობა <em>ნულიდან</em> React-ამდე</h1>
+          <p class="hero-lede">
+            სტრუქტურირებული Front-End Development კურსი: თითოეული გაკვეთილი შეიცავს თეორიას, კომენტირებულ კოდის მაგალითებს,
+            დამატებით რესურსებს ოფიციალურ დოკუმენტაციაზე და პრაქტიკულ დავალებებს.
+          </p>
+          <div class="hero-stats">
+            <div class="stat"><span class="num">24</span><span class="label">გაკვეთილი</span></div>
+            <div class="stat"><span class="num">04</span><span class="label">მოდული</span></div>
+            <div class="stat"><span class="num">01</span><span class="label">საბოლოო პროექტი</span></div>
+          </div>
+          <a class="hero-cta" href="lesson1.html">
+            დაწყება — გაკვეთილი 01
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+
+        <div class="browser-mock" aria-hidden="true">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url"><span id="hero-url"></span></div>
+          </div>
+          <div class="browser-body">
+            <div class="code-line"><span class="cmt">&lt;!-- lesson1.html --&gt;</span></div>
+            <div class="code-line">&lt;<span class="tag">section</span> <span class="attr">class</span>=<span class="str">"lesson"</span>&gt;</div>
+            <div class="code-line code-indent-1">&lt;<span class="tag">h1</span>&gt;ვების საფუძვლები&lt;/<span class="tag">h1</span>&gt;</div>
+            <div class="code-line code-indent-1">&lt;<span class="tag">p</span>&gt;HTTP, Browser, Client–Server&lt;/<span class="tag">p</span>&gt;</div>
+            <div class="code-line">&lt;/<span class="tag">section</span>&gt;</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MODULES ===================== -->
+    <section class="section" id="modules">
+      <div class="container">
+        <div class="section-head">
+          <h2>4 მოდული, 24 გაკვეთილი</h2>
+          <p class="section-sub">კურსი ეფუძნება თანამედროვე სტანდარტებს (MDN, JavaScript.info, React დოკუმენტაცია) და მოძღვნილია სუფთა, მოდულური კოდის დაწერაზე.</p>
+        </div>
+        <div class="module-strip">
+          <div class="module-chip" style="--chip-bg: var(--mod-html-bg); --chip-color: var(--mod-html);">
+            <span class="n">01 — 03</span>
+            <h3>HTML</h3>
+            <p>დოკუმენტის სტრუქტურა, სემანტიკური ტეგები, ბმულები, ფორმები, მედია.</p>
+          </div>
+          <div class="module-chip" style="--chip-bg: var(--mod-css-bg); --chip-color: var(--mod-css);">
+            <span class="n">04 — 08</span>
+            <h3>CSS</h3>
+            <p>Box Model, Flexbox, პოზიციონირება, ანიმაციები, Bootstrap, Git, რესპონსიული დიზაინი.</p>
+          </div>
+          <div class="module-chip" style="--chip-bg: var(--mod-js-bg); --chip-color: var(--mod-js);">
+            <span class="n">09 — 20</span>
+            <h3>JavaScript</h3>
+            <p>AI ხელსაწყოები, ფუნქციები, DOM, ასინქრონული კოდი, OOP საფუძვლები.</p>
+          </div>
+          <div class="module-chip" style="--chip-bg: var(--mod-react-bg); --chip-color: var(--mod-react);">
+            <span class="n">21 — 24</span>
+            <h3>React</h3>
+            <p>კომპონენტები, Hooks, Router, ფორმები და საბოლოო E-commerce პროექტი.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SYLLABUS ===================== -->
+    <section class="section" id="syllabus">
+      <div class="container">
+        <div class="section-head">
+          <h2>სილაბუსი</h2>
+          <p class="section-sub">გაფილტრე მოდულის მიხედვით ან გადადი კონკრეტულ გაკვეთილზე.</p>
+        </div>
+
+        <div class="filter-row" id="filter-row">
+          <button class="filter-btn" data-filter="all" data-active="true">ყველა</button>
+          <button class="filter-btn" data-filter="html" style="--filter-color: var(--mod-html);">HTML</button>
+          <button class="filter-btn" data-filter="css" style="--filter-color: var(--mod-css);">CSS</button>
+          <button class="filter-btn" data-filter="js" style="--filter-color: var(--mod-js);">JavaScript</button>
+          <button class="filter-btn" data-filter="react" style="--filter-color: var(--mod-react);">React</button>
+        </div>
+
+        <div class="syllabus-grid" id="syllabus-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

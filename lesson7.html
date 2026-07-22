@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 07 — Pseudo-classes, Transitions, Animations, Variables</title>
+  <meta name="description" content="CSS pseudo-classes და pseudo-elements, transitions, @keyframes ანიმაციები, CSS ცვლადები და Autoprefixer." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">CSS მოდული</a> / გაკვეთილი 07
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 07/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Pseudo-classes, Transitions, Animations, Variables
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        დროა CSS-ს „სიცოცხლე ჩავუბეროთ" — ვისწავლოთ, როგორ რეაგირებს ელემენტი მომხმარებლის
+        მოქმედებებზე, როგორ ვამოძრავებთ სტილებს გლუვად და როგორ ვწერთ ხელახლა-გამოსაყენებელ მნიშვნელობებს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Pseudo-classes</h2>
+      <p>
+        Pseudo-class ირჩევს ელემენტს <strong>მდგომარეობის</strong> მიხედვით — მაგ. მაშინ, როცა კურსორი
+        ზემოთაა, ან როცა ის ჯგუფში პირველია. სინტაქსი: <code>selector:pseudo-class</code>.
+      </p>
+      <pre><code><span class="tag">a</span>:<span class="attr">hover</span> {
+  color: #C97A1E; <span class="cmt">/* ცვლის ფერს, როცა კურსორი ბმულზეა */</span>
+}
+
+<span class="tag">button</span>:<span class="attr">active</span> {
+  transform: scale(0.97); <span class="cmt">/* დაწკაპუნების მომენტში */</span>
+}
+
+<span class="tag">input</span>:<span class="attr">focus</span> {
+  border-color: #146B5C; <span class="cmt">/* როცა input არჩეულია (focused) */</span>
+}
+
+<span class="tag">li</span>:<span class="attr">first-child</span> { font-weight: 700; }
+<span class="tag">li</span>:<span class="attr">last-child</span>  { border-bottom: none; }
+<span class="tag">li</span>:<span class="attr">nth-child</span>(2n) { background: #F4F1E7; } <span class="cmt">/* ლუწი ელემენტები */</span></code></pre>
+
+      <h2>2. Pseudo-elements</h2>
+      <p>
+        Pseudo-element ირჩევს ელემენტის <strong>ნაწილს</strong>, რომელიც HTML-ში საერთოდ არ არსებობს —
+        ის „ვირტუალურად" იქმნება CSS-ით. სინტაქსი ორმაგი ორწერტილით: <code>selector::pseudo-element</code>.
+      </p>
+      <pre><code><span class="tag">p</span>::<span class="attr">first-letter</span> {
+  font-size: 2em;
+  font-weight: 700;
+}
+
+<span class="tag">.quote</span>::<span class="attr">before</span> {
+  content: "„"; <span class="cmt">/* დამატებული შემცველობა, HTML-ის შეცვლის გარეშე */</span>
+}
+<span class="tag">.quote</span>::<span class="attr">after</span> {
+  content: "“";
+}</code></pre>
+      <p>
+        <code>::before</code> და <code>::after</code> ყოველთვის საჭიროებენ <code>content</code> თვისებას
+        (თუნდაც ცარიელს, <code>content: "";</code>), წინააღმდეგ შემთხვევაში საერთოდ არ გამოჩნდება.
+      </p>
+
+      <h2>3. Transitions — გლუვი გადასვლა</h2>
+      <p>
+        <code>transition</code> საშუალებას გვაძლევს, სტილის ცვლილება (მაგ. <code>:hover</code>-ზე) მოხდეს
+        მყისიერად კი არა, არამედ გლუვად, დროში გაწელილად.
+      </p>
+      <pre><code>.<span class="tag">btn</span> {
+  background: #146B5C;
+  transition-property: background, transform; <span class="cmt">/* რომელი თვისებები იცვლება გლუვად */</span>
+  transition-duration: 200ms;                 <span class="cmt">/* რამდენ ხანში */</span>
+  transition-delay: 0ms;                      <span class="cmt">/* რამდენი ხნის დაყოვნებით დაიწყოს */</span>
+  transition-timing-function: ease-out;       <span class="cmt">/* სიჩქარის „ხასიათი" */</span>
+
+  <span class="cmt">/* ან shorthand: */</span>
+  transition: background 200ms ease-out, transform 150ms ease-out;
+}
+.<span class="tag">btn</span>:<span class="attr">hover</span> {
+  background: #1B8A75;
+  transform: translateY(-2px);
+}</code></pre>
+
+      <h2>4. Animations — @keyframes</h2>
+      <p>
+        <code>transition</code> მუშაობს მხოლოდ ორ მდგომარეობას შორის (მაგ. ჩვეულებრივი → hover).
+        როცა გვჭირდება უფრო რთული, მრავალსაფეხურიანი ან თვითდაწყებადი ანიმაცია — ვიყენებთ
+        <code>@keyframes</code>-ს.
+      </p>
+      <pre><code><span class="cmt">/* ვაღწერთ ანიმაციის საფეხურებს პროცენტულად */</span>
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.<span class="tag">card</span> {
+  animation-name: fade-in-up;
+  animation-duration: 400ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both; <span class="cmt">/* ინარჩუნებს "to" მდგომარეობას დასრულების შემდეგ */</span>
+
+  <span class="cmt">/* ან shorthand: */</span>
+  animation: fade-in-up 400ms ease-out both;
+}</code></pre>
+
+      <h2>5. CSS Variables (Custom Properties)</h2>
+      <p>
+        CSS ცვლადები საშუალებას გვაძლევს, ერთხელ განვსაზღვროთ მნიშვნელობა და შემდეგ ბევრგან
+        გამოვიყენოთ — ეს ზუსტად ის სისტემაა, რომელსაც ეს საიტიც იყენებს (<code>--mod-html</code>,
+        <code>--bg</code> და ა.შ. <code>style.css</code>-ში).
+      </p>
+      <pre><code>:root {
+  --accent: #146B5C;      <span class="cmt">/* გლობალური ცვლადი, ხელმისაწვდომია ყველგან */</span>
+  --radius: 12px;
+}
+
+.<span class="tag">btn</span> {
+  background: var(--accent);       <span class="cmt">/* var() კითხულობს ცვლადის მნიშვნელობას */</span>
+  border-radius: var(--radius);
+}
+.<span class="tag">badge</span> {
+  color: var(--accent, black);     <span class="cmt">/* მეორე არგუმენტი — fallback, თუ ცვლადი არ არსებობს */</span>
+}</code></pre>
+      <p>
+        ჩვეულებრივი Sass/Less ცვლადებისგან განსხვავებით, CSS ცვლადები <strong>ცოცხალია ბრაუზერში</strong> —
+        მათი შეცვლა JavaScript-იდანაც შესაძლებელია რეალურ დროში, გვერდის ხელახლა ჩატვირთვის გარეშე.
+      </p>
+
+      <h2>6. Autoprefixer — რატომ გვჭირდება</h2>
+      <p>
+        ზოგიერთ CSS თვისებას სხვადასხვა ბრაუზერში სჭირდება <strong>vendor prefix</strong> (მაგ.
+        <code>-webkit-</code>, <code>-moz-</code>), განსაკუთრებით ახალ ან ექსპერიმენტულ თვისებებზე:
+      </p>
+      <pre><code><span class="cmt">/* Autoprefixer-ის გარეშე, ხელით: */</span>
+.<span class="tag">box</span> {
+  -webkit-transform: rotate(5deg);
+  -moz-transform: rotate(5deg);
+  transform: rotate(5deg);
+}</code></pre>
+      <p>
+        <strong>Autoprefixer</strong> არის build-tool (ხშირად ინტეგრირებულია PostCSS-თან), რომელიც
+        ავტომატურად ამატებს საჭირო პრეფიქსებს, browserslist კონფიგურაციის მიხედვით — დეველოპერს
+        ხელით აღარ სჭირდება მათი მართვა.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes" target="_blank" rel="noopener">MDN — Pseudo-classes</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements" target="_blank" rel="noopener">MDN — Pseudo-elements</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transitions/Using_CSS_transitions" target="_blank" rel="noopener">MDN — Using CSS transitions</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations" target="_blank" rel="noopener">MDN — Using CSS animations</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties" target="_blank" rel="noopener">MDN — Using CSS custom properties</a></li>
+          <li><a href="https://github.com/postcss/autoprefixer" target="_blank" rel="noopener">Autoprefixer — GitHub რეპოზიტორი</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაუმატე ღილაკს <code>:hover</code> და <code>:active</code> სტილები, <code>transition</code>-ის გამოყენებით გლუვი გადასვლისთვის.</li>
+          <li>გამოიყენე <code>:nth-child()</code> სიის ლუწ ელემენტებზე განსხვავებული ფონის ფერის დასაყენებლად.</li>
+          <li>დაამატე <code>::before</code>-ის გამოყენებით დეკორატიული სიმბოლო ციტატის წინ.</li>
+          <li>დაწერე <code>@keyframes</code> ანიმაცია, რომელიც ელემენტს ატრიალებს ან აქრობს/აჩენს (fade), და მიაბი ელემენტს.</li>
+          <li><em>(რთული)</em> განსაზღვრე 3-4 CSS ცვლადი <code>:root</code>-ში (ფერები, radius) და გამოიყენე ისინი მინიმუმ 3 სხვადასხვა სელექტორში — შემდეგ სცადე ცვლადის მნიშვნელობის შეცვლა ერთ ადგილას და დააკვირდი, როგორ იცვლება მთელი გვერდი.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson6.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson8.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

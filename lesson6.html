@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 06 — CSS Flexbox და პოზიციონირება</title>
+  <meta name="description" content="CSS Flexbox: container და items თვისებები, და პოზიციონირება — static, relative, absolute, fixed, sticky." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">CSS მოდული</a> / გაკვეთილი 06
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 06/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        CSS Flexbox და პოზიციონირება
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        Flexbox არის ის ინსტრუმენტი, რომელიც საბოლოოდ წყვეტს „როგორ დავალაგო ელემენტები ერთმანეთის
+        გვერდით" პრობლემას. ამას ვამატებთ პოზიციონირების სისტემასაც — ორივეს ერთად ხშირად ვიყენებთ.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Flexbox — საბაზისო კონცეფცია</h2>
+      <p>
+        Flexbox არის ცალგანზომილებიანი (ერთი ხაზის მიმართულებით — ჰორიზონტალურად ან ვერტიკალურად)
+        განლაგების სისტემა. ის შედგება ორი მხრიდან: <strong>container</strong> (მშობელი ელემენტი,
+        რომელსაც ვუწერთ <code>display: flex</code>) და <strong>items</strong> (მისი პირდაპირი შვილები).
+      </p>
+      <pre><code>.<span class="tag">container</span> {
+  display: flex;
+}</code></pre>
+      <p>
+        როგორც კი მშობელს დავუწერთ <code>display: flex</code>-ს, ყველა მისი პირდაპირი შვილი ავტომატურად
+        დალაგდება ერთ ხაზზე, გვერდიგვერდ.
+      </p>
+
+      <h2>2. Container-ის თვისებები</h2>
+      <pre><code>.<span class="tag">container</span> {
+  display: flex;
+
+  flex-direction: row;        <span class="cmt">/* row | row-reverse | column | column-reverse */</span>
+  flex-wrap: wrap;            <span class="cmt">/* nowrap | wrap — გადადის თუ არა შემდეგ ხაზზე */</span>
+
+  justify-content: space-between; <span class="cmt">/* განლაგება მთავარი ღერძის მიმართულებით */</span>
+  align-items: center;            <span class="cmt">/* განლაგება განივი ღერძის მიმართულებით */</span>
+}</code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>flex-direction</code> — განსაზღვრავს მთავარ ღერძს: <code>row</code> (ჰორიზონტალურად, ნაგულისხმევი) თუ <code>column</code> (ვერტიკალურად).</li>
+        <li><code>flex-wrap</code> — <code>nowrap</code> (ნაგულისხმევი, ელემენტები „იჭყლიტება" ერთ ხაზზე) თუ <code>wrap</code> (გადადის ახალ ხაზზე, თუ ადგილი აღარ ჰყოფნის).</li>
+        <li><code>justify-content</code> — მთავარი ღერძის მიმართულებით განლაგება: <code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>space-between</code>, <code>space-around</code>.</li>
+        <li><code>align-items</code> — განივი ღერძის მიმართულებით განლაგება: <code>stretch</code> (ნაგულისხმევი), <code>center</code>, <code>flex-start</code>, <code>flex-end</code>.</li>
+      </ul>
+
+      <h2>3. Items-ის თვისებები</h2>
+      <p>ამ თვისებებს ვწერთ ცალკეულ item-ს, არა container-ს:</p>
+      <pre><code>.<span class="tag">item</span> {
+  order: 2;          <span class="cmt">/* ცვლის ვიზუალურ თანმიმდევრობას (ნაგულისხმევი: 0) */</span>
+  align-self: flex-end; <span class="cmt">/* ერთი კონკრეტული item-ის align-items-ის „გადაფარვა" */</span>
+}</code></pre>
+      <p>
+        <code>order</code> გამოსადეგია, როცა გვინდა ერთი კონკრეტული ელემენტი ვიზუალურად სხვა ადგილას
+        გამოჩნდეს, HTML-ის თანმიმდევრობის შეცვლის გარეშე. <code>align-self</code> კი საშუალებას გვაძლევს
+        ერთ item-ს ჰქონდეს container-ის <code>align-items</code>-გან განსხვავებული განლაგება.
+      </p>
+
+      <h3>პრაქტიკული მაგალითი: ნავიგაციის ზოლი</h3>
+      <pre><code>&lt;<span class="tag">nav</span> <span class="attr">class</span>=<span class="str">"navbar"</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"logo"</span>&gt;front-end-course&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">ul</span> <span class="attr">class</span>=<span class="str">"links"</span>&gt;
+    &lt;<span class="tag">li</span>&gt;&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#"</span>&gt;მთავარი&lt;/<span class="tag">a</span>&gt;&lt;/<span class="tag">li</span>&gt;
+    &lt;<span class="tag">li</span>&gt;&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#"</span>&gt;სილაბუსი&lt;/<span class="tag">a</span>&gt;&lt;/<span class="tag">li</span>&gt;
+  &lt;/<span class="tag">ul</span>&gt;
+&lt;/<span class="tag">nav</span>&gt;
+
+<span class="cmt">/* CSS */</span>
+.navbar {
+  display: flex;
+  justify-content: space-between; <span class="cmt">/* ლოგო მარცხნივ, ბმულები მარჯვნივ */</span>
+  align-items: center;
+}
+.links {
+  display: flex;
+  gap: 24px; <span class="cmt">/* მანძილი ელემენტებს შორის, margin-ის გარეშე */</span>
+}</code></pre>
+
+      <h2>4. Positioned Elements</h2>
+      <p>
+        <code>position</code> თვისება განსაზღვრავს, როგორ „გაერევა" ელემენტი ჩვეულებრივ დინებაში
+        (document flow) და გამოიყენება <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code>-თან ერთად:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>static</strong> — ნაგულისხმევი მნიშვნელობა; ელემენტი მისდევს ჩვეულებრივ დინებას, <code>top</code>/<code>left</code> და სხვ. არ მოქმედებს.</li>
+        <li><strong>relative</strong> — ელემენტი „გადაინაცვლებს" საკუთარი, ნაგულისხმევი პოზიციიდან, მაგრამ ისევ იკავებს ორიგინალურ ადგილს დინებაში (სხვები „ხედავენ" მას, თითქოს არსად წასულა).</li>
+        <li><strong>absolute</strong> — ელემენტი მთლიანად ამოვარდება დინებიდან და პოზიციონირდება უახლოესი <code>relative</code> (ან <code>absolute</code>/<code>fixed</code>) წინაპრის მიმართ.</li>
+        <li><strong>fixed</strong> — პოზიციონირდება ბრაუზერის ფანჯრის მიმართ და „მიმაგრებულია" — არ მოძრაობს სქროლვისას.</li>
+        <li><strong>sticky</strong> — ჰიბრიდი: იქცევა როგორც <code>relative</code>, სანამ არ მიაღწევს განსაზღვრულ ზღვარს (მაგ. <code>top: 0</code>), შემდეგ იქცევა როგორც <code>fixed</code>.</li>
+      </ul>
+      <pre><code><span class="cmt">/* sticky ჰედერი — ზუსტად ისე, როგორც ამ საიტის ნავიგაციაშია გამოყენებული */</span>
+.<span class="tag">site-header</span> {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+<span class="cmt">/* badge, რომელიც card-ის კუთხეში „ეკვრის" */</span>
+.<span class="tag">card</span> { position: relative; }
+.<span class="tag">badge</span> {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}</code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener">CSS-Tricks — A Complete Guide to Flexbox</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox" target="_blank" rel="noopener">MDN — Flexbox (Learn area)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/position" target="_blank" rel="noopener">MDN — position property</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი 3 ყუთი ერთ container-ში, დაუყენე <code>display: flex</code> და გამოსცადე <code>justify-content</code>-ის სხვადასხვა მნიშვნელობები.</li>
+          <li>იგივე container-ს დაუყენე <code>flex-direction: column</code> და დააკვირდი, როგორ იცვლება განლაგება.</li>
+          <li>ააწყვე ნავიგაციის ზოლი ლოგოთი მარცხნივ და ბმულებით მარჯვნივ, <code>space-between</code>-ის გამოყენებით.</li>
+          <li>შექმენი card, რომელშიც ერთი „badge" ელემენტი <code>position: absolute</code>-ით მიმაგრებულია კუთხეში.</li>
+          <li><em>(რთული)</em> ააწყვე <code>sticky</code> ჰედერი, რომელიც სქროლვისას რჩება ეკრანის თავზე — შეამოწმე, რომ <code>z-index</code> სწორადაა დაყენებული და ის სხვა კონტენტს არ ეფარება.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson5.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson7.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

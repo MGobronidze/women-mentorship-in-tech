@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 03 — HTML ფორმები და მედია კონტენტი</title>
+  <meta name="description" content="HTML ფორმის ატრიბუტები, input-ის ტიპები, label ტეგი, და ხმის/ვიდეოს ჩაშენება გვერდზე." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">HTML მოდული</a> / გაკვეთილი 03
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-html-bg); color: var(--mod-html);">HTML · 03/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        HTML ფორმები და მედია კონტენტი
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        HTML მოდულის ბოლო გაკვეთილში ვსწავლობთ, როგორ „ვკითხოთ" რამე მომხმარებელს ფორმებით და როგორ
+        ჩავრთოთ გვერდზე ხმა და ვიდეო.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. ტეგი &lt;form&gt; და მისი ატრიბუტები</h2>
+      <p>
+        ფორმის ყველა ელემენტი ჩასმულია <code>&lt;form&gt;</code> ტეგში. ორი ატრიბუტი განსაზღვრავს, თუ
+        <strong>სად</strong> და <strong>როგორ</strong> გაეგზავნება მონაცემები სერვერს:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>action</code> — მისამართი, სადაც გაეგზავნება ფორმის მონაცემები.</li>
+        <li><code>method</code> — HTTP მეთოდი: <code>GET</code> (მონაცემები ჩანს URL-ში) ან <code>POST</code> (მონაცემები request body-ში, გამოსადეგია სენსიტიური მონაცემებისთვის).</li>
+      </ul>
+      <pre><code>&lt;<span class="tag">form</span> <span class="attr">action</span>=<span class="str">"/submit"</span> <span class="attr">method</span>=<span class="str">"POST"</span>&gt;
+  <span class="cmt">&lt;!-- ფორმის ველები აქ განთავსდება --&gt;</span>
+&lt;/<span class="tag">form</span>&gt;</code></pre>
+
+      <h2>2. &lt;label&gt; — ველების „წარმდგენი"</h2>
+      <p>
+        <code>&lt;label&gt;</code> უწყვილდება input-ს <code>for</code> ატრიბუტით (რომელიც უტოლდება
+        input-ის <code>id</code>-ს). ეს accessibility-სთვისაც აუცილებელია — screen reader ხმამაღლა
+        წარმოთქვამს ველის დანიშნულებას.
+      </p>
+      <pre><code>&lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"email"</span>&gt;ელფოსტა&lt;/<span class="tag">label</span>&gt;
+&lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"email"</span> <span class="attr">id</span>=<span class="str">"email"</span> <span class="attr">name</span>=<span class="str">"email"</span>&gt;</code></pre>
+      <p>
+        <code>name</code> ატრიბუტი კი „გასაღებია", რომლის ქვეშაც მონაცემი ჩაეწერება, როცა ფორმა სერვერს
+        გაეგზავნება.
+      </p>
+
+      <h2>3. &lt;input&gt;-ის ტიპები</h2>
+      <p>
+        <code>type</code> ატრიბუტი განსაზღვრავს ველის სახეს. ბრაუზერი ავტომატურად ამოწმებს ფორმატს
+        ზოგიერთი ტიპისთვის (მაგ. <code>email</code>):
+      </p>
+      <pre><code>&lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"name"</span>&gt;სახელი&lt;/<span class="tag">label</span>&gt;
+&lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">id</span>=<span class="str">"name"</span> <span class="attr">name</span>=<span class="str">"name"</span> <span class="attr">placeholder</span>=<span class="str">"შენი სახელი"</span> <span class="attr">required</span>&gt;
+
+&lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"age"</span>&gt;ასაკი&lt;/<span class="tag">label</span>&gt;
+&lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"number"</span> <span class="attr">id</span>=<span class="str">"age"</span> <span class="attr">name</span>=<span class="str">"age"</span> <span class="attr">min</span>=<span class="str">"1"</span> <span class="attr">max</span>=<span class="str">"120"</span>&gt;
+
+&lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"agree"</span>&gt;ვეთანხმები წესებს&lt;/<span class="tag">label</span>&gt;
+&lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"checkbox"</span> <span class="attr">id</span>=<span class="str">"agree"</span> <span class="attr">name</span>=<span class="str">"agree"</span>&gt;</code></pre>
+      <p>ყველაზე ხშირად გამოსაყენებელი ტიპებია:</p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>text</code>, <code>email</code>, <code>password</code>, <code>number</code>, <code>tel</code></li>
+        <li><code>checkbox</code> (რამდენიმეს არჩევა), <code>radio</code> (ერთი ვარიანტი ჯგუფიდან — ყველა ერთი ჯგუფის input-ს ერთი <code>name</code> უნდა ჰქონდეს)</li>
+        <li><code>date</code>, <code>file</code>, <code>submit</code> (ღილაკი ფორმის გასაგზავნად)</li>
+      </ul>
+      <p>
+        დამატებითი ატრიბუტები: <code>placeholder</code> (მინიშნება), <code>required</code> (სავალდებულო
+        ველი), <code>value</code> (წინასწარ შევსებული მნიშვნელობა).
+      </p>
+
+      <h2>4. სავარჯიშო: მარტივი კონტაქტის ფორმა</h2>
+      <pre><code>&lt;<span class="tag">form</span> <span class="attr">action</span>=<span class="str">"/contact"</span> <span class="attr">method</span>=<span class="str">"POST"</span>&gt;
+  &lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"fullname"</span>&gt;სრული სახელი&lt;/<span class="tag">label</span>&gt;
+  &lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">id</span>=<span class="str">"fullname"</span> <span class="attr">name</span>=<span class="str">"fullname"</span> <span class="attr">required</span>&gt;
+
+  &lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"email"</span>&gt;ელფოსტა&lt;/<span class="tag">label</span>&gt;
+  &lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"email"</span> <span class="attr">id</span>=<span class="str">"email"</span> <span class="attr">name</span>=<span class="str">"email"</span> <span class="attr">required</span>&gt;
+
+  &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;გაგზავნა&lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">form</span>&gt;</code></pre>
+
+      <h2>5. HTML მედია: &lt;audio&gt; და &lt;video&gt;</h2>
+      <p>
+        HTML5-მა შემოგვთავაზა ჩაშენებული ტეგები მედია კონტენტისთვის — დამატებითი პლაგინების გარეშე.
+      </p>
+      <pre><code>&lt;<span class="tag">video</span> <span class="attr">width</span>=<span class="str">"640"</span> <span class="attr">controls</span>&gt;
+  &lt;<span class="tag">source</span> <span class="attr">src</span>=<span class="str">"lesson-intro.mp4"</span> <span class="attr">type</span>=<span class="str">"video/mp4"</span>&gt;
+  ბრაუზერი არ უჭერს მხარს ვიდეო ტეგს.
+&lt;/<span class="tag">video</span>&gt;
+
+&lt;<span class="tag">audio</span> <span class="attr">controls</span>&gt;
+  &lt;<span class="tag">source</span> <span class="attr">src</span>=<span class="str">"podcast-episode.mp3"</span> <span class="attr">type</span>=<span class="str">"audio/mpeg"</span>&gt;
+  ბრაუზერი არ უჭერს მხარს audio ტეგს.
+&lt;/<span class="tag">audio</span>&gt;</code></pre>
+      <p>
+        ატრიბუტი <code>controls</code> უჩენს მოთამაშეს სტანდარტულ პულტს. <code>&lt;source&gt;</code>-ის
+        შემდეგ ჩაწერილი ტექსტი (fallback) ჩანს მხოლოდ იმ ბრაუზერებში, რომლებმაც ტეგი ვერ ამოიცნეს.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Forms" target="_blank" rel="noopener">MDN — Web forms (Learn area)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input" target="_blank" rel="noopener">MDN — &lt;input&gt; element და მისი ტიპები</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label" target="_blank" rel="noopener">MDN — &lt;label&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video" target="_blank" rel="noopener">MDN — &lt;video&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio" target="_blank" rel="noopener">MDN — &lt;audio&gt; element</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი ფორმა ორი ველით — სახელი და ელფოსტა — თითოეულს დაუყოლე <code>&lt;label&gt;</code>.</li>
+          <li>დაამატე <code>password</code> ველი და <code>required</code> ატრიბუტი სავალდებულო ველებზე.</li>
+          <li>შექმენი <code>radio</code> ჯგუფი 3 ვარიანტით (ერთი საერთო <code>name</code>-ით) და <code>checkbox</code> ერთი დამატებითი პირობით.</li>
+          <li>ჩასმენე ვიდეო ან audio ელემენტი <code>controls</code> ატრიბუტით და fallback ტექსტით.</li>
+          <li><em>(რთული)</em> ააწყვე რეგისტრაციის ფორმა 5+ input-ის ტიპით (მათ შორის <code>date</code> და <code>file</code>) და დაამატე გვერდზე ვიდეო, რომელიც ხსნის, როგორ ივსება ფორმა.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson2.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson4.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

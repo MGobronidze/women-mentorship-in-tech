@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 10 — JS სინტაქსი, NPM, ცვლადები და მონაცემთა ტიპები</title>
+  <meta name="description" content="JavaScript-ის სინტაქსი, NPM გარემოს საფუძვლები, ცვლადების გამოცხადება let/const/var-ით და მონაცემთა ტიპები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 10
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 10/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        JS სინტაქსი, NPM გარემო, ცვლადები და მონაცემთა ტიპები
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        აქამდე ვხატავდით სტატიკურ გვერდებს. ახლა ვამატებთ იმ ფენას, რომელიც გვერდს „ცოცხალს" ხდის —
+        JavaScript-ს. დავიწყოთ ენის ბაზისური სინტაქსით და მონაცემების შენახვის ხერხებით.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. JavaScript-ის სინტაქსი — პირველი ნაბიჯები</h2>
+      <p>
+        JavaScript-ის კოდი შეიძლება ჩავსვათ HTML-ში <code>&lt;script&gt;</code> ტეგით, ან — უკეთესი
+        პრაქტიკაა — ცალკე <code>.js</code> ფაილში, რომელსაც HTML-დან ვუკავშირდებით:
+      </p>
+      <pre><code>&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+      <p>
+        ბრძანებები (statements) მთავრდება წერტილ-მძიმით (<code>;</code>) — ეს არ არის აბსოლუტურად
+        სავალდებულო (JS-ს აქვს ავტომატური „Automatic Semicolon Insertion"), მაგრამ კარგი პრაქტიკაა
+        მისი ხელით ჩაწერა, გაუთვალისწინებელი შეცდომების თავიდან ასაცილებლად.
+      </p>
+      <pre><code><span class="cmt">// ერთხაზიანი კომენტარი</span>
+console.log("გამარჯობა, JavaScript!"); <span class="cmt">// გამოაქვს ტექსტი DevTools Console-ში</span>
+
+<span class="cmt">/* მრავალხაზიანი
+   კომენტარი */</span></code></pre>
+
+      <h2>2. NPM — JavaScript-ის პაკეტების მენეჯერი</h2>
+      <p>
+        <strong>NPM</strong> (Node Package Manager) არის ინსტრუმენტი, რომელიც საშუალებას გვაძლევს
+        დავამატოთ ჩვენს პროექტში სხვების მიერ დაწერილი, მრავალჯერ გამოსაცდელი კოდის პაკეტები (მაგ.
+        React, Axios). ის მოდის <strong>Node.js</strong>-თან ერთად.
+      </p>
+      <pre><code><span class="cmt"># პროექტის ინიციალიზაცია — ქმნის package.json ფაილს</span>
+npm init -y
+
+<span class="cmt"># პაკეტის დაყენება (მაგ. axios)</span>
+npm install axios
+
+<span class="cmt"># პაკეტის დაყენება მხოლოდ დეველოპმენტისთვის (მაგ. ტესტირების ინსტრუმენტი)</span>
+npm install --save-dev vitest</code></pre>
+      <p>
+        <code>package.json</code> ფაილი აღრიცხავს პროექტის ყველა დამოკიდებულებას (dependency) —
+        სხვას შეუძლია ერთი ბრძანებით (<code>npm install</code>) დააყენოს ისინი ყველა ერთდროულად.
+      </p>
+
+      <h2>3. ცვლადები: let, const, var</h2>
+      <p>
+        ცვლადი არის „კონტეინერი" მონაცემისთვის. JavaScript-ს აქვს სამი გზა ცვლადის გამოსაცხადებლად:
+      </p>
+      <pre><code><span class="attr">let</span> age = 25;        <span class="cmt">// მნიშვნელობის შეცვლა შესაძლებელია</span>
+age = 26;             <span class="cmt">// ✅ მუშაობს</span>
+
+<span class="attr">const</span> name = "ანა";   <span class="cmt">// მნიშვნელობა უცვლელია, ხელახლა მინიჭება არ შეიძლება</span>
+name = "მარი";         <span class="cmt">// ❌ Error: Assignment to constant variable</span>
+
+<span class="attr">var</span> city = "თბილისი"; <span class="cmt">// ძველი სინტაქსი (ES5-მდე), დღეს იშვიათად გამოიყენება</span></code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>const</strong> — ნაგულისხმევი არჩევანი. გამოიყენე, თუ ცვლადს ხელახლა არ მიანიჭებ.</li>
+        <li><strong>let</strong> — გამოიყენე, თუ იცი, რომ მნიშვნელობა შეიცვლება (მაგ. მთვლელი ციკლში).</li>
+        <li><strong>var</strong> — მოძველებულია; მისი „scope" ქცევა (function-level, არა block-level) ხშირად შეცდომების წყაროა. თანამედროვე კოდში პრაქტიკულად აღარ გამოიყენება.</li>
+      </ul>
+      <p>
+        <strong>მნიშვნელოვანია:</strong> <code>const</code> კრძალავს ცვლადის <em>ხელახლა მინიჭებას</em>,
+        მაგრამ არა ობიექტის/მასივის შიდა შემცველობის შეცვლას — ამას მომდევნო გაკვეთილებში დავინახავთ.
+      </p>
+
+      <h2>4. მონაცემთა ტიპები (Data Types)</h2>
+      <p>JavaScript-ს აქვს რამდენიმე საბაზისო (primitive) ტიპი და ორი კომპლექსური (reference) ტიპი:</p>
+      <pre><code><span class="cmt">// Primitive ტიპები</span>
+<span class="attr">let</span> studentAge = 22;              <span class="cmt">// Number</span>
+<span class="attr">let</span> studentName = "გიორგი";       <span class="cmt">// String</span>
+<span class="attr">let</span> isEnrolled = true;            <span class="cmt">// Boolean</span>
+<span class="attr">let</span> middleName = undefined;      <span class="cmt">// Undefined — ცვლადს ჯერ არ აქვს მნიშვნელობა</span>
+<span class="attr">let</span> noValue = null;               <span class="cmt">// Null — შეგნებულად „ცარიელი" მნიშვნელობა</span>
+
+<span class="cmt">// Reference ტიპები (მომდევნო გაკვეთილებში ჩავუღრმავდებით)</span>
+<span class="attr">let</span> hobbies = ["კითხვა", "ცურვა"]; <span class="cmt">// Object (Array)</span>
+<span class="attr">let</span> student = { name: "გიორგი" };  <span class="cmt">// Object</span>
+
+<span class="cmt">// typeof ოპერატორი ამოწმებს ტიპს</span>
+console.log(typeof studentAge);   <span class="cmt">// "number"</span>
+console.log(typeof isEnrolled);   <span class="cmt">// "boolean"</span>
+console.log(typeof hobbies);      <span class="cmt">// "object" (მასივიც ობიექტია!)</span></code></pre>
+      <p>
+        <strong>undefined</strong> vs <strong>null</strong> ხშირად აბნევს დამწყებებს: <code>undefined</code>
+        ავტომატურად ენიჭება ცვლადს, რომელსაც ჯერ მნიშვნელობა არ მიუციათ, ხოლო <code>null</code>
+        დეველოპერი შეგნებულად წერს, რომ აღნიშნოს „აქ განზრახ არაფერია".
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/first-steps" target="_blank" rel="noopener">JavaScript.info — First steps</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types" target="_blank" rel="noopener">MDN — Grammar and types</a></li>
+          <li><a href="https://docs.npmjs.com/about-npm" target="_blank" rel="noopener">NPM — About npm (ოფიციალური დოკუმენტაცია)</a></li>
+          <li><a href="https://javascript.info/variables" target="_blank" rel="noopener">JavaScript.info — Variables</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი <code>script.js</code> ფაილი, დაუკავშირე HTML გვერდს და გამოიყენე <code>console.log()</code> DevTools Console-ში შესამოწმებლად.</li>
+          <li>გამოაცხადე 5 ცვლადი — თითოეული სხვადასხვა primitive ტიპით (number, string, boolean, undefined, null) — და დაბეჭდე თითოეულის <code>typeof</code> Console-ში.</li>
+          <li>სცადე <code>const</code>-ით გამოცხადებული ცვლადის ხელახლა მინიჭება და დააკვირდი Console-ში გამოსულ შეცდომას.</li>
+          <li>დააინსტალირე Node.js (თუ ჯერ არ გაქვს), გაუშვი <code>npm init -y</code> ცარიელ საქაღალდეში და შეისწავლე შედეგად მიღებული <code>package.json</code>.</li>
+          <li><em>(რთული)</em> დაწერე პატარა სკრიპტი, რომელიც აცხადებს სტუდენტის ინფორმაციას (სახელი, ასაკი, ჩარიცხულია თუ არა) ცალკეულ ცვლადებში და კონსოლში ბეჭდავს წინადადებას ამ ცვლადების გამოყენებით (template literal-ის — <code>`${}`</code> — გამოყენებით).</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson9.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson11.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

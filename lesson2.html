@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 02 — HTML სტრუქტურა, ტერმინები, ტექსტის ტეგები და ბმულები</title>
+  <meta name="description" content="HTML დოკუმენტის სტრუქტურა, ძირითადი ტერმინები, სათაურები/აბზაცები/ფორმატირების ტეგები და ბმულები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">HTML მოდული</a> / გაკვეთილი 02
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-html-bg); color: var(--mod-html);">HTML · 02/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        HTML სტრუქტურა, ტერმინები, ტექსტის ტეგები და ბმულები
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        ამ გაკვეთილში ავაწყობთ დოკუმენტის „ჩონჩხს", ვისწავლით HTML-ის ძირითად ლექსიკას, ტექსტის ტეგებს და
+        ბმულებს — ვების ის „ძაფი", რომელიც გვერდებს ერთმანეთთან აკავშირებს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. HTML დოკუმენტის სტრუქტურა</h2>
+      <p>
+        <strong>HTML</strong> (HyperText Markup Language) მარკირების ენაა, რომელიც აღწერს დოკუმენტის შინაარსსა
+        და სტრუქტურას <strong>ტეგების</strong> მეშვეობით. ყოველი HTML დოკუმენტი იწყება ერთი და იმავე საბაზისო
+        ჩონჩხით:
+      </p>
+      <pre><code>&lt;<span class="tag">!DOCTYPE html</span>&gt;                    <span class="cmt">&lt;!-- ეუბნება ბრაუზერს: ეს HTML5-ია --&gt;</span>
+&lt;<span class="tag">html</span> <span class="attr">lang</span>=<span class="str">"ka"</span>&gt;                     <span class="cmt">&lt;!-- დოკუმენტის ძირი, ენის მითითებით --&gt;</span>
+&lt;<span class="tag">head</span>&gt;
+  &lt;<span class="tag">meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span>&gt;            <span class="cmt">&lt;!-- სიმბოლოების კოდირება --&gt;</span>
+  &lt;<span class="tag">meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span>
+        <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span>&gt;  <span class="cmt">&lt;!-- მობილურზე სწორი მასშტაბი --&gt;</span>
+  &lt;<span class="tag">title</span>&gt;გვერდის სათაური&lt;/<span class="tag">title</span>&gt;
+&lt;/<span class="tag">head</span>&gt;
+&lt;<span class="tag">body</span>&gt;
+  <span class="cmt">&lt;!-- აქ ჩაწერილი ყველაფერი ჩანს ეკრანზე --&gt;</span>
+&lt;/<span class="tag">body</span>&gt;
+&lt;/<span class="tag">html</span>&gt;</code></pre>
+      <p>
+        <code>&lt;head&gt;</code> სექცია არ ჩანს გვერდზე — ის ატარებს მეტამონაცემებს. <code>&lt;body&gt;</code>
+        კი შეიცავს ყველა ხილულ ელემენტს.
+      </p>
+
+      <h2>2. HTML ძირითადი ტერმინები</h2>
+      <p>სანამ შემდეგ ტეგებზე გადავალთ, დავაზუსტოთ ლექსიკა, რომელსაც მთელი კურსის განმავლობაში ვიყენებთ:</p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>ტეგი (tag)</strong> — კუთხოვან ფრჩხილებში ჩასმული ინსტრუქცია, მაგ. <code>&lt;p&gt;</code>.</li>
+        <li><strong>ელემენტი (element)</strong> — გახსნის ტეგი + შემცველობა + დახურვის ტეგი ერთად: <code>&lt;p&gt;ტექსტი&lt;/p&gt;</code>.</li>
+        <li><strong>ატრიბუტი (attribute)</strong> — დამატებითი ინფორმაცია გახსნის ტეგში, ფორმით <code>name="value"</code>, მაგ. <code>lang="ka"</code>.</li>
+        <li><strong>ჩადგმა (nesting)</strong> — ერთი ელემენტის მოთავსება მეორის შიგნით. ჩადგმულმა ტეგებმა უნდა დაიხურონ იმავე თანმიმდევრობით, რომლითაც გაიხსნენ.</li>
+        <li><strong>Self-closing ტეგი</strong> — ტეგი, რომელსაც არ სჭირდება ცალკე დახურვა (არ აქვს შემცველობა), მაგ. <code>&lt;img&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;input&gt;</code>.</li>
+      </ul>
+      <pre><code><span class="cmt">&lt;!-- სწორი ჩადგმა --&gt;</span>
+&lt;<span class="tag">div</span>&gt;
+  &lt;<span class="tag">p</span>&gt;ტექსტი &lt;<span class="tag">strong</span>&gt;მნიშვნელოვანი&lt;/<span class="tag">strong</span>&gt; ნაწილით.&lt;/<span class="tag">p</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">&lt;!-- არასწორი ჩადგმა — ტეგები გადაჯვარედინებულია --&gt;</span>
+&lt;<span class="tag">p</span>&gt;&lt;<span class="tag">strong</span>&gt;ტექსტი&lt;/<span class="tag">p</span>&gt;&lt;/<span class="tag">strong</span>&gt;</code></pre>
+
+      <h2>3. სათაურები, აბზაცები და ტექსტის ფორმატირება</h2>
+      <p>
+        ტექსტის იერარქიისთვის გვაქვს 6 დონის სათაური — <code>&lt;h1&gt;</code>-დან <code>&lt;h6&gt;</code>-მდე
+        (<code>&lt;h1&gt;</code> ყველაზე მნიშვნელოვანია), ჩვეულებრივი ტექსტისთვის — <code>&lt;p&gt;</code>.
+      </p>
+      <pre><code>&lt;<span class="tag">h1</span>&gt;Front-End Development&lt;/<span class="tag">h1</span>&gt;
+&lt;<span class="tag">h2</span>&gt;რატომ ღირს ამის სწავლა&lt;/<span class="tag">h2</span>&gt;
+&lt;<span class="tag">p</span>&gt;
+  Front-end დეველოპმენტი აერთიანებს დიზაინსა და ლოგიკას — შენ ხედავ
+  შედეგს პირდაპირ ბრაუზერში, რასაც წერ.
+&lt;/<span class="tag">p</span>&gt;</code></pre>
+      <p>
+        <strong>მნიშვნელოვანია:</strong> სათაურის დონე უნდა შეირჩეს დოკუმენტის ლოგიკური იერარქიით, არა
+        ვიზუალური ზომით — ეს გავლენას ახდენს SEO-სა და screen reader-ების მუშაობაზეც.
+      </p>
+      <p>ტექსტის ცალკეული ნაწილების გამოსაყოფად კი გვაქვს სემანტიკური და ვიზუალური ტეგები:</p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>&lt;strong&gt;</code> — მნიშვნელოვანი ტექსტი (სემანტიკურად); ვიზუალურად გამუქებულია.</li>
+        <li><code>&lt;b&gt;</code> — უბრალოდ გამუქებული ტექსტი, მნიშვნელობის გარეშე.</li>
+        <li><code>&lt;em&gt;</code> — ხაზგასმული, აქცენტირებული ტექსტი (სემანტიკურად); ვიზუალურად დახრილია.</li>
+        <li><code>&lt;i&gt;</code> — უბრალოდ დახრილი ტექსტი (მაგ. ტერმინი უცხო ენაზე).</li>
+        <li><code>&lt;sub&gt;</code> — ქვედა ინდექსი (მაგ. ქიმიური ფორმულები).</li>
+        <li><code>&lt;sup&gt;</code> — ზედა ინდექსი (მაგ. ხარისხები, სქოლიოები).</li>
+      </ul>
+      <pre><code>&lt;<span class="tag">p</span>&gt;
+  ეს არის &lt;<span class="tag">strong</span>&gt;ძალიან მნიშვნელოვანი&lt;/<span class="tag">strong</span>&gt; ინფორმაცია.
+  &lt;<span class="tag">em</span>&gt;ნამდვილად&lt;/<span class="tag">em</span>&gt; ღირს დამახსოვრება.
+&lt;/<span class="tag">p</span>&gt;
+
+&lt;<span class="tag">p</span>&gt;წყლის ფორმულაა H&lt;<span class="tag">sub</span>&gt;2&lt;/<span class="tag">sub</span>&gt;O, ხოლო აინშტაინის ფორმულა — E = mc&lt;<span class="tag">sup</span>&gt;2&lt;/<span class="tag">sup</span>&gt;&lt;/<span class="tag">p</span>&gt;</code></pre>
+
+      <h2>4. ბმულები — ტეგი &lt;a&gt;</h2>
+      <p>
+        ბმული იქმნება <code>&lt;a&gt;</code> (anchor) ტეგით. მთავარი ატრიბუტია <code>href</code>
+        (Hypertext REFerence) — ის მიუთითებს, სად წაგვიყვანს ბმულზე დაწკაპუნება.
+      </p>
+      <pre><code>&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"https://developer.mozilla.org"</span>&gt;
+  MDN-ის ვიზიტი
+&lt;/<span class="tag">a</span>&gt;</code></pre>
+
+      <h3>Absolute vs Relative URLs</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Absolute URL</strong> — სრული მისამართი, დომენის ჩათვლით. გამოსადეგია გარე საიტებზე მისამართისთვის.</li>
+        <li><strong>Relative URL</strong> — მისამართი, რომელიც ეთვლის მიმდინარე ფაილის მდებარეობას. გამოსადეგია ერთი პროექტის შიდა ფაილებზე.</li>
+      </ul>
+      <pre><code><span class="cmt">// Absolute</span>
+&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"https://example.com/about.html"</span>&gt;About&lt;/<span class="tag">a</span>&gt;
+
+<span class="cmt">// Relative — ამავე პროექტში</span>
+&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"lesson3.html"</span>&gt;შემდეგი გაკვეთილი&lt;/<span class="tag">a</span>&gt;</code></pre>
+
+      <h3>სასარგებლო ატრიბუტები, სურათი ბმულად და mailto</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>target="_blank"</code> — ბმულს ხსნის ახალ ტაბში.</li>
+        <li><code>rel="noopener"</code> — უსაფრთხოების საუკეთესო პრაქტიკა <code>target="_blank"</code>-თან ერთად.</li>
+        <li><code>title</code> — ტექსტი, რომელიც გამოჩნდება ველზე გადასროლისას (tooltip).</li>
+      </ul>
+      <pre><code>&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"https://react.dev"</span>
+   <span class="attr">target</span>=<span class="str">"_blank"</span>
+   <span class="attr">rel</span>=<span class="str">"noopener"</span>
+   <span class="attr">title</span>=<span class="str">"გახსნის React-ის ოფიციალურ საიტს ახალ ტაბში"</span>&gt;
+  React დოკუმენტაცია
+&lt;/<span class="tag">a</span>&gt;
+
+<span class="cmt">&lt;!-- სურათი, როგორც ბმული --&gt;</span>
+&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"index.html"</span>&gt;
+  &lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"logo.png"</span> <span class="attr">alt</span>=<span class="str">"საიტის ლოგო"</span>&gt;
+&lt;/<span class="tag">a</span>&gt;
+
+<span class="cmt">&lt;!-- mailto: ბმული --&gt;</span>
+&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"mailto:info@front-end-course.ge"</span>&gt;
+  დაგვიკავშირდი ელფოსტით
+&lt;/<span class="tag">a</span>&gt;</code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Basics" target="_blank" rel="noopener">MDN — HTML basics</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML/Getting_started" target="_blank" rel="noopener">MDN — Getting started with HTML (ტერმინოლოგია)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements" target="_blank" rel="noopener">MDN — Heading elements (h1–h6)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a" target="_blank" rel="noopener">MDN — &lt;a&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL" target="_blank" rel="noopener">MDN — What is a URL?</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი ახალი HTML ფაილი სწორი ჩონჩხით და <code>&lt;title&gt;</code>-ით „ჩემი პირველი გვერდი".</li>
+          <li>დაამატე <code>&lt;h1&gt;</code>, ორი <code>&lt;h2&gt;</code> და სამი <code>&lt;p&gt;</code> — ერთ აბზაცში გამოიყენე <code>&lt;strong&gt;</code> და <code>&lt;em&gt;</code>.</li>
+          <li>დაწერე ერთი წინადადება, სადაც სწორად ჩაშენებ (nest) <code>&lt;em&gt;</code>-ს <code>&lt;p&gt;</code>-ში, ისე რომ ტეგები არ გადაიჯვარედინოს.</li>
+          <li>დაამატე ერთი Absolute და ერთი Relative ბმული, ასევე ერთი <code>mailto:</code> ბმული.</li>
+          <li><em>(რთული)</em> ჩასმენე სურათი, რომელიც ბმულია — დაწკაპუნებისას მთავარ გვერდზე გადაყვანდეს, და ახალ ტაბში გახსნადი გარე ბმული <code>title</code> ატრიბუტით.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson1.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson3.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

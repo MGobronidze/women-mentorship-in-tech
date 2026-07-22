@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 04 — CSS სინტაქსი, სელექტორები, Reset, Box Model</title>
+  <meta name="description" content="CSS-ის სინტაქსი, დაკავშირების გზები, სელექტორების ტიპები, Reset/Normalize და Box Model." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">CSS მოდული</a> / გაკვეთილი 04
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 04/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        CSS სინტაქსი, სელექტორები, Reset, Box Model
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        HTML-მა მოგვცა სტრუქტურა. ახლა ვიწყებთ CSS მოდულს — ვისწავლით, როგორ ვხატავთ ამ სტრუქტურას და
+        როგორ „ითვლის" ბრაუზერი თითოეული ელემენტის ზომებს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. CSS-ის სინტაქსი</h2>
+      <p>
+        CSS წესი შედგება <strong>სელექტორისგან</strong> (რომელ ელემენტს ვირჩევთ) და <strong>ბლოკისგან</strong>
+        ფიგურულ ფრჩხილებში, სადაც ჩამწერია ერთი ან მეტი <strong>თვისება: მნიშვნელობა;</strong> წყვილი.
+      </p>
+      <pre><code><span class="tag">selector</span> {
+  <span class="attr">property</span>: <span class="str">value</span>;
+  <span class="attr">property</span>: <span class="str">value</span>;
+}
+
+<span class="cmt">/* მაგალითი */</span>
+<span class="tag">p</span> {
+  <span class="attr">color</span>: <span class="str">#171F1B</span>;
+  <span class="attr">font-size</span>: <span class="str">16px</span>;
+}</code></pre>
+
+      <h3>CSS-ის დაკავშირების 3 გზა</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>გარეგანი (External)</strong> — <code>&lt;link&gt;</code> ტეგით <code>&lt;head&gt;</code>-ში. <em>საუკეთესო პრაქტიკა.</em></li>
+        <li><strong>შიდა (Internal)</strong> — <code>&lt;style&gt;</code> ტეგში, <code>&lt;head&gt;</code>-ში.</li>
+        <li><strong>ჩანაწერი (Inline)</strong> — პირდაპირ ელემენტის <code>style</code> ატრიბუტში. გამოსაყენებელია იშვიათად.</li>
+      </ul>
+      <pre><code><span class="cmt">&lt;!-- External — რეკომენდებული --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"style.css"</span>&gt;
+
+<span class="cmt">&lt;!-- Inline --&gt;</span>
+&lt;<span class="tag">p</span> <span class="attr">style</span>=<span class="str">"color: red;"</span>&gt;ტექსტი&lt;/<span class="tag">p</span>&gt;</code></pre>
+      <p>
+        HTML-ის მსგავსად, CSS-შიც შესაძლებელია კომენტარების ჩაწერა — ისინი ჩაწერილია <code>/* ... */</code>
+        შორის და გავლენას არ ახდენენ სტილზე:
+      </p>
+      <pre><code><span class="cmt">/* ეს არის კომენტარი — გამოსადეგია კოდის ორგანიზებისთვის */</span>
+.<span class="tag">btn</span> {
+  padding: 10px 16px; <span class="cmt">/* ღილაკის შიდა მანძილები */</span>
+}</code></pre>
+
+      <h2>2. სელექტორების ტიპები</h2>
+      <p>სელექტორი განსაზღვრავს, <strong>რომელ</strong> ელემენტ(ებ)ს მიესადაგება სტილი:</p>
+      <pre><code><span class="cmt">/* Element — ეხება ყველა &lt;p&gt;-ს */</span>
+<span class="tag">p</span> { line-height: 1.6; }
+
+<span class="cmt">/* Class — ეხება class="card" მქონე ყველა ელემენტს */</span>
+.<span class="tag">card</span> { border-radius: 12px; }
+
+<span class="cmt">/* ID — ეხება ერთადერთ, უნიკალურ ელემენტს */</span>
+#<span class="tag">main-nav</span> { position: sticky; }
+
+<span class="cmt">/* Universal — ეხება ყველა ელემენტს */</span>
+* { box-sizing: border-box; }
+
+<span class="cmt">/* Descendant — ეხება .card-ის შიგნით ჩადგმულ &lt;p&gt;-ებს */</span>
+.<span class="tag">card</span> <span class="tag">p</span> { color: gray; }</code></pre>
+      <p>
+        <strong>Class</strong> გამოსადეგია განმეორებადი სტილებისთვის, <strong>ID</strong> — ერთადერთი,
+        უნიკალური ელემენტისთვის. ჩვეულებრივ სტილიზაციისთვის Class-ს ვირჩევთ, რადგან ის მრავალჯერ
+        გამოსაყენებელია.
+      </p>
+
+      <h2>3. Browser Reset და Normalize</h2>
+      <p>
+        სხვადასხვა ბრაუზერს აქვს განსხვავებული ნაგულისხმევი სტილები. ამის გამო, დეველოპერები კურსის
+        დასაწყისში წერენ მცირე <strong>reset</strong> ბლოკს, რომ ყველა ბრაუზერში ერთნაირი საწყისი
+        წერტილი გვქონდეს.
+      </p>
+      <pre><code><span class="cmt">/* მინიმალური, თანამედროვე reset */</span>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}</code></pre>
+      <p>
+        <strong>Reset</strong> აქრობს ნაგულისხმევ სტილებს (და ყველაფერს თავიდან ვწერთ), ხოლო
+        <strong>Normalize.css</strong> ცდილობს ბრაუზერებს შორის თანაბრობის მიღწევას, ნაგულისხმევი,
+        გამოსადეგი სტილების შენარჩუნებით.
+      </p>
+
+      <h2>4. CSS Box Model</h2>
+      <p>
+        ყოველი HTML ელემენტი ბრაუზერისთვის არის მართკუთხა „ყუთი" (box), რომელიც შედგება ოთხი ფენისგან,
+        შიდადან გარეთ:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Content</strong> — ტექსტი ან სხვა შემცველობა.</li>
+        <li><strong>Padding</strong> — შიდა მანძილი content-სა და ჩარჩოს შორის.</li>
+        <li><strong>Border</strong> — ელემენტის ჩარჩო.</li>
+        <li><strong>Margin</strong> — გარე მანძილი, სხვა ელემენტებამდე.</li>
+      </ul>
+      <pre><code>.<span class="tag">box</span> {
+  width: 300px;
+  padding: 20px;
+  border: 2px solid #146B5C;
+  margin: 16px;
+}</code></pre>
+
+      <h3>box-sizing: content-box vs border-box</h3>
+      <p>
+        ნაგულისხმევად (<code>content-box</code>), <code>width</code>/<code>height</code> ეხება მხოლოდ
+        content-ს — padding და border <em>ემატება</em> ჯამურ ზომას. ეს ხშირად დაუგეგმავ განლაგებას იწვევს.
+        ამიტომ თანამედროვე პროექტებში თითქმის ყოველთვის ვიყენებთ <code>border-box</code>-ს, სადაც
+        <code>width</code> უკვე მოიცავს padding-ისა და border-ის ზომას:
+      </p>
+      <pre><code><span class="cmt">/* border-box — ყუთის ჯამური სიგანე ყოველთვის 300px-ია */</span>
+* {
+  box-sizing: border-box;
+}
+
+.box {
+  width: 300px;
+  padding: 20px;
+  border: 2px solid black;
+  <span class="cmt">/* content-ის ნამდვილი სიგანე გამოითვლება ავტომატურად */</span>
+}</code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps/What_is_CSS" target="_blank" rel="noopener">MDN — What is CSS?</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_selectors" target="_blank" rel="noopener">MDN — CSS Selectors</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model" target="_blank" rel="noopener">MDN — The box model</a></li>
+          <li><a href="https://necolas.github.io/normalize.css/" target="_blank" rel="noopener">Normalize.css — ოფიციალური საიტი</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაუკავშირე გარეგანი <code>style.css</code> ერთ HTML გვერდს <code>&lt;link&gt;</code> ტეგით.</li>
+          <li>დაწერე Element, Class და ID სელექტორები ერთსა და იმავე გვერდზე — თითოეული განსხვავებულ ელემენტს ასტილებდეს.</li>
+          <li>დაამატე მინიმალური reset ბლოკი შენს პროექტში და DevTools-ის Elements ტაბში დააკვირდი, რა შეიცვალა.</li>
+          <li>შექმენი ყუთი განსაზღვრული <code>width</code>, <code>padding</code>, <code>border</code> და <code>margin</code>-ით.</li>
+          <li><em>(რთული)</em> ერთი და იმავე ელემენტისთვის შეადარე ზომა <code>content-box</code>-სა და <code>border-box</code>-ს შორის — გაზომე DevTools-ის Elements → Computed ტაბში.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson3.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson5.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

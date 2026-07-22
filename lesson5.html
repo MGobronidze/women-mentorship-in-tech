@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 05 — Display, Background, ტექსტის ფორმატირება</title>
+  <meta name="description" content="CSS display თვისებები (block/inline/inline-block/none), background და ტექსტის ფორმატირება — fonts, spacing, alignment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">CSS მოდული</a> / გაკვეთილი 05
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 05/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Display თვისებები, Background და ტექსტის ფორმატირება
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        წინა გაკვეთილში ვისწავლეთ, როგორ „ითვლის" ბრაუზერი ელემენტის ზომას. ახლა ვნახოთ, როგორ
+        განლაგდება ეს ყუთები ერთმანეთთან და როგორ ვასტილებთ ფონსა და ტექსტს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. display: block / inline / inline-block / none</h2>
+      <p>
+        <code>display</code> თვისება განსაზღვრავს, როგორ „იქცევა" ელემენტი გვერდზე — იკავებს თუ არა
+        მთელ სიგანეს, დგება თუ არა ახალ ხაზზე, აქვს თუ არა width/height.
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>block</strong> — იკავებს მთელ ხელმისაწვდომ სიგანეს, ყოველთვის იწყება ახალი ხაზიდან (მაგ. <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>).</li>
+        <li><strong>inline</strong> — იკავებს მხოლოდ საჭირო სივრცეს, არ იწყება ახალი ხაზიდან, <code>width</code>/<code>height</code> არ მოქმედებს (მაგ. <code>&lt;span&gt;</code>, <code>&lt;a&gt;</code>).</li>
+        <li><strong>inline-block</strong> — „ჰიბრიდი": არ იწყება ახალი ხაზიდან (ისევე როგორც inline), მაგრამ <code>width</code>/<code>height</code>/<code>margin</code> მოქმედებს (ისევე როგორც block).</li>
+        <li><strong>none</strong> — ელემენტი სრულად ქრება გვერდიდან, თითქოს საერთოდ არ არსებობდეს.</li>
+      </ul>
+      <pre><code>.<span class="tag">block-el</span>    { display: block; }
+.<span class="tag">inline-el</span>   { display: inline; }
+.<span class="tag">hybrid-el</span>   { display: inline-block; width: 120px; }
+.<span class="tag">hidden-el</span>   { display: none; } <span class="cmt">/* არ ჩანს, საერთოდ არ იკავებს სივრცეს */</span></code></pre>
+
+      <h2>2. CSS Background</h2>
+      <p>
+        ფონის დასაყენებლად რამდენიმე თვისება გვაქვს, რომლებიც შესაძლებელია ცალ-ცალკე ან ერთიანი
+        <code>background</code> shorthand-ით ჩავწეროთ:
+      </p>
+      <pre><code>.<span class="tag">hero</span> {
+  background-color: #EAE6D9;
+  background-image: url("bg.jpg");
+  background-size: cover;        <span class="cmt">/* ფონის სურათი ფარავს მთელ არეს */</span>
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+<span class="cmt">/* ან shorthand ჩანაწერით: */</span>
+.<span class="tag">card</span> {
+  background: #FFFFFF url("texture.png") no-repeat center / cover;
+}</code></pre>
+
+      <h2>3. ტექსტის ფორმატირება: fonts, spacing, alignment</h2>
+      <p>ტიპოგრაფია ერთ-ერთი ყველაზე მნიშვნელოვანი დიზაინის ინსტრუმენტია. ძირითადი თვისებებია:</p>
+      <pre><code>.<span class="tag">article</span> {
+  font-family: "Noto Sans Georgian", sans-serif;  <span class="cmt">/* შრიფტების ჯაჭვი, fallback-ებით */</span>
+  font-size: 16px;
+  font-weight: 700;          <span class="cmt">/* სისქე: 400 ჩვეულებრივი, 700 გამუქებული */</span>
+  line-height: 1.6;          <span class="cmt">/* ხაზებს შორის მანძილი — კითხვადობისთვის */</span>
+  letter-spacing: 0.02em;    <span class="cmt">/* ასოებს შორის მანძილი */</span>
+  text-align: center;        <span class="cmt">/* left | right | center | justify */</span>
+  text-transform: uppercase; <span class="cmt">/* ავტომატური დიდი ასოები */</span>
+  text-decoration: underline;
+}</code></pre>
+      <p>
+        <strong>line-height</strong> უნდა იყოს ერთეულის გარეშე რიცხვი (მაგ. <code>1.6</code>), რადგან ის
+        მაშინ პროპორციულად თვლის font-size-ის მიხედვით — ეს კარგი პრაქტიკაა responsive დიზაინისთვის.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/display" target="_blank" rel="noopener">MDN — display property</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background" target="_blank" rel="noopener">MDN — background shorthand</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Fundamentals" target="_blank" rel="noopener">MDN — Fundamental text/font styling</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/line-height" target="_blank" rel="noopener">MDN — line-height</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი 3 ელემენტი — ერთი <code>block</code>, ერთი <code>inline</code>, ერთი <code>inline-block</code> — და დააკვირდი, როგორ განსხვავდება მათი განლაგება.</li>
+          <li>დამალე ერთი ელემენტი <code>display: none</code>-ით და შეამოწმე DevTools-ში, რომ ის საერთოდ აღარ იკავებს სივრცეს.</li>
+          <li>დაუყენე ერთ სექციას ფონის ფერი და მეორეს — ფონის სურათი <code>cover</code> და <code>center</code> პარამეტრებით.</li>
+          <li>დაასტილე ერთი აბზაცი: შეცვალე <code>font-size</code>, <code>line-height</code>, <code>letter-spacing</code> და <code>text-align</code>.</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი „ბარათი" (card): ჩარჩო, ფონის ფერი, სათაური განსხვავებული ფონტის სისქით და ტექსტი — გამოიყენე ერთდროულად box model, display და ტექსტის თვისებები.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson4.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson6.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

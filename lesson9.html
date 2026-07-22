@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 09 — AI ხელსაწყოები ვებ დეველოპმენტში</title>
+  <meta name="description" content="Artificial Intelligence ვებ დეველოპმენტში, ChatGPT/Claude-ის გამოყენება HTML/CSS გენერაციისთვის, დებაგირებისთვის და responsive დიზაინისთვის." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 09
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 09/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        AI ხელსაწყოები ვებ დეველოპმენტში
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        სანამ JavaScript-ს დაწვრილებით შევუდგებით, გავეცნოთ ინსტრუმენტს, რომელიც უკვე შენი
+        ყოველდღიური სამუშაოს ნაწილია — AI ასისტენტებს. ეს გაკვეთილი გასწავლის, როგორ გამოიყენო ისინი
+        ეფექტურად და პასუხისმგებლობით, კოდის ფუნდამენტების გვერდის ავლის გარეშე.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. რა არის Artificial Intelligence ვებ დეველოპმენტში</h2>
+      <p>
+        დღეს ვებ დეველოპერების უმეტესობა იყენებს AI ასისტენტებს (<strong>ChatGPT</strong>,
+        <strong>Claude</strong> და სხვ.) სამუშაო პროცესის დასაჩქარებლად — კოდის დაწერაში,
+        დებაგირებაში, დოკუმენტაციის კითხვასა და ახსნაში. მნიშვნელოვანია გვესმოდეს: AI არ
+        <strong>ცვლის</strong> დეველოპერს — ის აჩქარებს მას, თუ დეველოპერს კარგად ესმის, რასაც
+        სთხოვს და რასაც იღებს პასუხად.
+      </p>
+      <p>
+        სწორედ ამიტომ ეს გაკვეთილი მოდის HTML/CSS-ის საფუძვლების <em>შემდეგ</em> — AI-ს ეფექტურად
+        რომ გამოვიყენოთ, ჯერ თავად უნდა გვესმოდეს, რას აკეთებს გენერირებული კოდი.
+      </p>
+
+      <h2>2. HTML სტრუქტურის და CSS იდეების გენერაცია</h2>
+      <p>
+        AI ასისტენტები კარგად უმკლავდებიან განმეორებადი, სტანდარტული სტრუქტურის სწრაფად გენერირებას —
+        მაგ. „კონტაქტის ფორმა 4 ველით" ან „card კომპონენტი სურათით, სათაურით და ღილაკით".
+        მნიშვნელოვანია პრომპტი იყოს <strong>კონკრეტული</strong>:
+      </p>
+      <pre><code><span class="cmt">// სუსტი პრომპტი — ბუნდოვანია</span>
+"დამიწერე ბარათი"
+
+<span class="cmt">// ძლიერი პრომპტი — კონკრეტულია</span>
+"დამიწერე HTML/CSS card კომპონენტი: სურათი ზემოთ,
+სათაური, ორი წინადადება აღწერა და ერთი ღილაკი.
+გამოიყენე semantic HTML5, Flexbox განლაგებისთვის,
+BEM კლასების სახელდება (card, card__title, card__btn)."</code></pre>
+      <p>
+        რაც უფრო კონკრეტულია პრომპტი — მით უფრო გამოსადეგი იქნება პასუხი, და მით ნაკლები დრო
+        დაგჭირდება მიღებული კოდის „გასწორებაზე".
+      </p>
+
+      <h2>3. კოდის ახსნა და UI-ის გენერაცია დიზაინის აღწერით</h2>
+      <p>
+        AI განსაკუთრებით სასარგებლოა, როცა ხედავ უცნობ კოდს (მაგ. ვინმეს პროექტში) და გინდა სწრაფად
+        გაიგო, რას აკეთებს ის. ასევე შესაძლებელია დიზაინის იდეის ტექსტური აღწერიდან საწყისი UI-ის
+        სწრაფად მიღება — ეს განსაკუთრებით გამოსადეგია პროტოტიპირების ეტაპზე.
+      </p>
+      <pre><code><span class="cmt">// მაგალითი: კოდის ახსნის მოთხოვნა</span>
+"ახსენი, რას აკეთებს ეს CSS კოდი ხაზ-ხაზ:
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}"</code></pre>
+      <p>
+        <strong>მნიშვნელოვანია:</strong> AI-ს მიერ გენერირებული UI ყოველთვის გადასამოწმებელია — ხშირად
+        სჭირდება accessibility-ის (alt ტექსტები, სემანტიკური ტეგები), performance-ისა და პროექტის
+        არსებული დიზაინ-სისტემის შესაბამისობის ხელით შემოწმება.
+      </p>
+
+      <h2>4. Debugging AI-ის დახმარებით</h2>
+      <p>
+        როცა კოდი არ მუშაობს მოსალოდნელად, AI-სთვის შეცდომის აღწერისას საუკეთესო შედეგისთვის
+        მიეცი: (1) რას ცდილობდი, (2) რა კოდი გაქვს, (3) რა შეცდომას ხედავ (Console-დან ან DevTools-დან
+        ზუსტი ტექსტით).
+      </p>
+      <pre><code><span class="cmt">// კარგი debugging პრომპტის სტრუქტურა</span>
+"მაქვს ღილაკი, რომელზეც დაწკაპუნებისას არაფერი ხდება.
+აი ჩემი HTML და JS კოდი: [კოდი]
+Console-ში ვხედავ შეცდომას:
+'Uncaught TypeError: Cannot read properties of null'
+რა შეიძლება იყოს პრობლემა?"</code></pre>
+      <p>
+        ეს ტექნიკა ზუსტად იმეორებს იმას, რასაც ადამიანი კოლეგაც გკითხავდა — რაც უფრო კონკრეტულია
+        კონტექსტი, მით უფრო ზუსტია დახმარება.
+      </p>
+
+      <h2>5. Layout გენერაცია და Responsive დიზაინი</h2>
+      <p>
+        AI კარგად ეხმარება responsive layout-ების სწრაფ დაგეგმვაშიც — მაგ. „მოგვცე Flexbox/Grid
+        სტრუქტურა, რომელიც მობილურზე ერთ სვეტად იჯგუფება, დესკტოპზე კი 3 სვეტად". მაინც აუცილებელია
+        შედეგის ხელით შემოწმება რეალურ მოწყობილობებზე ან DevTools-ის Device Toolbar-ში (გავეცნობით
+        შემდეგ გაკვეთილებში).
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic — Prompt Engineering გზამკვლევი</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Tools_and_setup" target="_blank" rel="noopener">MDN — Web development tools & setup</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>სთხოვე AI ასისტენტს (ChatGPT ან Claude) დაგიწეროს მარტივი „profile card" კომპონენტი — შემდეგ ხელით შეამოწმე, სემანტიკურია თუ არა HTML.</li>
+          <li>აიღე ერთი შენი ძველი CSS ფაილი (ან ამ კურსის ერთ-ერთი ფაილიდან ნაწყვეტი) და სთხოვე AI-ს ახსნას, რას აკეთებს ის ხაზ-ხაზ.</li>
+          <li>განზრახ დაწერე ერთ input-ს არასწორი JS და სთხოვე AI-ს, დაგეხმაროს problem-ის დიაგნოსტირებაში — შემდეგ თავად შეასწორე.</li>
+          <li>სთხოვე AI-ს, აღწერილობის მიხედვით (2-3 წინადადებით) შემოგთავაზოს layout სტრუქტურა, შემდეგ თავად დაწერე HTML/CSS ამ იდეის მიხედვით.</li>
+          <li><em>(რთული)</em> შეადარე ორი პრომპტის შედეგი — ერთი ბუნდოვანი და ერთი კონკრეტული — და ჩამწერე, კონკრეტულად რა განსხვავება იყო შედეგის ხარისხში.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson8.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson10.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
