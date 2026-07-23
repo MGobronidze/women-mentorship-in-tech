@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 14 — ES6+: Destructuring, Rest/Spread, მოდულური JS</title>
+  <meta name="description" content="Rest parameter, Spread operator, მასივისა და ობიექტის destructuring, და მოდულური JavaScript import/export-ით." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 14
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 14/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        ES6+: Destructuring, Rest/Spread, მოდულური JS
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        ეს გაკვეთილი გვასწავლის თანამედროვე JavaScript-ის (და React-ის) ყველაზე ხშირად ნახულ
+        სინტაქსურ ხერხებს — რომლებსაც კურსის React ნაწილში პრაქტიკულად ყოველ ფაილში შევხვდებით.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Rest Parameter</h2>
+      <p>
+        <code>...</code> ფუნქციის პარამეტრებში „აგროვებს" დარჩენილ არგუმენტებს ერთ მასივში:
+      </p>
+      <pre><code><span class="attr">function</span> sum(...numbers) {
+  <span class="attr">return</span> numbers.reduce((total, n) => total + n, 0);
+}
+
+sum(1, 2);        <span class="cmt">// 3</span>
+sum(1, 2, 3, 4);  <span class="cmt">// 10 — ნებისმიერი რაოდენობის არგუმენტი</span>
+
+<span class="cmt">// rest ყოველთვის ბოლოშია, სხვა პარამეტრებთან ერთად:</span>
+<span class="attr">function</span> introduce(first, second, ...others) {
+  console.log(first, second, others);
+}
+introduce("ა", "ბ", "გ", "დ"); <span class="cmt">// "ა" "ბ" ["გ", "დ"]</span></code></pre>
+
+      <h2>2. Spread Operator</h2>
+      <p>
+        იგივე <code>...</code> სინტაქსი, საწინააღმდეგო მიმართულებით — „შლის" მასივს ან ობიექტს
+        ცალკეულ ელემენტებად:
+      </p>
+      <pre><code><span class="cmt">// მასივების გაერთიანება/კოპირება</span>
+<span class="attr">const</span> fruits = ["ვაშლი", "მსხალი"];
+<span class="attr">const</span> moreFruits = [...fruits, "ბანანი"]; <span class="cmt">// ["ვაშლი", "მსხალი", "ბანანი"]</span>
+
+<span class="cmt">// ობიექტების გაერთიანება/კოპირება</span>
+<span class="attr">const</span> student = { name: "ანა", age: 22 };
+<span class="attr">const</span> updated = { ...student, age: 23 }; <span class="cmt">// { name: "ანა", age: 23 } — ხელახლა ჩაწერილი "age" გადაფარავს ძველს</span>
+
+<span class="cmt">// ფუნქციის გამოძახებისას მასივის "დაშლა" ცალკეულ არგუმენტებად</span>
+<span class="attr">const</span> nums = [4, 9, 16];
+Math.max(...nums); <span class="cmt">// 16</span></code></pre>
+      <p>
+        Spread ობიექტებთან ერთად React-ში ყველგან გამოიყენება — state-ის „უცვლელი" (immutable)
+        განახლებისთვის, ორიგინალი ობიექტის შეცვლის ნაცვლად ახლის შესაქმნელად.
+      </p>
+
+      <h2>3. მასივის და ობიექტის Destructuring</h2>
+      <p>
+        Destructuring საშუალებას გვაძლევს, მასივის ან ობიექტის მნიშვნელობები პირდაპირ ცალკეულ
+        ცვლადებში „ამოვხსნათ" — ხელახლა ინდექსით ან key-ით მიმართვის გარეშე.
+      </p>
+      <pre><code><span class="cmt">// მასივის destructuring — პოზიციის მიხედვით</span>
+<span class="attr">const</span> coordinates = [42.31, 43.36];
+<span class="attr">const</span> [lat, lng] = coordinates;
+console.log(lat, lng); <span class="cmt">// 42.31 43.36</span>
+
+<span class="cmt">// ობიექტის destructuring — key-ის სახელის მიხედვით</span>
+<span class="attr">const</span> student = { name: "ანა", age: 22, city: "თბილისი" };
+<span class="attr">const</span> { name, age } = student;
+console.log(name, age); <span class="cmt">// "ანა" 22</span>
+
+<span class="cmt">// გადარქმევა და ნაგულისხმევი მნიშვნელობა</span>
+<span class="attr">const</span> { name: studentName, country = "საქართველო" } = student;
+console.log(studentName, country); <span class="cmt">// "ანა" "საქართველო" (country არ არსებობდა, ნაგულისხმევი გამოიყენა)</span></code></pre>
+      <p>
+        Destructuring განსაკუთრებით ხშირად გამოიყენება ფუნქციის პარამეტრებში — React-ის კომპონენტში
+        <code>props</code>-ის მისაღებად ეს არის სტანდარტული პრაქტიკა:
+      </p>
+      <pre><code><span class="cmt">// ობიექტის destructuring პირდაპირ პარამეტრებში</span>
+<span class="attr">function</span> printStudent({ name, age }) {
+  console.log(`${name}, ${age} წლის`);
+}
+printStudent(student);</code></pre>
+
+      <h2>4. მოდულური JavaScript — import/export</h2>
+      <p>
+        დღეს პროექტები იშლება ცალკეულ ფაილებად (მოდულებად), რომლებიც ერთმანეთს
+        <code>export</code>/<code>import</code>-ით უზიარებენ ცვლადებს, ფუნქციებს და კლასებს.
+      </p>
+      <pre><code><span class="cmt">// math.js — ექსპორტი</span>
+<span class="attr">export function</span> add(a, b) {
+  <span class="attr">return</span> a + b;
+}
+<span class="attr">export const</span> PI = 3.14159;
+
+<span class="attr">export default function</span> multiply(a, b) { <span class="cmt">// default export — ერთი ფაილში მხოლოდ ერთი</span>
+  <span class="attr">return</span> a * b;
+}</code></pre>
+      <pre><code><span class="cmt">// app.js — იმპორტი</span>
+<span class="attr">import</span> multiply, { add, PI } <span class="attr">from</span> "./math.js";
+
+console.log(add(2, 3));      <span class="cmt">// 5</span>
+console.log(multiply(2, 3)); <span class="cmt">// 6</span>
+console.log(PI);              <span class="cmt">// 3.14159</span></code></pre>
+      <p>
+        <strong>named export</strong> (<code>export function add()</code>) შესაძლებელია ერთ ფაილში
+        ბევრი გვქონდეს და იმპორტისას ფიგურული ფრჩხილებით ავირჩიოთ საჭირო ნაწილები; <strong>default
+        export</strong> კი ერთადერთია ფაილში და იმპორტისას ნებისმიერი სახელით შეიძლება ჩამოვწეროთ.
+        ეს არის ზუსტად ის სისტემა, რომელსაც React-ის კომპონენტების ორგანიზებისას გამოვიყენებთ.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/rest-parameters-spread" target="_blank" rel="noopener">JavaScript.info — Rest parameters and spread syntax</a></li>
+          <li><a href="https://javascript.info/destructuring-assignment" target="_blank" rel="noopener">JavaScript.info — Destructuring assignment</a></li>
+          <li><a href="https://javascript.info/import-export" target="_blank" rel="noopener">JavaScript.info — Export and import</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank" rel="noopener">MDN — JavaScript modules</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაწერე ფუნქცია rest parameter-ით, რომელიც ნებისმიერი რაოდენობის სტრიქონს ერთმანეთს „აწებებს" space-ით.</li>
+          <li>ორი მასივი გააერთიანე ერთში spread ოპერატორის გამოყენებით, დუბლიკატების გარეშე (მინიშნება: <code>Set</code>-ის დახმარებით).</li>
+          <li>შექმენი ობიექტი 4 თვისებით და destructuring-ის გამოყენებით ამოიღე 2 კონკრეტული ცვლადი, დანარჩენები კი — rest-ის მეშვეობით ერთ ობიექტში (<code>{ a, b, ...rest }</code>).</li>
+          <li>დაწერე ფუნქცია, რომელიც პარამეტრად იღებს ობიექტს პირდაპირ destructuring-ით (მაგ. <code>{ title, price }</code>) და აბრუნებს ფორმატირებულ სტრიქონს.</li>
+          <li><em>(რთული)</em> შექმენი ორი ფაილი — <code>utils.js</code> (2-3 named export ფუნქციით) და <code>main.js</code> (რომელიც მათ იმპორტავს და იყენებს) — გახსენი Live Server-ით და <code>&lt;script type="module"&gt;</code>-ის გამოყენებით შეამოწმე მუშაობს თუ არა.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson13.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson15.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 17 — Burger Menu, call/apply/bind, HOF, Hoisting</title>
+  <meta name="description" content="Burger menu ფუნქციონალის აწყობა ანიმაციით, call/apply/bind მეთოდები, Higher-Order Functions და Hoisting." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 17
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 17/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Burger Menu, call/apply/bind, Higher-Order Functions, Hoisting
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        დავიწყოთ ერთი კლასიკური, პრაქტიკული პროექტით — მობილური ბურგერ-მენიუთი — და შემდეგ
+        ჩავუღრმავდეთ ფუნქციების რამდენიმე მოწინავე კონცეფციას.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Burger Menu ფუნქციონალის აწყობა ანიმაციით</h2>
+      <p>
+        მობილურ ნავიგაციაში სტანდარტული პატერნია: ღილაკი (ჰამბურგერის ხატულა) ხსნის/ხურავს
+        მენიუს, ხოლო თავად ხატულა ტრანსფორმირდება X-ად. HTML-ისა და CSS-ის ნაწილი უკვე ამ საიტის
+        <code>style.css</code>-შიცაა (<code>.nav-toggle</code>, <code>.nav-links</code>) — ახლა
+        დავამატოთ ანიმაცია და JS ლოგიკა.
+      </p>
+      <pre><code><span class="cmt">/* CSS: ხატულის 3 ხაზის ტრანსფორმაცია X-ად, class-ის მიხედვით */</span>
+.nav-toggle span {
+  width: 22px; height: 2px; background: black;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.nav-toggle[data-open="true"] span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-toggle[data-open="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[data-open="true"] span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}</code></pre>
+      <pre><code><span class="cmt">// JS: ერთი toggle ფუნქცია, state-ს ვინახავთ თავად DOM ატრიბუტში</span>
+<span class="attr">const</span> toggleBtn = document.querySelector(".nav-toggle");
+<span class="attr">const</span> navLinks = document.querySelector(".nav-links");
+
+toggleBtn.addEventListener("click", () => {
+  <span class="attr">const</span> isOpen = toggleBtn.getAttribute("data-open") === "true";
+  toggleBtn.setAttribute("data-open", String(!isOpen));
+  navLinks.setAttribute("data-open", String(!isOpen));
+});</code></pre>
+      <p>
+        ეს პატერნი — <code>data-*</code> ატრიბუტის toggle-ი JS-დან, ვიზუალური ცვლილება კი
+        CSS transition-ით — ზუსტად ის მიდგომაა, რასაც ეს საიტი (<code>script.js</code>-ის
+        <code>setupNav()</code> ფუნქცია) იყენებს.
+      </p>
+
+      <h2>2. call, apply და bind</h2>
+      <p>
+        ეს სამივე მეთოდი გვაძლევს კონტროლს იმაზე, თუ რას წარმოადგენს <code>this</code> ფუნქციის
+        შესრულებისას — რაც გამოსადეგია, როცა ფუნქცია სესხულობს ან ერთი ობიექტიდან მეორეზე
+        „გადადის".
+      </p>
+      <pre><code><span class="attr">const</span> person = { name: "ანა" };
+
+<span class="attr">function</span> greet(greeting) {
+  console.log(`${greeting}, ${this.name}!`);
+}
+
+<span class="cmt">// call — გამოძახებს ფუნქციას მაშინვე, this-ს და არგუმენტებს ცალ-ცალკე იღებს</span>
+greet.call(person, "გამარჯობა");   <span class="cmt">// "გამარჯობა, ანა!"</span>
+
+<span class="cmt">// apply — იგივეა, მაგრამ არგუმენტები მასივის სახით</span>
+greet.apply(person, ["სალამი"]);   <span class="cmt">// "სალამი, ანა!"</span>
+
+<span class="cmt">// bind — არ სვამს მაშინვე, აბრუნებს ახალ ფუნქციას, "მუდმივად" მიბმულ this-ით</span>
+<span class="attr">const</span> greetAna = greet.bind(person);
+greetAna("დილა მშვიდობისა"); <span class="cmt">// "დილა მშვიდობისა, ანა!" — გამოძახებადია მოგვიანებით</span></code></pre>
+      <p>
+        <code>bind</code> ხშირად გამოიყენება event handler-ებში, როცა გვინდა, ფუნქციამ „დაიმახსოვროს"
+        კონკრეტული <code>this</code>, მაშინაც კი, თუ ის მოგვიანებით, სხვა კონტექსტში გამოიძახება.
+      </p>
+
+      <h2>3. Higher-Order Functions</h2>
+      <p>
+        Higher-Order Function არის ფუნქცია, რომელიც: (ა) იღებს სხვა ფუნქციას არგუმენტად, ან
+        (ბ) აბრუნებს ფუნქციას. უკვე ვნახეთ ბევრი მაგალითი — <code>map</code>, <code>filter</code>,
+        <code>addEventListener</code> ყველა HOF-ია.
+      </p>
+      <pre><code><span class="cmt">// ფუნქცია, რომელიც ფუნქციას იღებს არგუმენტად</span>
+<span class="attr">function</span> repeat(n, action) {
+  <span class="attr">for</span> (<span class="attr">let</span> i = 0; i < n; i++) {
+    action(i);
+  }
+}
+repeat(3, (i) => console.log(`გამეორება #${i}`));
+
+<span class="cmt">// ფუნქცია, რომელიც ფუნქციას აბრუნებს (ე.წ. "ფუნქციათა ქარხანა")</span>
+<span class="attr">function</span> multiplyBy(factor) {
+  <span class="attr">return function</span>(number) {
+    <span class="attr">return</span> number * factor;
+  };
+}
+<span class="attr">const</span> double = multiplyBy(2);
+<span class="attr">const</span> triple = multiplyBy(3);
+console.log(double(5)); <span class="cmt">// 10</span>
+console.log(triple(5)); <span class="cmt">// 15</span></code></pre>
+      <p>
+        ეს კონცეფცია პირდაპირ უკავშირდება წინა გაკვეთილში ნასწავლ closure-ს — <code>multiplyBy</code>
+        დაბრუნებული ფუნქცია „ახსოვს" <code>factor</code>-ს.
+      </p>
+
+      <h2>4. Hoisting</h2>
+      <p>
+        <strong>Hoisting</strong> არის JavaScript-ის მექანიზმი, რომლის დროსაც ცვლადებისა და
+        ფუნქციების <em>გამოცხადებები</em> (არა მინიჭებები!) გადაინაცვლებს scope-ის თავში, კოდის
+        რეალურად შესრულებამდე.
+      </p>
+      <pre><code>console.log(greetHoisted()); <span class="cmt">// ✅ მუშაობს! "გამარჯობა" — Function Declaration hoisted-ია მთლიანად</span>
+
+<span class="attr">function</span> greetHoisted() {
+  <span class="attr">return</span> "გამარჯობა";
+}</code></pre>
+      <pre><code>console.log(x); <span class="cmt">// undefined (არა Error!) — var ცვლადი hoisted-ია, მაგრამ მინიჭების გარეშე</span>
+<span class="attr">var</span> x = 5;
+
+console.log(y); <span class="cmt">// ❌ ReferenceError — let/const არის "temporal dead zone"-ში hoisting-ამდე</span>
+<span class="attr">let</span> y = 5;</code></pre>
+      <p>
+        <strong>დასკვნა:</strong> Function Declaration მთლიანად ჰოისტდება (გამოძახება შესაძლებელია
+        ადრეც). <code>var</code> ჰოისტდება, მაგრამ <code>undefined</code>-ით. <code>let</code>/<code>const</code>
+        ტექნიკურად ჰოისტდება კიდეც, მაგრამ არ არის ხელმისაწვდომი გამოცხადებამდე (ეს პერიოდი
+        ეწოდება <em>Temporal Dead Zone</em>) — ეს კიდევ ერთი მიზეზია, რატომაც <code>let</code>/<code>const</code>
+        უფრო „უსაფრთხოა" <code>var</code>-თან შედარებით.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/bind" target="_blank" rel="noopener">JavaScript.info — Function binding (call/apply/bind)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call" target="_blank" rel="noopener">MDN — Function.prototype.call()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Hoisting" target="_blank" rel="noopener">MDN — Hoisting (Glossary)</a></li>
+          <li><a href="https://javascript.info/var" target="_blank" rel="noopener">JavaScript.info — The old "var"</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>ააწყვე მუშა ბურგერ-მენიუ (HTML+CSS+JS) — მობილურ ეკრანზე ღილაკი ხსნის/ხურავს ნავიგაციას, ხატულა ტრანსფორმირდება X-ად ანიმაციით.</li>
+          <li>დაწერე ორი ობიექტი და ერთი ფუნქცია, რომელიც იყენებს <code>this</code>-ს — გამოიძახე ის <code>call</code>-ით ორივე ობიექტისთვის.</li>
+          <li>დაწერე Higher-Order Function, რომელიც იღებს მასივს და ფუნქციას, და აბრუნებს ახალ მასივს ფუნქციის გამოყენებით (თავად დაწერე შენი "map").</li>
+          <li>დაწერე კოდის მაგალითი, სადაც ცხადად აჩვენებ <code>var</code> და <code>let</code> ჰოისტინგის სხვაობას (console.log-ის ცვლადის გამოცხადებამდე).</li>
+          <li><em>(რთული)</em> გამოიყენე <code>bind</code>, რომ შექმნა „წინასწარ მორგებული" ფუნქცია — მაგ. <code>multiplyBy(2)</code>-ის მსგავსი შედეგი, მაგრამ <code>bind</code>-ის საშუალებით (მინიშნება: ჩვეულებრივი ფუნქცია ორი პარამეტრით, ერთი <code>bind</code>-ით "დაფიქსირებული").</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson16.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson18.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

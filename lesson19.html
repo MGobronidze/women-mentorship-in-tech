@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 19 — Fetch, AJAX, JSON, DevTools — სლაიდერი და ვალიდაცია</title>
+  <meta name="description" content="Ajax, XMLHttpRequest, Fetch API, JSON ობიექტი, DevTools Network ტაბი, სლაიდერისა და ფორმის ვალიდაციის აწყობა." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 19
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 19/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Fetch, AJAX, JSON, DevTools — სლაიდერი და ვალიდაცია
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        წინა გაკვეთილში ვისწავლეთ, როგორ ვმართავთ ასინქრონულობას. ახლა გამოვიყენოთ ეს ცოდნა
+        რეალურ სცენარში — მონაცემების წამოსაღებად სერვერიდან — და ავაწყოთ ორი პრაქტიკული UI.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. AJAX — კონცეფცია</h2>
+      <p>
+        <strong>AJAX</strong> (Asynchronous JavaScript and XML) არის ტექნიკის საერთო სახელი,
+        რომელიც JavaScript-ს საშუალებას აძლევს, სერვერს მოსთხოვოს მონაცემები <strong>გვერდის
+        ხელახლა ჩატვირთვის გარეშე</strong>. სახელწოდებაში „XML" ისტორიულია — დღეს თითქმის ყოველთვის
+        JSON-ს ვიყენებთ, XML-ის ნაცვლად.
+      </p>
+
+      <h2>2. XMLHttpRequest — ისტორიული საფუძველი</h2>
+      <p>
+        <code>XMLHttpRequest</code> (XHR) იყო პირველი API ბრაუზერის AJAX მოთხოვნებისთვის. დღეს
+        იშვიათად იწერება ხელით (Fetch უფრო მარტივია), მაგრამ მნიშვნელოვანია ვიცოდეთ, რომ ის
+        არსებობს — ბევრ ძველ კოდში ჯერ კიდევ გვხვდება:
+      </p>
+      <pre><code><span class="attr">const</span> xhr = <span class="attr">new</span> XMLHttpRequest();
+xhr.open("GET", "https://api.example.com/users");
+xhr.onload = <span class="attr">function</span>() {
+  <span class="attr">if</span> (xhr.status === 200) {
+    console.log(JSON.parse(xhr.responseText));
+  }
+};
+xhr.send();</code></pre>
+
+      <h2>3. Fetch API — თანამედროვე სტანდარტი</h2>
+      <p>
+        <code>fetch()</code> არის Promise-ზე დაფუძნებული, ბევრად მარტივი API HTTP მოთხოვნების
+        გასაგზავნად. დღეს ეს არის სტანდარტული არჩევანი.
+      </p>
+      <pre><code><span class="cmt">// GET მოთხოვნა — async/await-ით</span>
+<span class="attr">async function</span> loadUsers() {
+  <span class="attr">try</span> {
+    <span class="attr">const</span> response = <span class="attr">await</span> fetch("https://jsonplaceholder.typicode.com/users");
+
+    <span class="attr">if</span> (!response.ok) {
+      <span class="attr">throw new</span> Error(`HTTP შეცდომა: ${response.status}`);
+    }
+
+    <span class="attr">const</span> users = <span class="attr">await</span> response.json(); <span class="cmt">// პასუხის ტექსტის JSON-ად გარდაქმნა</span>
+    console.log(users);
+  } <span class="attr">catch</span> (error) {
+    console.error("მონაცემების წამოღება ვერ მოხერხდა:", error.message);
+  }
+}</code></pre>
+      <pre><code><span class="cmt">// POST მოთხოვნა — მონაცემების გაგზავნა</span>
+<span class="attr">async function</span> createUser(userData) {
+  <span class="attr">const</span> response = <span class="attr">await</span> fetch("https://api.example.com/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData), <span class="cmt">// JS ობიექტი → JSON სტრიქონი</span>
+  });
+  <span class="attr">return await</span> response.json();
+}</code></pre>
+
+      <h2>4. JSON — ობიექტი და მეთოდები</h2>
+      <p>
+        <strong>JSON</strong> (JavaScript Object Notation) არის ტექსტური ფორმატი მონაცემების
+        გადასაცემად — ის ჰგავს JS ობიექტს, მაგრამ არის მკაცრად ტექსტური (string).
+      </p>
+      <pre><code><span class="attr">const</span> user = { name: "ანა", age: 22, active: true };
+
+<span class="cmt">// JS ობიექტი → JSON სტრიქონი (გასაგზავნად)</span>
+<span class="attr">const</span> jsonString = JSON.stringify(user);
+console.log(jsonString); <span class="cmt">// '{"name":"ანა","age":22,"active":true}'</span>
+
+<span class="cmt">// JSON სტრიქონი → JS ობიექტი (მიღებული პასუხის დასამუშავებლად)</span>
+<span class="attr">const</span> parsedUser = JSON.parse(jsonString);
+console.log(parsedUser.name); <span class="cmt">// "ანა"</span></code></pre>
+      <p>
+        <code>response.json()</code>, რომელსაც Fetch-თან ერთად ვიყენებთ, სინამდვილეში
+        <code>JSON.parse()</code>-ის „მოხერხებული" ვერსიაა, უშუალოდ HTTP პასუხისთვის.
+      </p>
+
+      <h2>5. DevTools — Network ტაბი</h2>
+      <p>
+        Network ტაბი (გავეცანით მე-1 გაკვეთილში ზოგადად) ახლა კონკრეტულად გამოსადეგია
+        <code>fetch</code> მოთხოვნების სადებაგოდ:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ხედავ ყველა გაგზავნილ მოთხოვნას, მათ <strong>სტატუს კოდს</strong> და დროს.</li>
+        <li>ერთ მოთხოვნაზე დაწკაპუნებით ხედავ Headers-ს (რა გაგზავნე), Response-ს (რა მიიღე) და Preview-ს (გაფორმებული ხედი).</li>
+        <li>ფილტრით <code>Fetch/XHR</code> შეგიძლია დანარჩენი (სურათები, ფონტები) დამალო და მხოლოდ API მოთხოვნებზე ფოკუსირდე.</li>
+      </ul>
+
+      <h2>6. პრაქტიკა: სლაიდერი და ფორმის ვალიდაცია</h2>
+      <p>
+        ორი პატარა, დამოუკიდებელი UI კომპონენტი, რომლებიც აერთიანებს ამ და წინა გაკვეთილების
+        ცოდნას — DOM, events, state ცვლადებში.
+      </p>
+      <pre><code><span class="cmt">// მარტივი სურათების სლაიდერი</span>
+<span class="attr">const</span> slides = document.querySelectorAll(".slide");
+<span class="attr">let</span> currentIndex = 0;
+
+<span class="attr">function</span> showSlide(index) {
+  slides.forEach((slide, i) => {
+    slide.style.display = i === index ? "block" : "none";
+  });
+}
+
+document.querySelector(".next-btn").addEventListener("click", () => {
+  currentIndex = (currentIndex + 1) % slides.length; <span class="cmt">// წრიულად უბრუნდება დასაწყისს</span>
+  showSlide(currentIndex);
+});
+
+showSlide(currentIndex); <span class="cmt">// საწყისი მდგომარეობა</span></code></pre>
+      <pre><code><span class="cmt">// ფორმის ვალიდაცია, submit-ის დროს</span>
+<span class="attr">const</span> form = document.querySelector("#signup-form");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  <span class="attr">const</span> email = document.querySelector("#email").value.trim();
+  <span class="attr">const</span> errorEl = document.querySelector("#email-error");
+
+  <span class="attr">if</span> (!email.includes("@")) {
+    errorEl.textContent = "გთხოვთ, მიუთითოთ ვალიდური ელფოსტა";
+    <span class="attr">return</span>;
+  }
+
+  errorEl.textContent = "";
+  console.log("ფორმა ვალიდურია, იგზავნება:", email);
+});</code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/fetch" target="_blank" rel="noopener">JavaScript.info — Fetch</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank" rel="noopener">MDN — Using the Fetch API</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" target="_blank" rel="noopener">MDN — JSON reference</a></li>
+          <li><a href="https://developer.chrome.com/docs/devtools/network/" target="_blank" rel="noopener">Chrome DevTools — Network features reference</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>გამოიყენე <code>fetch()</code>, რომ წამოიღო მონაცემები <code>https://jsonplaceholder.typicode.com/users</code>-იდან და დაბეჭდო თითოეული სახელი Console-ში.</li>
+          <li>DevTools-ის Network ტაბში იპოვე ეს მოთხოვნა, გახსენი Response ტაბი და დააკვირდი, როგორია მიღებული JSON-ის სტრუქტურა.</li>
+          <li>ააწყვე მარტივი სლაიდერი 3 სურათით/ბლოკით, „წინა"/„შემდეგი" ღილაკებით.</li>
+          <li>ააწყვე ფორმა 2 ველით (email, password) და დაწერე ვალიდაცია, რომელიც submit-ისას ამოწმებს — email შეიცავს „@"-ს და password 6+ სიმბოლოა.</li>
+          <li><em>(რთული)</em> გააერთიანე Fetch და UI — წამოიღე <code>jsonplaceholder.typicode.com/posts</code>-იდან პირველი 5 პოსტი და დინამიურად, <code>createElement</code>-ის გამოყენებით, გამოსახე ისინი გვერდზე, სათაურითა და ტექსტით.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson18.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson20.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

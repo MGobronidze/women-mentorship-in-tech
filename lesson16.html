@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 16 — Events, Event Handlers, preventDefault</title>
+  <meta name="description" content="JavaScript მოვლენები (events), addEventListener, event object და preventDefault მეთოდის დანიშნულება." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 16
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 16/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Events, Event Handlers, preventDefault
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        წინა გაკვეთილში ვისწავლეთ, როგორ ვცვლით DOM-ს. ახლა ვისწავლოთ, როგორ ვარეაგირებთ
+        მომხმარებლის მოქმედებებზე — დაწკაპუნება, აკრეფა, ფორმის გაგზავნა.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. რა არის Event</h2>
+      <p>
+        <strong>Event</strong> არის „მოვლენა", რომელიც ბრაუზერში ხდება — დაწკაპუნება, კლავიშის
+        დაჭერა, გვერდის ჩატვირთვა, ფორმის გაგზავნა და ა.შ. JavaScript-ს შეუძლია „მოუსმინოს" ამ
+        მოვლენებს და შესაბამისად უპასუხოს.
+      </p>
+
+      <h2>2. addEventListener</h2>
+      <p>
+        ეს არის სტანდარტული, თანამედროვე გზა event handler-ის მისაბმელად ელემენტზე:
+      </p>
+      <pre><code><span class="attr">const</span> button = document.querySelector("#submit-btn");
+
+button.addEventListener("click", <span class="attr">function</span>() {
+  console.log("ღილაკზე დაწკაპუნდა!");
+});
+
+<span class="cmt">// ან arrow function-ით (უფრო ხშირად გამოსაყენებელი, თანამედროვე კოდში)</span>
+button.addEventListener("click", () => {
+  console.log("ღილაკზე დაწკაპუნდა!");
+});</code></pre>
+      <p>
+        ხშირად გამოსაყენებელი event ტიპებია: <code>click</code>, <code>submit</code> (ფორმაზე),
+        <code>input</code>/<code>change</code> (input ველზე), <code>keydown</code>/<code>keyup</code>
+        (კლავიატურაზე), <code>mouseover</code>/<code>mouseout</code> (კურსორზე), <code>load</code>
+        (გვერდის/სურათის ჩატვირთვაზე).
+      </p>
+
+      <h2>3. Event Object</h2>
+      <p>
+        Event handler ფუნქცია ავტომატურად იღებს <strong>event object</strong>-ს, რომელიც შეიცავს
+        ინფორმაციას მოხდილ მოვლენაზე — მათ შორის, თუ <strong>რომელმა</strong> ელემენტმა გამოიწვია ის:
+      </p>
+      <pre><code>button.addEventListener("click", (event) => {
+  console.log(event.type);    <span class="cmt">// "click"</span>
+  console.log(event.target);  <span class="cmt">// კონკრეტული ელემენტი, რომელზეც დაწკაპუნდა</span>
+});
+
+<span class="cmt">// input-ის მნიშვნელობის წაკითხვა ცოცხლად, აკრეფისას</span>
+<span class="attr">const</span> searchInput = document.querySelector("#search");
+searchInput.addEventListener("input", (event) => {
+  console.log(event.target.value); <span class="cmt">// მიმდინარე ტექსტი input-ში</span>
+});</code></pre>
+
+      <h2>4. preventDefault — ბრაუზერის ნაგულისხმევი ქცევის შეჩერება</h2>
+      <p>
+        ზოგიერთ ელემენტს (ფორმას, ბმულს) აქვს ნაგულისხმევი ქცევა — მაგ. ფორმის submit ავტომატურად
+        ტვირთავს გვერდს ხელახლა. <code>event.preventDefault()</code> აჩერებს ამ ნაგულისხმევ ქცევას,
+        რომ ჩვენ თავად, JavaScript-ით ვმართოთ, რა მოხდეს.
+      </p>
+      <pre><code><span class="attr">const</span> form = document.querySelector("#contact-form");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault(); <span class="cmt">// აჩერებს გვერდის ავტომატურ ხელახლა ჩატვირთვას</span>
+
+  <span class="attr">const</span> email = document.querySelector("#email").value;
+  console.log("გაგზავნილი ელფოსტა:", email);
+  <span class="cmt">// აქ შესაძლებელია მონაცემების fetch-ით სერვერზე გაგზავნა (გავეცნობით შემდეგ გაკვეთილებში)</span>
+});</code></pre>
+      <p>
+        <code>preventDefault()</code> ასევე გამოსადეგია ბმულებზეც — მაგ. თუ გვინდა, ბმულმა
+        JavaScript-ის ლოგიკა შეასრულოს ახალ გვერდზე გადასვლის ნაცვლად.
+      </p>
+
+      <h2>5. Event Delegation — მოკლე შესავალი</h2>
+      <p>
+        მოვლენებში „ბუშტვდება" (bubbling) — event, რომელიც შვილ ელემენტზე ხდება, ავტომატურად
+        „ადის" მშობელამდეც. ეს საშუალებას გვაძლევს, ერთი listener დავამაგროთ მშობელზე, ბევრი
+        ინდივიდუალური listener-ის მაგივრად:
+      </p>
+      <pre><code><span class="attr">const</span> list = document.querySelector("#todo-list");
+
+list.addEventListener("click", (event) => {
+  <span class="attr">if</span> (event.target.tagName === "LI") {
+    console.log("დაწკაპუნდა:", event.target.textContent);
+  }
+});
+<span class="cmt">// მუშაობს ყველა &lt;li&gt;-ზეც, თუნდაც ისინი JS-ით მოგვიანებით დაემატოს!</span></code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/introduction-browser-events" target="_blank" rel="noopener">JavaScript.info — Introduction to browser events</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">MDN — addEventListener()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault" target="_blank" rel="noopener">MDN — Event.preventDefault()</a></li>
+          <li><a href="https://javascript.info/event-delegation" target="_blank" rel="noopener">JavaScript.info — Event delegation</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაამატე ღილაკს <code>click</code> event listener, რომელიც ცვლის მისი ტექსტის შემცველობას დაწკაპუნებისას.</li>
+          <li>დაამატე input ველს <code>input</code> event listener, რომელიც ცოცხლად აჩვენებს აკრეფილი სიმბოლოების რაოდენობას გვერდზე.</li>
+          <li>შექმენი მარტივი ფორმა და დაამატე <code>submit</code> event, სადაც <code>preventDefault()</code>-ის შემდეგ Console-ში ბეჭდავ input-ის მნიშვნელობას.</li>
+          <li>შექმენი სია (<code>&lt;ul&gt;</code>-ში 4-5 <code>&lt;li&gt;</code>) და event delegation-ის გამოყენებით (listener მშობელზე) დაბეჭდე, რომელ ელემენტზე დაწკაპუნდა.</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი "to-do" — input + ღილაკი „დამატება". დაწკაპუნებისას (ან Enter-ზე) <code>createElement</code>-ის გამოყენებით დაამატე ახალი <code>&lt;li&gt;</code> სიაში, ხოლო თითოეულ <code>&lt;li&gt;</code>-ზე დაწკაპუნებამ წაშალოს ის (event delegation-ის გამოყენებით).</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson15.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson17.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 18 — Promises, Callbacks, Async/Await</title>
+  <meta name="description" content="ასინქრონული JavaScript: setTimeout, callbacks და callback hell, Promises, და async/await სინტაქსი." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 18
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 18/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        Promises, Callbacks, Async/Await
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        რეალურ აპლიკაციებში ბევრი რამ არ ხდება მყისიერად — მონაცემების წამოღება სერვერიდან,
+        ტაიმერები. ამ გაკვეთილში ვსწავლობთ, როგორ ვმართავთ ამ „დროში გაწელილ" ოპერაციებს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. setTimeout — ასინქრონულობის უმარტივესი მაგალითი</h2>
+      <p>
+        JavaScript არის <strong>ერთნაკადიანი (single-threaded)</strong> ენა — ერთდროულად მხოლოდ
+        ერთ ბრძანებას ასრულებს. მაგრამ ბრაუზერს (და Node.js-ს) აქვს მექანიზმი, რომელიც საშუალებას
+        გვაძლევს, გარკვეული კოდი „გადავდოთ" მოგვიანებით შესასრულებლად — <code>setTimeout</code>.
+      </p>
+      <pre><code>console.log("1. დაწყება");
+
+setTimeout(() => {
+  console.log("3. 2 წამის შემდეგ");
+}, 2000);
+
+console.log("2. გაგრძელება — ეს დაბეჭდვა setTimeout-ს არ ელოდება!");
+
+<span class="cmt">// კონსოლში გამოვა: "1. დაწყება" → "2. გაგრძელება..." → (2 წამის შემდეგ) "3. 2 წამის შემდეგ"</span></code></pre>
+      <p>
+        ეს არის <strong>ასინქრონულობის</strong> არსი: <code>setTimeout</code> არ „აჩერებს" დანარჩენ
+        კოდს — ის მხოლოდ გეგმავს ფუნქციას მომავალში შესასრულებლად.
+      </p>
+
+      <h2>2. Callbacks და Callback Hell</h2>
+      <p>
+        <strong>Callback</strong> არის ფუნქცია, რომელსაც სხვა ფუნქციას გადავცემთ, რომ ის
+        „მოგვიანებით" გამოიძახოს (მაგ. მონაცემების მზაობისას). პრობლემა ჩნდება, როცა ბევრი
+        ასინქრონული ოპერაცია ერთმანეთზეა დამოკიდებული:
+      </p>
+      <pre><code><span class="cmt">// Callback Hell — ჩადგმული callback-ების "პირამიდა", ძნელად წასაკითხი</span>
+getUser(userId, (user) => {
+  getOrders(user.id, (orders) => {
+    getOrderDetails(orders[0].id, (details) => {
+      console.log(details); <span class="cmt">// ყოველი დონე უფრო შორდება მარცხენა კიდეს</span>
+    }, handleError);
+  }, handleError);
+}, handleError);</code></pre>
+      <p>
+        ეს სტრუქტურა (ე.წ. „pyramid of doom") ძნელად იკითხება და ძნელად გამართავს — სწორედ ამის
+        გადასაჭრელად შემოვიდა Promise.
+      </p>
+
+      <h2>3. Promises</h2>
+      <p>
+        <strong>Promise</strong> არის ობიექტი, რომელიც წარმოადგენს მომავალში დასრულებულ (ან
+        წარუმატებელ) ოპერაციას. მას აქვს სამი მდგომარეობა: <code>pending</code> (მიმდინარეობს),
+        <code>fulfilled</code> (წარმატებული) და <code>rejected</code> (წარუუმატებელი).
+      </p>
+      <pre><code><span class="attr">const</span> fetchUser = <span class="attr">new</span> Promise((resolve, reject) => {
+  setTimeout(() => {
+    <span class="attr">const</span> success = true;
+    <span class="attr">if</span> (success) {
+      resolve({ name: "ანა", id: 1 }); <span class="cmt">// წარმატება</span>
+    } <span class="attr">else</span> {
+      reject(<span class="attr">new</span> Error("მომხმარებელი ვერ მოიძებნა")); <span class="cmt">// შეცდომა</span>
+    }
+  }, 1000);
+});
+
+fetchUser
+  .then((user) => console.log("მიღებულია:", user))
+  .catch((error) => console.error("შეცდომა:", error.message))
+  .finally(() => console.log("დასრულდა (წარმატებით ან არა)"));</code></pre>
+      <p>
+        <code>.then()</code> ჯაჭვად შესაძლებელია, რაც Callback Hell-ის პრობლემას წყვეტს —
+        ჩადგმის ნაცვლად, ოპერაციები ერთმანეთის „ქვემოთ" გრძელდება:
+      </p>
+      <pre><code>getUser(userId)
+  .then(user => getOrders(user.id))
+  .then(orders => getOrderDetails(orders[0].id))
+  .then(details => console.log(details))
+  .catch(error => console.error(error)); <span class="cmt">// ერთი catch ყველა ჯაჭვის ნაბიჯისთვის</span></code></pre>
+
+      <h2>4. async/await</h2>
+      <p>
+        <code>async</code>/<code>await</code> არის სინტაქსური „შაქარი" Promise-ების თავზე —
+        საშუალებას გვაძლევს, ასინქრონული კოდი დავწეროთ ისე, თითქოს ის სინქრონული იყოს (მარტივად
+        წასაკითხი, ზემოდან ქვემოთ):
+      </p>
+      <pre><code><span class="attr">async function</span> loadUserData() {
+  <span class="attr">try</span> {
+    <span class="attr">const</span> user = <span class="attr">await</span> getUser(userId);        <span class="cmt">// "ელოდება" Promise-ის დასრულებას</span>
+    <span class="attr">const</span> orders = <span class="attr">await</span> getOrders(user.id);
+    <span class="attr">const</span> details = <span class="attr">await</span> getOrderDetails(orders[0].id);
+    console.log(details);
+  } <span class="attr">catch</span> (error) {
+    console.error("რაღაც არასწორად წავიდა:", error.message); <span class="cmt">// try/catch ცვლის .catch()-ს</span>
+  }
+}</code></pre>
+      <p>
+        <code>await</code> გამოსაყენებელია <strong>მხოლოდ</strong> <code>async</code> ფუნქციის
+        შიგნით. ის „აჩერებს" კონკრეტულად ამ ფუნქციის შესრულებას (არა მთელ პროგრამას!), სანამ
+        Promise არ დასრულდება — შემდეგ აგრძელებს შემდეგი ხაზიდან.
+      </p>
+      <p>
+        <strong>დღეს:</strong> async/await არის რეკომენდებული სტანდარტი მოდერნიზებულ კოდში —
+        Promise-ების საფუძვლების ცოდნა კი აუცილებელია, რადგან async/await სწორედ მათზეა აშენებული.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/callbacks" target="_blank" rel="noopener">JavaScript.info — Callbacks</a></li>
+          <li><a href="https://javascript.info/promise-basics" target="_blank" rel="noopener">JavaScript.info — Promise</a></li>
+          <li><a href="https://javascript.info/async-await" target="_blank" rel="noopener">JavaScript.info — Async/await</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" rel="noopener">MDN — Promise reference</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაწერე <code>setTimeout</code>-ის გამოყენებით 3 შეტყობინება, რომლებიც ცალ-ცალკე დროის დაყოვნებით გამოჩნდება Console-ში — დააკვირდი, რომ ისინი არ ელოდებიან ერთმანეთს.</li>
+          <li>შექმენი მარტივი Promise, რომელიც 50% შემთხვევაში resolve-დება და 50%-ში reject-დება (<code>Math.random()</code>-ის გამოყენებით) — გამოსცადე <code>.then()</code>/<code>.catch()</code>.</li>
+          <li>გადაწერე წინა დავალების Promise <code>async/await</code>-ისა და <code>try/catch</code>-ის გამოყენებით.</li>
+          <li>დაწერე ჯაჭვური <code>.then()</code> მაგალითი 3 ნაბიჯით (თითოეული წინას შედეგზეა დამოკიდებული).</li>
+          <li><em>(რთული)</em> დაწერე <code>async</code> ფუნქცია, რომელიც იყენებს <code>Promise.all()</code>-ს ორი ან მეტი დამოუკიდებელი Promise-ის <strong>პარალელურად</strong> დასასრულებლად (ერთმანეთის მოლოდინის ნაცვლად) — შეადარე შესრულების დრო თანმიმდევრულ (sequential await) მიდგომასთან.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson17.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson19.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

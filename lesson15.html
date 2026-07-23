@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 15 — DOM, ელემენტების შექმნა, Query Selectors</title>
+  <meta name="description" content="Document Object Model, defer/async ატრიბუტები, ელემენტების შექმნა და ატრიბუტების მინიჭება JS-დან, query selector-ები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 15
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 15/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        DOM, ელემენტების შექმნა და Query Selectors
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        აქამდე JavaScript-ს ვწერდით „ცალკე" — ახლა ვაკავშირებთ მას რეალურ გვერდთან. DOM არის ის
+        ხიდი, რომლითაც JavaScript ხედავს და ცვლის HTML-ს რეალურ დროში.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. რა არის DOM</h2>
+      <p>
+        <strong>DOM</strong> (Document Object Model) არის HTML დოკუმენტის „ხის" სახის წარმოდგენა
+        მეხსიერებაში, რომელსაც ბრაუზერი ქმნის გვერდის ჩატვირთვისას. თითოეული HTML ტეგი DOM-ში
+        ხდება <strong>node</strong> (კვანძი) — და JavaScript-ს შეუძლია ამ კვანძების წაკითხვა,
+        შეცვლა, დამატება თუ წაშლა.
+      </p>
+      <pre><code><span class="cmt">&lt;!-- HTML --&gt;</span>
+&lt;<span class="tag">body</span>&gt;
+  &lt;<span class="tag">h1</span>&gt;სათაური&lt;/<span class="tag">h1</span>&gt;
+  &lt;<span class="tag">p</span>&gt;ტექსტი&lt;/<span class="tag">p</span>&gt;
+&lt;/<span class="tag">body</span>&gt;
+
+<span class="cmt">// DOM ხედავს ამას, როგორც ხის სტრუქტურას:
+// document
+//   └─ body
+//       ├─ h1 ("სათაური")
+//       └─ p ("ტექსტი")</span></code></pre>
+
+      <h2>2. defer და async — სკრიპტების ჩატვირთვა</h2>
+      <p>
+        <code>&lt;script&gt;</code> ტეგის მდებარეობა და ატრიბუტები გავლენას ახდენს იმაზე, თუ
+        <strong>როდის</strong> სრულდება JS კოდი, HTML-ის დამუშავებასთან შედარებით:
+      </p>
+      <pre><code><span class="cmt">&lt;!-- ჩვეულებრივი: ჩერდება HTML-ის დამუშავება, სანამ სკრიპტი არ ჩაიტვირთება და გაეშვება --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;
+
+<span class="cmt">&lt;!-- defer: ჩატვირთვა ხდება პარალელურად, გაშვება — HTML-ის სრულად დამუშავების შემდეგ --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span> <span class="attr">defer</span>&gt;&lt;/<span class="tag">script</span>&gt;
+
+<span class="cmt">&lt;!-- async: ჩატვირთვა და გაშვება ხდება პარალელურად, HTML-ის დამუშავებას შეუძლია შეწყვეტა --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span> <span class="attr">async</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+      <p>
+        <strong>საუკეთესო პრაქტიკა:</strong> გამოიყენე <code>defer</code>, თუ სკრიპტს სჭირდება
+        DOM-თან მუშაობა (რაც ხშირად ასეა) — ეს უზრუნველყოფს, რომ ყველა HTML ელემენტი უკვე
+        არსებობდეს, სანამ JS მათ „მოძებნის".
+      </p>
+
+      <h2>3. Query Selectors — ელემენტების პოვნა</h2>
+      <pre><code><span class="cmt">// ID-ით — აბრუნებს ერთ ელემენტს</span>
+<span class="attr">const</span> header = document.getElementById("main-title");
+
+<span class="cmt">// CSS სელექტორით — აბრუნებს პირველ დამთხვევას</span>
+<span class="attr">const</span> firstCard = document.querySelector(".card");
+
+<span class="cmt">// CSS სელექტორით — აბრუნებს ყველა დამთხვევას (NodeList)</span>
+<span class="attr">const</span> allCards = document.querySelectorAll(".card");
+
+<span class="cmt">// კლასის/ტეგის მიხედვით (ძველი, მაგრამ ჯერ კიდევ გამოსადეგი API)</span>
+<span class="attr">const</span> byClass = document.getElementsByClassName("card");
+<span class="attr">const</span> byTag = document.getElementsByTagName("li");</code></pre>
+      <p>
+        <code>querySelector</code>/<code>querySelectorAll</code> დღეს ყველაზე ხშირად გამოსაყენებელია,
+        რადგან იღებს ნებისმიერ ვალიდურ CSS სელექტორს — Class, ID, atrribute, ჩადგმულს:
+      </p>
+      <pre><code><span class="attr">const</span> item = document.querySelector("#nav .links li:first-child");
+<span class="attr">const</span> emailInputs = document.querySelectorAll("input[type='email']");</code></pre>
+      <p>
+        <code>querySelectorAll</code> აბრუნებს <strong>NodeList</strong>-ს, არა ჩვეულებრივ მასივს —
+        მას აქვს <code>forEach</code>, მაგრამ არა <code>map</code>/<code>filter</code> პირდაპირ.
+        საჭიროების შემთხვევაში, მასივად გარდაქმნა: <code>Array.from(nodeList)</code>.
+      </p>
+
+      <h2>4. ელემენტების შექმნა და ატრიბუტების მინიჭება</h2>
+      <p>
+        DOM-ის ცვლილება ხდება არა მხოლოდ არსებული ელემენტების პოვნით, არამედ ახლების შექმნითაც:
+      </p>
+      <pre><code><span class="cmt">// ახალი ელემენტის შექმნა</span>
+<span class="attr">const</span> newCard = document.createElement("div");
+
+<span class="cmt">// კლასის და ატრიბუტების მინიჭება</span>
+newCard.classList.add("card");
+newCard.setAttribute("data-id", "42");
+newCard.id = "card-42";
+
+<span class="cmt">// შემცველობის ჩასმა</span>
+newCard.textContent = "ეს არის ახალი ბარათი"; <span class="cmt">// უსაფრთხო — HTML-ად არ განიხილება</span>
+newCard.innerHTML = "&lt;strong&gt;ეს&lt;/strong&gt; ბარათი";  <span class="cmt">// HTML-ად განიხილება — ფრთხილად, XSS რისკი მომხმარებლის ტექსტთან</span>
+
+<span class="cmt">// DOM-ში ჩასმა (მშობელი ელემენტის მითითებით)</span>
+<span class="attr">const</span> container = document.querySelector(".container");
+container.appendChild(newCard);
+
+<span class="cmt">// წაშლა</span>
+newCard.remove();</code></pre>
+      <p>
+        <strong>უსაფრთხოების წესი:</strong> <code>textContent</code>-ს გამოიყენე, როცა უბრალო
+        ტექსტს ამატებ (განსაკუთრებით, თუ ეს ტექსტი მომხმარებლისგან მოდის) — <code>innerHTML</code>
+        ტექსტს აპარსავს HTML-ად, რაც შეიძლება საშიში იყოს (Cross-Site Scripting).
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction" target="_blank" rel="noopener">MDN — Introduction to the DOM</a></li>
+          <li><a href="https://javascript.info/searching-elements-dom" target="_blank" rel="noopener">JavaScript.info — Searching: getElement*, querySelector*</a></li>
+          <li><a href="https://javascript.info/modifying-document" target="_blank" rel="noopener">JavaScript.info — Modifying the document</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-defer" target="_blank" rel="noopener">MDN — &lt;script&gt; defer/async</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>გამოიყენე <code>querySelector</code> ერთი ელემენტის მოსაძებნად და შეუცვალე <code>textContent</code> JS-დან.</li>
+          <li>გამოიყენე <code>querySelectorAll</code> რამდენიმე ელემენტზე და <code>forEach</code>-ის გამოყენებით შეუცვალე ყველას ერთი და იმავე კლასი.</li>
+          <li>შექმენი 3 ახალი <code>&lt;li&gt;</code> ელემენტი JS-დან (<code>createElement</code>) და ჩასვი არსებულ <code>&lt;ul&gt;</code>-ში.</li>
+          <li>დაუმატე ერთ ელემენტს ატრიბუტი <code>data-status="active"</code> JS-დან და შემდეგ <code>querySelector</code>-ის გამოყენებით იპოვე ის ატრიბუტის მნიშვნელობის მიხედვით (<code>[data-status="active"]</code>).</li>
+          <li><em>(რთული)</em> სცადე ერთი და იმავე ცვლილება გააკეთო <code>&lt;script&gt;</code> ტეგის ჩვეულებრივი, <code>defer</code> და <code>&lt;body&gt;</code>-ის ბოლოში მოთავსების ვარიანტებით — შეამოწმე DevTools Console-ში, ჩნდება თუ არა შეცდომა, თუ სკრიპტი DOM-ის ჩატვირთვამდე ცდილობს ელემენტის პოვნას.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson14.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson16.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
