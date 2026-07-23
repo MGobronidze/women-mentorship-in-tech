@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 13 — ფუნქციები: Declaration, Expression, Arrow, Scope, Closure</title>
+  <meta name="description" content="JavaScript ფუნქციების გამოცხადების გზები, Function/Block Scope, Lexical Scope, Scope chain და Closure." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 13
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 13/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        ფუნქციები: Declaration, Expression, Arrow, Scope, Closure
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        ფუნქცია არის კოდის ხელახლა გამოსაყენებელი ბლოკი. ეს გაკვეთილი — ერთ-ერთი ყველაზე
+        მნიშვნელოვანია მთელ კურსში, რადგან ფუნქციები და scope-ი JavaScript-ის „ჩონჩხს" წარმოადგენს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Function Declaration</h2>
+      <p>ეს არის ფუნქციის „კლასიკური" გამოცხადება — <code>function</code> საკვანძო სიტყვით:</p>
+      <pre><code><span class="attr">function</span> greet(name) {
+  <span class="attr">return</span> `გამარჯობა, ${name}!`;
+}
+
+console.log(greet("ანა")); <span class="cmt">// "გამარჯობა, ანა!"</span></code></pre>
+      <p>
+        Function Declaration-ს აქვს განსაკუთრებული თვისება — <strong>hoisting</strong> (დეტალურად
+        შემდგომ გაკვეთილში): მისი გამოძახება შესაძლებელია ფაილში მისი გამოცხადებამდეც კი.
+      </p>
+
+      <h2>2. Function Expression</h2>
+      <p>ფუნქცია ინახება ცვლადში — ინახება, როგორც ჩვეულებრივი მნიშვნელობა:</p>
+      <pre><code><span class="attr">const</span> greet = <span class="attr">function</span>(name) {
+  <span class="attr">return</span> `გამარჯობა, ${name}!`;
+};
+
+console.log(greet("მარი"));</code></pre>
+      <p>
+        Function Expression <strong>არ</strong> ხდება hoisted იმავე გზით — მისი გამოძახება
+        გამოცხადებამდე Error-ს გამოიწვევს.
+      </p>
+
+      <h2>3. Arrow Function</h2>
+      <p>
+        ES6-მა შემოგვთავაზა უფრო მოკლე სინტაქსი ფუნქციისთვის — arrow function (<code>=&gt;</code>):
+      </p>
+      <pre><code><span class="cmt">// სრული ფორმა</span>
+<span class="attr">const</span> greet = (name) => {
+  <span class="attr">return</span> `გამარჯობა, ${name}!`;
+};
+
+<span class="cmt">// მოკლე ფორმა — ერთი გამოსახულება, ავტომატური return</span>
+<span class="attr">const</span> greetShort = name => `გამარჯობა, ${name}!`;
+
+<span class="cmt">// პარამეტრის გარეშე / რამდენიმე პარამეტრით</span>
+<span class="attr">const</span> sayHi = () => console.log("გამარჯობა!");
+<span class="attr">const</span> add = (a, b) => a + b;</code></pre>
+      <p>
+        Arrow function-ს, ჩვეულებრივი ფუნქციისგან განსხვავებით, არ აქვს საკუთარი <code>this</code> —
+        ის „ისესხებს" მშობელი scope-ის <code>this</code>-ს. ამ დეტალს მოგვიანებით (React-ის
+        მოდულში) დავინახავთ პრაქტიკაში.
+      </p>
+
+      <h2>4. Function Scope და Block Scope</h2>
+      <p>
+        <strong>Scope</strong> განსაზღვრავს, სად „ჩანს" ცვლადი კოდში. <code>var</code>-ს აქვს
+        <strong>function scope</strong> (ჩანს მთელ ფუნქციაში), ხოლო <code>let</code>/<code>const</code>-ს —
+        <strong>block scope</strong> (ჩანს მხოლოდ იმ <code>{ }</code>-ში, სადაც გამოცხადდა):
+      </p>
+      <pre><code><span class="attr">if</span> (true) {
+  <span class="attr">var</span> x = 1;    <span class="cmt">// function/global scope — "გაჟონავს" block-იდან</span>
+  <span class="attr">let</span> y = 2;    <span class="cmt">// block scope — ჩანს მხოლოდ ამ { }-ში</span>
+}
+
+console.log(x); <span class="cmt">// 1 — ✅ ხელმისაწვდომია</span>
+console.log(y); <span class="cmt">// ❌ ReferenceError: y is not defined</span></code></pre>
+      <p>
+        სწორედ ეს „გაჟონვა" არის ერთ-ერთი მთავარი მიზეზი, რატომ ერიდებიან თანამედროვე დეველოპერები
+        <code>var</code>-ს — მისი scope ინტუიციურ არ არის.
+      </p>
+
+      <h2>5. Lexical Scope და Scope Chain</h2>
+      <p>
+        <strong>Lexical scope</strong> ნიშნავს, რომ ცვლადის „ხილვადობა" განისაზღვრება იმით,
+        <em>სად არის ფუნქცია დაწერილი კოდში</em> (არა სად გამოიძახება). შიდა ფუნქციას აქვს წვდომა
+        გარე ფუნქციის ცვლადებზე — ეს ქმნის <strong>scope chain</strong>-ს:
+      </p>
+      <pre><code><span class="attr">function</span> outer() {
+  <span class="attr">const</span> outerVar = "გარეთ";
+
+  <span class="attr">function</span> inner() {
+    <span class="attr">const</span> innerVar = "შიგნით";
+    console.log(outerVar); <span class="cmt">// ✅ ხედავს გარე ფუნქციის ცვლადს (scope chain)</span>
+    console.log(innerVar); <span class="cmt">// ✅ საკუთარი ცვლადი</span>
+  }
+
+  inner();
+  console.log(innerVar); <span class="cmt">// ❌ Error — გარე ფუნქცია ვერ ხედავს შიდას</span>
+}</code></pre>
+
+      <h2>6. Closure — ჩაკეტვები</h2>
+      <p>
+        Closure არის ფუნქცია, რომელიც „ახსოვს" თავისი შექმნის დროინდელ scope-ს — თუნდაც გარე
+        ფუნქცია უკვე დასრულებული იყოს შესრულების თვალსაზრისით:
+      </p>
+      <pre><code><span class="attr">function</span> makeCounter() {
+  <span class="attr">let</span> count = 0; <span class="cmt">// ეს ცვლადი "ჩაიკეტება" დაბრუნებულ ფუნქციასთან ერთად</span>
+
+  <span class="attr">return function</span>() {
+    count++;
+    <span class="attr">return</span> count;
+  };
+}
+
+<span class="attr">const</span> counter = makeCounter();
+console.log(counter()); <span class="cmt">// 1</span>
+console.log(counter()); <span class="cmt">// 2 — "ახსოვს" წინა მნიშვნელობა!</span>
+console.log(counter()); <span class="cmt">// 3</span></code></pre>
+      <p>
+        Closure-ი პრაქტიკაში ხშირად გამოიყენება: <strong>private</strong> მონაცემების შესაქმნელად
+        (გარედან <code>count</code>-თან პირდაპირი წვდომა არ არსებობს), event handler-ებში
+        კონტექსტის შესანარჩუნებლად და React-ის hooks-ის (მოგვიანებით ვნახავთ) მუშაობის საფუძვლადაც.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/function-basics" target="_blank" rel="noopener">JavaScript.info — Functions</a></li>
+          <li><a href="https://javascript.info/arrow-functions-basics" target="_blank" rel="noopener">JavaScript.info — Arrow functions, the basics</a></li>
+          <li><a href="https://javascript.info/closure" target="_blank" rel="noopener">JavaScript.info — Variable scope, closure</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">MDN — Closures</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაწერე ერთი და იგივე ფუნქცია სამივე ფორმით — Declaration, Expression და Arrow — რომელიც ორ რიცხვს ამრავლებს.</li>
+          <li>დაწერე კოდი, სადაც <code>var</code>-ითა და <code>let</code>-ით გამოცხადებულ ცვლადებს ადარებ block scope-ში — დააკვირდი განსხვავებას Console-ში.</li>
+          <li>დაწერე ორი ჩადგმული ფუნქცია (outer/inner), სადაც inner ფუნქცია იყენებს outer-ის ცვლადს — ეს დაასაბუთებს scope chain-ს.</li>
+          <li>დაწერე <code>makeCounter</code>-ის მსგავსი closure ფუნქცია, მაგრამ ისეთი, რომელიც საწყისი მნიშვნელობის (ორმაგდება) ნაცვლად აკლებს რიცხვს.</li>
+          <li><em>(რთული)</em> დაწერე closure-ზე დაფუძნებული „ბანკის ანგარიშის" სიმულაცია — ფუნქცია, რომელიც აბრუნებს ორ ფუნქციას (<code>deposit</code> და <code>getBalance</code>), სადაც balance ცვლადი მთლიანად „დაცულია" გარედან პირდაპირი წვდომისგან.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson12.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson14.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> </div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

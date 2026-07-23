@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 12 — მასივები, ობიექტები, Dot vs Bracket, ციკლები</title>
+  <meta name="description" content="JavaScript მასივები და ობიექტები, Dot vs Bracket notation, ციკლების ტიპები და მასივის მეთოდები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 12
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 12/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        მასივები, ობიექტები, Dot vs Bracket, ციკლები
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        რეალურ აპლიკაციებში მონაცემები იშვიათად არსებობს ცალკეულ ცვლადებად — ისინი ჯგუფდება
+        მასივებში და ობიექტებში. ვისწავლოთ, როგორ ვინახავთ, ვიღებთ და ვიმეორებთ მათზე მოქმედებებს.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. მასივები (Arrays)</h2>
+      <p>
+        მასივი ინახავს დალაგებულ სიას, ინდექსით წვდომადს (ინდექსი იწყება <code>0</code>-დან).
+      </p>
+      <pre><code><span class="attr">const</span> fruits = ["ვაშლი", "მსხალი", "ბანანი"];
+
+console.log(fruits[0]);     <span class="cmt">// "ვაშლი"</span>
+console.log(fruits.length); <span class="cmt">// 3</span>
+
+fruits[1] = "ატამი";        <span class="cmt">// ელემენტის შეცვლა ინდექსით</span>
+fruits.push("ხურმა");       <span class="cmt">// დამატება ბოლოში</span>
+fruits.pop();                <span class="cmt">// ბოლო ელემენტის წაშლა</span></code></pre>
+      <p>
+        მნიშვნელოვანია: <code>const</code>-ით გამოცხადებული მასივის <em>შემცველობის</em> შეცვლა
+        (<code>push</code>, <code>[i] = ...</code>) დაშვებულია — <code>const</code> მხოლოდ თავად
+        ცვლადის ხელახლა მინიჭებას კრძალავს (<code>fruits = [...]</code> არ იმუშავებდა).
+      </p>
+
+      <h2>2. ობიექტები (Objects)</h2>
+      <p>
+        ობიექტი ინახავს მონაცემებს <strong>key: value</strong> წყვილებად — გამოსადეგია, როცა
+        მონაცემს აქვს დასახელებული თვისებები (და არა უბრალოდ თანმიმდევრობა).
+      </p>
+      <pre><code><span class="attr">const</span> student = {
+  name: "გიორგი",
+  age: 22,
+  isEnrolled: true,
+  hobbies: ["კითხვა", "ცურვა"],  <span class="cmt">// ობიექტს შეიძლება ჰქონდეს მასივიც შიგნით</span>
+};</code></pre>
+
+      <h2>3. Dot vs Bracket Notation</h2>
+      <p>ობიექტის თვისების წაკითხვის ორი გზა არსებობს:</p>
+      <pre><code><span class="cmt">// Dot notation — მარტივი, წაკითხვადი (როცა key წინასწარ ცნობილია)</span>
+console.log(student.name);  <span class="cmt">// "გიორგი"</span>
+
+<span class="cmt">// Bracket notation — აუცილებელია, როცა key არის ცვლადში ან შეიცავს სპეც. სიმბოლოებს</span>
+<span class="attr">const</span> key = "age";
+console.log(student[key]);       <span class="cmt">// 22 — dot-ით ეს შეუძლებელია: student.key არასწორია</span>
+console.log(student["is enrolled?"]); <span class="cmt">// bracket საჭიროა space-ის შემცველი key-სთვის</span></code></pre>
+      <p>
+        <strong>წესი:</strong> გამოიყენე <code>dot</code> notation ყოველთვის, როცა key-ს წინასწარ
+        იცნობ და ის სწორი იდენტიფიკატორია; <code>bracket</code> — მხოლოდ მაშინ, როცა key
+        დინამიურია (ცვლადშია) ან შეიცავს space-ს/სპეც. სიმბოლოებს.
+      </p>
+
+      <h2>4. ციკლები (Loops)</h2>
+      <pre><code><span class="cmt">// for — კლასიკური, სრული კონტროლით</span>
+<span class="attr">for</span> (<span class="attr">let</span> i = 0; i < fruits.length; i++) {
+  console.log(fruits[i]);
+}
+
+<span class="cmt">// for...of — მასივის ელემენტებზე გადასვლისთვის (მარტივი, თანამედროვე)</span>
+<span class="attr">for</span> (<span class="attr">const</span> fruit <span class="attr">of</span> fruits) {
+  console.log(fruit);
+}
+
+<span class="cmt">// for...in — ობიექტის key-ებზე გადასვლისთვის</span>
+<span class="attr">for</span> (<span class="attr">const</span> key <span class="attr">in</span> student) {
+  console.log(key, "=", student[key]); <span class="cmt">// bracket აუცილებელია, key ცვლადშია</span>
+}
+
+<span class="cmt">// while — მუშაობს, სანამ პირობა ჭეშმარიტია</span>
+<span class="attr">let</span> countdown = 3;
+<span class="attr">while</span> (countdown > 0) {
+  console.log(countdown);
+  countdown--;
+}</code></pre>
+      <p>
+        დღეს, მასივებზე გადასასვლელად, ხშირად <code>for...of</code>-ს ან მასივის მეთოდებს ვამჯობინებთ
+        კლასიკურ <code>for</code>-ს — უფრო წაკითხვადია და ნაკლებ შეცდომას იძლევა (მაგ. „off-by-one").
+      </p>
+
+      <h2>5. მასივის მეთოდები</h2>
+      <p>
+        JavaScript-ის მასივებს აქვთ ჩაშენებული მეთოდები, რომლებიც ცვლიან, ფილტრავენ ან
+        გარდაქმნიან მასივს <em>ციკლის ხელით დაწერის გარეშე</em>:
+      </p>
+      <pre><code><span class="attr">const</span> numbers = [1, 2, 3, 4, 5];
+
+<span class="cmt">// map — ქმნის ახალ მასივს, თითოეულ ელემენტზე ფუნქციის გამოყენებით</span>
+<span class="attr">const</span> doubled = numbers.map(n => n * 2);      <span class="cmt">// [2, 4, 6, 8, 10]</span>
+
+<span class="cmt">// filter — ქმნის ახალ მასივს, მხოლოდ პირობის დამაკმაყოფილებელი ელემენტებით</span>
+<span class="attr">const</span> evens = numbers.filter(n => n % 2 === 0); <span class="cmt">// [2, 4]</span>
+
+<span class="cmt">// forEach — უბრალოდ იმეორებს, ახალ მასივს არ აბრუნებს</span>
+numbers.forEach(n => console.log(n));
+
+<span class="cmt">// find — აბრუნებს პირველ ელემენტს, რომელიც პირობას აკმაყოფილებს</span>
+<span class="attr">const</span> firstEven = numbers.find(n => n % 2 === 0); <span class="cmt">// 2</span>
+
+<span class="cmt">// reduce — "აკეცავს" მასივს ერთ მნიშვნელობამდე (მაგ. ჯამი)</span>
+<span class="attr">const</span> sum = numbers.reduce((total, n) => total + n, 0); <span class="cmt">// 15</span></code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/array" target="_blank" rel="noopener">JavaScript.info — Arrays</a></li>
+          <li><a href="https://javascript.info/object" target="_blank" rel="noopener">JavaScript.info — Objects</a></li>
+          <li><a href="https://javascript.info/array-methods" target="_blank" rel="noopener">JavaScript.info — Array methods</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" target="_blank" rel="noopener">MDN — Array reference</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი მასივი 5 ქალაქის სახელით და <code>for...of</code>-ის გამოყენებით დაბეჭდე თითოეული Console-ში.</li>
+          <li>შექმენი ობიექტი, რომელიც აღწერს წიგნს (title, author, year, isAvailable) — წაიკითხე ორივე notation-ით (dot და bracket).</li>
+          <li>შექმენი მასივი რიცხვებით და <code>filter()</code>-ის გამოყენებით გამოყავი მხოლოდ 10-ზე მეტი რიცხვები.</li>
+          <li>იგივე მასივზე გამოიყენე <code>map()</code>, რომ ყველა რიცხვი 3-ჯერ გაზარდო, და <code>reduce()</code>, რომ დაითვალო ჯამი.</li>
+          <li><em>(რთული)</em> შექმენი მასივი 5 „სტუდენტის" ობიექტით (თითოეულს აქვს <code>name</code> და <code>grade</code>), <code>filter()</code>-ის გამოყენებით გამოყავი მხოლოდ ისინი, ვისი <code>grade</code>-იც 90-ზე მეტია, შემდეგ <code>map()</code>-ის გამოყენებით შექმენი ახალი მასივი მხოლოდ სახელებით.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson11.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson13.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
