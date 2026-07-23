@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 20 — OOP, Prototype, Classes, Storage & Cookies</title>
+  <meta name="description" content="Constructor function, Prototype, მემკვიდრეობითობა, Classes, Setters/Getters, instanceof, localStorage/sessionStorage, Cookies და ფილტრის აწყობა." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 20
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 20/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        OOP, Prototype, Classes, Storage & Cookies
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        JavaScript მოდულის ბოლო გაკვეთილი — ობიექტზე ორიენტირებული პროგრამირების საფუძვლები და
+        ბრაუზერში მონაცემების შენახვის გზები. ეს ცოდნა პირდაპირ მოგვამზადებს React-ისთვის.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Constructor Function</h2>
+      <p>
+        Constructor function არის „ქარხანა", საიდანაც ერთი და იმავე „ფორმის" ბევრი ობიექტის
+        შექმნა შეიძლება. Convention-ის მიხედვით, სახელი იწერება დიდი ასოთი და გამოიძახება
+        <code>new</code> საკვანძო სიტყვით:
+      </p>
+      <pre><code><span class="attr">function</span> Student(name, age) {
+  <span class="attr">this</span>.name = name;
+  <span class="attr">this</span>.age = age;
+}
+
+<span class="attr">const</span> student1 = <span class="attr">new</span> Student("ანა", 22);
+<span class="attr">const</span> student2 = <span class="attr">new</span> Student("გიორგი", 24);
+
+console.log(student1.name); <span class="cmt">// "ანა"</span></code></pre>
+
+      <h2>2. Prototype და მემკვიდრეობითობა</h2>
+      <p>
+        ყველა ობიექტს JavaScript-ში აქვს „ფარული" კავშირი მშობელ ობიექტთან — <strong>prototype</strong>-თან.
+        მეთოდები, საერთო ყველა instance-სთვის, საუკეთესოა prototype-ზე დავდოთ (და არა
+        constructor-ის შიგნით) — ეს ეკონომიურია მეხსიერების თვალსაზრისით:
+      </p>
+      <pre><code>Student.prototype.introduce = <span class="attr">function</span>() {
+  <span class="attr">return</span> `გამარჯობა, მე ვარ ${<span class="attr">this</span>.name}`;
+};
+
+console.log(student1.introduce()); <span class="cmt">// "გამარჯობა, მე ვარ ანა"</span>
+console.log(student2.introduce()); <span class="cmt">// ორივე instance-ი "იზიარებს" ერთსა და იმავე მეთოდს</span></code></pre>
+      <p>
+        <strong>მემკვიდრეობითობა (inheritance)</strong> საშუალებას გვაძლევს, ერთმა „ტიპმა"
+        მემკვიდრეობით მიიღოს მეორის თვისებები და მეთოდები — ეს პრაქტიკაში დღეს თითქმის ყოველთვის
+        <code>class</code> სინტაქსით (იხ. ქვემოთ) ხორციელდება.
+      </p>
+
+      <h2>3. Class-ები — თანამედროვე სინტაქსი</h2>
+      <p>
+        ES6-ის <code>class</code> არის „სინტაქსური შაქარი" ზემოთ ნაჩვენები
+        constructor-function/prototype სისტემის თავზე — იგივე მექანიზმია, უფრო წასაკითხავი ფორმით:
+      </p>
+      <pre><code><span class="attr">class</span> Student {
+  <span class="attr">constructor</span>(name, age) {
+    <span class="attr">this</span>.name = name;
+    <span class="attr">this</span>._age = age; <span class="cmt">// კონვენცია: "_" პრეფიქსი "შიდა" თვისებისთვის (getter/setter-თან)</span>
+  }
+
+  introduce() {
+    <span class="attr">return</span> `გამარჯობა, მე ვარ ${<span class="attr">this</span>.name}`;
+  }
+}
+
+<span class="attr">const</span> student1 = <span class="attr">new</span> Student("ანა", 22);
+console.log(student1.introduce());</code></pre>
+
+      <h3>მემკვიდრეობითობა Class-ებში: extends</h3>
+      <pre><code><span class="attr">class</span> GraduateStudent <span class="attr">extends</span> Student {
+  <span class="attr">constructor</span>(name, age, thesisTopic) {
+    <span class="attr">super</span>(name, age); <span class="cmt">// მშობელი კლასის constructor-ის გამოძახება</span>
+    <span class="attr">this</span>.thesisTopic = thesisTopic;
+  }
+
+  introduce() {
+    <span class="attr">return</span> `${<span class="attr">super</span>.introduce()}, ჩემი თემაა "${<span class="attr">this</span>.thesisTopic}"`;
+  }
+}
+
+<span class="attr">const</span> grad = <span class="attr">new</span> GraduateStudent("მარი", 27, "Front-end განათლება");
+console.log(grad.introduce());</code></pre>
+
+      <h2>4. Setters & Getters</h2>
+      <p>
+        Getter/setter გვაძლევს კონტროლს იმაზე, თუ როგორ იკითხება/იწერება თვისება — შესაძლებელია
+        დამატებითი ლოგიკის (მაგ. ვალიდაციის) ჩამატება:
+      </p>
+      <pre><code><span class="attr">class</span> Student {
+  <span class="attr">constructor</span>(name, age) {
+    <span class="attr">this</span>.name = name;
+    <span class="attr">this</span>._age = age;
+  }
+
+  <span class="attr">get</span> age() {
+    <span class="attr">return</span> <span class="attr">this</span>._age;
+  }
+
+  <span class="attr">set</span> age(value) {
+    <span class="attr">if</span> (value < 0) {
+      <span class="attr">throw new</span> Error("ასაკი ვერ იქნება უარყოფითი");
+    }
+    <span class="attr">this</span>._age = value;
+  }
+}
+
+<span class="attr">const</span> s = <span class="attr">new</span> Student("ანა", 22);
+console.log(s.age);   <span class="cmt">// 22 — getter-ის გამოძახება, ფრჩხილების გარეშე</span>
+s.age = 23;           <span class="cmt">// setter-ის გამოძახება</span>
+s.age = -5;           <span class="cmt">// ❌ Error — setter-ის ვალიდაცია მუშაობს</span></code></pre>
+
+      <h2>5. instanceof ოპერატორი</h2>
+      <p>ამოწმებს, არის თუ არა ობიექტი კონკრეტული class-ის (ან constructor-ის) instance-ი:</p>
+      <pre><code>console.log(grad instanceof GraduateStudent); <span class="cmt">// true</span>
+console.log(grad instanceof Student);         <span class="cmt">// true — მემკვიდრეობის გამო</span>
+console.log(grad instanceof Array);           <span class="cmt">// false</span></code></pre>
+
+      <h2>6. მონაცემების შენახვა ბრაუზერში</h2>
+      <p>
+        ბრაუზერს აქვს რამდენიმე ჩაშენებული მექანიზმი, რომ მონაცემი „გადარჩეს" გვერდის ხელახლა
+        ჩატვირთვის შემდეგაც:
+      </p>
+      <pre><code><span class="cmt">// localStorage — რჩება უსასრულოდ, სანამ ხელით არ წაიშლება</span>
+localStorage.setItem("theme", "dark");
+console.log(localStorage.getItem("theme")); <span class="cmt">// "dark"</span>
+localStorage.removeItem("theme");
+
+<span class="cmt">// sessionStorage — იშლება, როცა ბრაუზერის ტაბი იხურება</span>
+sessionStorage.setItem("draft", JSON.stringify({ text: "..." }));
+
+<span class="cmt">// ობიექტების შენახვისას — ყოველთვის JSON.stringify/parse საჭიროა</span>
+<span class="attr">const</span> user = { name: "ანა", loggedIn: true };
+localStorage.setItem("user", JSON.stringify(user));
+<span class="attr">const</span> restoredUser = JSON.parse(localStorage.getItem("user"));</code></pre>
+      <p>
+        <strong>Cookies</strong> უფრო ძველი მექანიზმია — ავტომატურად იგზავნება ყოველ HTTP
+        მოთხოვნასთან ერთად სერვერზე (localStorage/sessionStorage არ იგზავნება), რაც მას
+        გამოსადეგს ხდის session/auth ინფორმაციისთვის, თუმცა ტევადობა ბევრად ნაკლებია:
+      </p>
+      <pre><code>document.cookie = "username=ana; max-age=3600"; <span class="cmt">// 1 საათის ვადით</span>
+console.log(document.cookie); <span class="cmt">// "username=ana" — ყველა cookie ერთ სტრიქონად</span></code></pre>
+
+      <h2>7. პრაქტიკა: ფილტრის აწყობა</h2>
+      <p>
+        ყველაფერი ერთად — მონაცემთა მასივის ფილტრაცია (მე-12 გაკვეთილიდან), DOM (მე-15) და events
+        (მე-16):
+      </p>
+      <pre><code><span class="attr">const</span> products = [
+  { name: "წიგნი", category: "განათლება", price: 15 },
+  { name: "ყურსასმენი", category: "ტექნიკა", price: 80 },
+  { name: "რვეული", category: "განათლება", price: 5 },
+];
+
+<span class="attr">const</span> filterButtons = document.querySelectorAll("[data-filter]");
+<span class="attr">const</span> list = document.querySelector("#product-list");
+
+<span class="attr">function</span> render(items) {
+  list.innerHTML = items
+    .map(p => `&lt;li&gt;${p.name} — ${p.price}₾&lt;/li&gt;`)
+    .join("");
+}
+
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    <span class="attr">const</span> category = btn.dataset.filter;
+    <span class="attr">const</span> filtered = category === "all"
+      ? products
+      : products.filter(p => p.category === category);
+    render(filtered);
+  });
+});
+
+render(products); <span class="cmt">// საწყისი მდგომარეობა — ყველა პროდუქტი</span></code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://javascript.info/class" target="_blank" rel="noopener">JavaScript.info — Class basics</a></li>
+          <li><a href="https://javascript.info/class-inheritance" target="_blank" rel="noopener">JavaScript.info — Class inheritance</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank" rel="noopener">MDN — Web Storage API (localStorage/sessionStorage)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank" rel="noopener">MDN — Using HTTP Cookies</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დაწერე <code>Book</code> class (title, author, isRead) და <code>introduce()</code> მეთოდი, რომელიც აღწერს წიგნს.</li>
+          <li>შექმენი <code>EBook extends Book</code>, დაამატე <code>fileSize</code> თვისება და გადაწერე <code>introduce()</code>, <code>super.introduce()</code>-ის გამოყენებით.</li>
+          <li>დაამატე <code>Book</code> class-ს getter/setter <code>rating</code>-ისთვის, რომელიც ვალიდაციას უკეთებს (1-დან 5-მდე).</li>
+          <li>შეინახე მარტივი ობიექტი <code>localStorage</code>-ში, გადატვირთე გვერდი და <code>getItem</code>-ის გამოყენებით აჩვენე, რომ მონაცემი შენარჩუნებულია.</li>
+          <li><em>(რთული)</em> ააწყვე პროდუქტების ფილტრი (ზემოთ ნაჩვენები მაგალითის მსგავსი) — მინიმუმ 3 კატეგორიის ღილაკით — და დაამატე, რომ არჩეული ფილტრი ინახებოდეს <code>localStorage</code>-ში, რომ გვერდის ხელახლა გახსნისას ბოლო არჩეული ფილტრი ავტომატურად აქტიური იყოს.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson19.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson21.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
