@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 24 — React Forms, ავტორიზაცია, E-commerce საბოლოო პროექტი</title>
+  <meta name="description" content="React ფორმები და ვალიდაცია, საბაზისო ავტორიზაციის ლოგიკა, E-commerce აპლიკაცია React-ზე და კურსის შემაჯამებელი საუკეთესო პრაქტიკები." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">React მოდული</a> / გაკვეთილი 24
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-react-bg); color: var(--mod-react);">React · 24/24 — საბოლოო გაკვეთილი</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        React Forms, ავტორიზაცია, E-commerce საბოლოო პროექტი
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        კურსის ბოლო გაკვეთილი აერთიანებს ყველაფერს — HTML-იდან React-მდე — ერთ პრაქტიკულ,
+        რეალისტურ პროექტში: მარტივ E-commerce აპლიკაციაში.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. React Form და ვალიდაცია</h2>
+      <p>
+        React-ში ფორმის ველები ჩვეულებრივ არის <strong>controlled</strong> — მათი მნიშვნელობა
+        ინახება state-ში, არა თავად DOM-ში (განსხვავებით ჩვეულებრივი HTML ფორმებისგან):
+      </p>
+      <pre><code><span class="attr">function</span> ContactForm() {
+  <span class="attr">const</span> [email, setEmail] = useState("");
+  <span class="attr">const</span> [error, setError] = useState("");
+
+  <span class="attr">function</span> handleSubmit(event) {
+    event.preventDefault(); <span class="cmt">// ისევე, როგორც vanilla JS-ში (მე-16 გაკვეთილი)</span>
+
+    <span class="attr">if</span> (!email.includes("@")) {
+      setError("გთხოვთ, მიუთითოთ ვალიდური ელფოსტა");
+      <span class="attr">return</span>;
+    }
+    setError("");
+    console.log("იგზავნება:", email);
+  }
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">form</span> <span class="attr">onSubmit</span>={handleSubmit}&gt;
+      &lt;<span class="tag">input</span>
+        <span class="attr">type</span>=<span class="str">"email"</span>
+        <span class="attr">value</span>={email}
+        <span class="attr">onChange</span>={(e) => setEmail(e.target.value)}
+      /&gt;
+      {error && &lt;<span class="tag">p</span> <span class="attr">className</span>=<span class="str">"error"</span>&gt;{error}&lt;/<span class="tag">p</span>&gt;}
+      &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;გაგზავნა&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</code></pre>
+      <p>
+        <code>value={email}</code> + <code>onChange</code> წყვილი — ეს არის „controlled input"-ის
+        ფორმულა: React state ყოველთვის „წყაროა ჭეშმარიტებისა" (source of truth) input-ის
+        მიმდინარე მნიშვნელობისთვის.
+      </p>
+
+      <h2>2. საბაზისო ავტორიზაციის ლოგიკა</h2>
+      <p>
+        რეალურ პროექტში ავტორიზაცია მოიცავს სერვერს, ტოკენებს და უსაფრთხოების ბევრ დეტალს — მაგრამ
+        საბაზისო, front-end მხარეს, პატერნი ასე გამოიყურება (მე-20 გაკვეთილის storage-ცოდნაზე
+        დაფუძნებული):
+      </p>
+      <pre><code><span class="attr">function</span> LoginForm({ onLogin }) {
+  <span class="attr">const</span> [username, setUsername] = useState("");
+
+  <span class="attr">function</span> handleSubmit(event) {
+    event.preventDefault();
+    <span class="cmt">// რეალურ აპლიკაციაში აქ იქნებოდა API მოთხოვნა (axios.post("/login", ...))</span>
+    sessionStorage.setItem("user", JSON.stringify({ username }));
+    onLogin(username); <span class="cmt">// მშობელი კომპონენტისთვის ცნობა, რომ ავტორიზაცია მოხდა</span>
+  }
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">form</span> <span class="attr">onSubmit</span>={handleSubmit}&gt;
+      &lt;<span class="tag">input</span> <span class="attr">value</span>={username} <span class="attr">onChange</span>={(e) => setUsername(e.target.value)} /&gt;
+      &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;შესვლა&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );
+}</code></pre>
+      <p>
+        „დაცული" (protected) გვერდები React Router-ში ჩვეულებრივ სტატუსს ამოწმებენ და საჭიროების
+        შემთხვევაში ავტომატურად გადამისამართებენ login გვერდზე — ეს ლოგიკა ჩვეულებრივ იტანება
+        ერთ, ხელახლა გამოსაყენებელ კომპონენტში.
+      </p>
+
+      <h2>3. E-commerce აპლიკაციის არქიტექტურა</h2>
+      <p>
+        დავხატოთ, საიდან შედგება მარტივი მაღაზიის აპლიკაცია — ეს არის ის სტრუქტურა, რომელსაც
+        დამოუკიდებლად ააშენებ ამ გაკვეთილის ბოლო დავალებაში:
+      </p>
+      <pre><code>src/
+├── main.jsx              <span class="cmt">// შესვლის წერტილი (createRoot)</span>
+├── App.jsx                <span class="cmt">// BrowserRouter + Routes</span>
+├── hooks/
+│   └── useFetch.js         <span class="cmt">// custom hook (მე-23 გაკვეთილიდან)</span>
+├── context/
+│   └── CartContext.jsx     <span class="cmt">// კალათის state, გაზიარებული ყველა კომპონენტისთვის</span>
+├── pages/
+│   ├── Home.jsx
+│   ├── ProductList.jsx
+│   └── Cart.jsx
+└── components/
+    ├── ProductCard.jsx
+    └── Navbar.jsx</code></pre>
+      <p>
+        <strong>Cart-ის მდგომარეობა</strong> (რომელი პროდუქტებია კალათაში) საჭიროებს „გაზიარებას"
+        ბევრ კომპონენტს შორის (ProductCard-ს „დამატება" ღილაკიდან, Navbar-ს რაოდენობის ჩვენებამდე,
+        Cart გვერდამდე) — ამისთვის React გვთავაზობს <strong>Context API</strong>-ს (props-ის ყოველ
+        დონეზე ხელით გადაცემის თავიდან ასაცილებლად):
+      </p>
+      <pre><code><span class="cmt">// CartContext.jsx — გამარტივებული მაგალითი</span>
+<span class="attr">import</span> { createContext, useState, useContext } <span class="attr">from</span> "react";
+
+<span class="attr">const</span> CartContext = createContext();
+
+<span class="attr">export function</span> CartProvider({ children }) {
+  <span class="attr">const</span> [items, setItems] = useState([]);
+
+  <span class="attr">function</span> addToCart(product) {
+    setItems(prev => [...prev, product]); <span class="cmt">// spread — უცვლელი (immutable) განახლება, მე-14 გაკვეთილიდან</span>
+  }
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">CartContext.Provider</span> <span class="attr">value</span>={{ items, addToCart }}&gt;
+      {children}
+    &lt;/<span class="tag">CartContext.Provider</span>&gt;
+  );
+}
+
+<span class="attr">export function</span> useCart() {
+  <span class="attr">return</span> useContext(CartContext); <span class="cmt">// custom hook, კონტექსტთან წვდომისთვის</span>
+}</code></pre>
+      <pre><code><span class="cmt">// ProductCard.jsx — ნებისმიერ სიღრმეზე, props-ის გადაცემის გარეშე</span>
+<span class="attr">function</span> ProductCard({ product }) {
+  <span class="attr">const</span> { addToCart } = useCart();
+  <span class="attr">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
+      &lt;<span class="tag">h3</span>&gt;{product.name}&lt;/<span class="tag">h3</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => addToCart(product)}&gt;კალათაში დამატება&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</code></pre>
+
+      <h2>4. React კომპონენტების, როუტინგისა და Material UI შერწყმა</h2>
+      <p>
+        ერთ პატარა მაგალითში — ProductList გვერდი, რომელიც იყენებს Custom Hook-ს მონაცემებისთვის,
+        Material UI-ს ღილაკებისთვის და Router-ის <code>Link</code>-ს ნავიგაციისთვის:
+      </p>
+      <pre><code><span class="attr">import</span> { Link } <span class="attr">from</span> "react-router-dom";
+<span class="attr">import</span> Button <span class="attr">from</span> "@mui/material/Button";
+<span class="attr">import</span> useFetch <span class="attr">from</span> "../hooks/useFetch";
+<span class="attr">import</span> { useCart } <span class="attr">from</span> "../context/CartContext";
+
+<span class="attr">function</span> ProductList() {
+  <span class="attr">const</span> { data: products, loading } = useFetch("/api/products");
+  <span class="attr">const</span> { addToCart } = useCart();
+
+  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      {products.map(p => (
+        &lt;<span class="tag">div</span> <span class="attr">key</span>={p.id}&gt;
+          &lt;<span class="tag">h3</span>&gt;{p.name}&lt;/<span class="tag">h3</span>&gt;
+          &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"contained"</span> <span class="attr">onClick</span>={() => addToCart(p)}&gt;
+            კალათაში დამატება
+          &lt;/<span class="tag">Button</span>&gt;
+        &lt;/<span class="tag">div</span>&gt;
+      ))}
+      &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/cart"</span>&gt;კალათის ნახვა&lt;/<span class="tag">Link</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</code></pre>
+
+      <h2>5. კურსის შემაჯამებელი — საუკეთესო პრაქტიკები</h2>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>სემანტიკური HTML</strong> ყოველთვის — ეს დღემდე რჩება ხელმისაწვდომობისა და SEO-ს საფუძვლად, React-ის კომპონენტებშიც კი.</li>
+        <li><strong>Mobile-First CSS</strong> — დაწერე პატარა ეკრანისთვის ჯერ, შემდეგ გააფართოვე <code>@media (min-width: ...)</code>-ით.</li>
+        <li><strong>State-ის უცვლელი (immutable) განახლება</strong> — spread ოპერატორის გამოყენება, არა state-ის პირდაპირი მუტაცია.</li>
+        <li><strong>Custom Hooks</strong> გამოიყენე განმეორებადი ლოგიკის (fetch, ფორმის ვალიდაცია) ერთ ადგილას შესაკრებად.</li>
+        <li><strong>კომპონენტების პატარა ზომა</strong> — ერთი კომპონენტი, ერთი პასუხისმგებლობა; დიდი კომპონენტი დაშალე პატარებად.</li>
+        <li><strong>Git commit-ები ხშირად</strong> — მცირე, გასაგები commit-ები, მკაფიო შეტყობინებებით.</li>
+        <li><strong>AI ასისტენტები</strong> — გამოსადეგია აჩქარებისთვის, მაგრამ ყოველთვის გადამოწმებადია, არა უპირობო ნდობის საგანი.</li>
+      </ul>
+      <p>
+        ეს კურსი დაფარა გზა ერთი HTML ტეგიდან სრულ React აპლიკაციამდე — შემდეგი ნაბიჯი შენია:
+        ააგე რეალური პროექტი, გაუზიარე კოდი GitHub-ზე და გააგრძელე სწავლა პრაქტიკით.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://react.dev/reference/react-dom/components/common#applying-css-styles" target="_blank" rel="noopener">React — Forms (controlled components)</a></li>
+          <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank" rel="noopener">React — Passing Data Deeply with Context</a></li>
+          <li><a href="https://mui.com/material-ui/getting-started/templates/" target="_blank" rel="noopener">Material UI — Templates (e-commerce ჩათვლით)</a></li>
+          <li><a href="https://reactrouter.com/en/main/hooks/use-params" target="_blank" rel="noopener">React Router — useParams reference</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">საბოლოო პროექტი — პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>ააწყვე ავტორიზაციის მარტივი ფორმა — <code>username</code>/<code>password</code> ველებით, ვალიდაციით, და <code>sessionStorage</code>-ში „ავტორიზებული" მდგომარეობის შენახვით.</li>
+          <li>შექმენი <code>CartContext</code> ზემოთ მოცემული მაგალითის მსგავსად და დაარეგისტრირე ის <code>App.jsx</code>-ში.</li>
+          <li>ააწყვე <code>ProductList</code> გვერდი — 6+ პროდუქტით (მასივი static მონაცემით ან <code>useFetch</code>-ით), თითოეულს ჰქონდეს „კალათაში დამატება" ღილაკი.</li>
+          <li>ააწყვე <code>Cart</code> გვერდი, რომელიც <code>useCart()</code>-ის გამოყენებით აჩვენებს დამატებულ პროდუქტებს და ჯამურ ფასს (<code>reduce()</code>-ის გამოყენებით).</li>
+          <li><em>(საბოლოო, კომპლექსური დავალება)</em> გააერთიანე ყველაფერი ერთ სრულ, მუშა React აპლიკაციაში: React Router-ით ნავიგაცია (მთავარი/პროდუქტები/კალათა/შესვლა), Material UI-ის კომპონენტებით გაფორმებული, Context-ით მართული კალათა, და მინიმუმ ერთი custom hook — ატვირთე პროექტი GitHub-ზე.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson23.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="index.html#syllabus">↺ სილაბუსზე დაბრუნება</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი — კურსი დასრულებულია 🎉</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

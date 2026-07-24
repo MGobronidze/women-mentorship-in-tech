@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 22 — React State/Props, List & Keys, Hooks</title>
+  <meta name="description" content="React state და props, List & Keys, React Hooks — useState, useEffect, useRef და lifecycle კონცეფცია." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">React მოდული</a> / გაკვეთილი 22
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-react-bg); color: var(--mod-react);">React · 22/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        React State/Props, List & Keys, Hooks
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        წინა გაკვეთილში კომპონენტები „სტატიკური" იყო. ახლა ვასწავლით მათ, დაიმახსოვრონ მონაცემები
+        და შეიცვალონ დროთა განმავლობაში — ეს არის React-ის ნამდვილი ძალა.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. Props — მონაცემები „მშობლიდან შვილზე"</h2>
+      <p>
+        <strong>Props</strong> (properties) არის ის გზა, რომლითაც მშობელი კომპონენტი მონაცემებს
+        გადასცემს შვილ კომპონენტს — ისევე, როგორც HTML ატრიბუტს ვწერთ:
+      </p>
+      <pre><code><span class="cmt">// Card.jsx — იღებს props-ს, როგორც პარამეტრს (ჩვეულებრივ, destructuring-ით)</span>
+<span class="attr">function</span> Card({ title, price }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
+      &lt;<span class="tag">h3</span>&gt;{title}&lt;/<span class="tag">h3</span>&gt;
+      &lt;<span class="tag">p</span>&gt;{price}₾&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="cmt">// App.jsx — props-ის გადაცემა, ატრიბუტების მსგავსად</span>
+&lt;<span class="tag">Card</span> <span class="attr">title</span>=<span class="str">"React წიგნი"</span> <span class="attr">price</span>={35} /&gt;</code></pre>
+      <p>
+        <strong>props არის read-only</strong> — შვილ კომპონენტს არასდროს არ შეუძლია საკუთარი
+        props-ის უშუალო შეცვლა. ეს არის React-ის ერთ-ერთი ფუნდამენტური წესი (ცალმხრივი მონაცემთა
+        ნაკადი — one-way data flow).
+      </p>
+
+      <h2>2. State — useState Hook</h2>
+      <p>
+        <strong>State</strong> არის მონაცემი, რომელსაც კომპონენტი <em>თავად</em> ფლობს და
+        <em>თავად</em> ცვლის დროთა განმავლობაში (მაგ. მომხმარებლის მოქმედების პასუხად).
+        <code>useState</code> არის React-ის Hook, რომელიც კომპონენტს state-ის დამატების საშუალებას აძლევს:
+      </p>
+      <pre><code><span class="attr">import</span> { useState } <span class="attr">from</span> "react";
+
+<span class="attr">function</span> Counter() {
+  <span class="attr">const</span> [count, setCount] = useState(0); <span class="cmt">// [მიმდინარე მნიშვნელობა, განახლების ფუნქცია]</span>
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">p</span>&gt;დაწკაპუნებულია: {count} ჯერ&lt;/<span class="tag">p</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => setCount(count + 1)}&gt;
+        დაწკაპუნება
+      &lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}</code></pre>
+      <p>
+        <strong>მნიშვნელოვანი წესი:</strong> state არასდროს არ იცვლება პირდაპირ (<code>count = count + 1</code>
+        ❌) — ყოველთვის <code>setCount</code>-ის მსგავსი „setter" ფუნქციით. სწორედ ეს გამოძახება
+        ეუბნება React-ს, ხელახლა გამოსახოს (re-render) კომპონენტი ახალი მონაცემით.
+      </p>
+
+      <h2>3. List & Keys</h2>
+      <p>
+        მასივის რენდერისთვის ვიყენებთ <code>map()</code>-ს (მე-12 გაკვეთილიდან უკვე ნაცნობი) —
+        JSX-ში პირდაპირ ჩასმით:
+      </p>
+      <pre><code><span class="attr">const</span> products = [
+  { id: 1, name: "წიგნი" },
+  { id: 2, name: "ყურსასმენი" },
+];
+
+<span class="attr">function</span> ProductList() {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">ul</span>&gt;
+      {products.map(product => (
+        &lt;<span class="tag">li</span> <span class="attr">key</span>={product.id}&gt;{product.name}&lt;/<span class="tag">li</span>&gt;
+      ))}
+    &lt;/<span class="tag">ul</span>&gt;
+  );
+}</code></pre>
+      <p>
+        <code>key</code> ატრიბუტი <strong>აუცილებელია</strong> — ეს არის უნიკალური იდენტიფიკატორი,
+        რომლითაც React ცნობს, რომელი ელემენტი შეიცვალა, დაემატა თუ წაიშალა სიაში. საუკეთესოა
+        გამოვიყენოთ მონაცემის უნიკალური ID (არა მასივის index, თუ სია დინამიურად იცვლება).
+      </p>
+
+      <h2>4. useEffect Hook</h2>
+      <p>
+        <code>useEffect</code> გამოსადეგია „გვერდითი ეფექტებისთვის" (side effects) — მოქმედებები,
+        რომლებიც კომპონენტის რენდერის მიღმა ხდება: API მოთხოვნები, ტაიმერები, event listener-ები.
+      </p>
+      <pre><code><span class="attr">import</span> { useState, useEffect } <span class="attr">from</span> "react";
+
+<span class="attr">function</span> UserProfile({ userId }) {
+  <span class="attr">const</span> [user, setUser] = useState(null);
+
+  useEffect(() => {
+    <span class="cmt">// ეს კოდი სრულდება კომპონენტის რენდერის შემდეგ</span>
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => setUser(data));
+  }, [userId]); <span class="cmt">// dependency მასივი — ეფექტი ხელახლა სრულდება, თუ userId შეიცვალა</span>
+
+  <span class="attr">if</span> (!user) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
+  <span class="attr">return</span> &lt;<span class="tag">h2</span>&gt;{user.name}&lt;/<span class="tag">h2</span>&gt;;
+}</code></pre>
+      <p>
+        <strong>Lifecycle კონცეფცია Hooks-ის კონტექსტში:</strong> ძველ, class-კომპონენტებში
+        არსებობდა ცალკეული მეთოდები (<code>componentDidMount</code>, <code>componentDidUpdate</code>)
+        „ცხოვრების ციკლის" სხვადასხვა მომენტისთვის. <code>useEffect</code> ერთ Hook-ში აერთიანებს
+        ამ ყველა შემთხვევას — dependency მასივის მეშვეობით:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>useEffect(fn, [])</code> — სრულდება მხოლოდ ერთხელ, კომპონენტის პირველი გამოსახვისას (mount).</li>
+        <li><code>useEffect(fn, [dep])</code> — სრულდება პირველად, და შემდეგ ყოველთვის, როცა <code>dep</code> იცვლება.</li>
+        <li><code>useEffect(fn)</code> (მასივის გარეშე) — სრულდება ყოველი რენდერის შემდეგ (იშვიათად გამოსადეგია).</li>
+      </ul>
+
+      <h2>5. useRef Hook</h2>
+      <p>
+        <code>useRef</code> ქმნის „კონტეინერს", რომლის მნიშვნელობის შეცვლა <strong>არ</strong>
+        იწვევს ხელახალ რენდერს (განსხვავებით <code>useState</code>-ისგან). ორი ძირითადი გამოყენებაა:
+      </p>
+      <pre><code><span class="attr">import</span> { useRef, useEffect } <span class="attr">from</span> "react";
+
+<span class="attr">function</span> SearchInput() {
+  <span class="attr">const</span> inputRef = useRef(null); <span class="cmt">// 1. პირდაპირი წვდომა DOM ელემენტზე</span>
+
+  useEffect(() => {
+    inputRef.current.focus(); <span class="cmt">// კომპონენტის ჩატვირთვისას, input ავტომატურად ფოკუსირდება</span>
+  }, []);
+
+  <span class="attr">return</span> &lt;<span class="tag">input</span> <span class="attr">ref</span>={inputRef} <span class="attr">type</span>=<span class="str">"text"</span> /&gt;;
+}</code></pre>
+      <pre><code><span class="cmt">// 2. მნიშვნელობის შენახვა რენდერებს შორის, ხელახალი რენდერის გამოწვევის გარეშე</span>
+<span class="attr">function</span> Timer() {
+  <span class="attr">const</span> renderCount = useRef(0);
+  renderCount.current++; <span class="cmt">// იზრდება, მაგრამ არ იწვევს ხელახალ რენდერს</span>
+  <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;ეს კომპონენტი გამოისახა {renderCount.current} ჯერ&lt;/<span class="tag">p</span>&gt;;
+}</code></pre>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://react.dev/learn/passing-props-to-a-component" target="_blank" rel="noopener">React — Passing Props to a Component</a></li>
+          <li><a href="https://react.dev/learn/state-a-components-memory" target="_blank" rel="noopener">React — State: A Component's Memory</a></li>
+          <li><a href="https://react.dev/learn/rendering-lists" target="_blank" rel="noopener">React — Rendering Lists (Keys)</a></li>
+          <li><a href="https://react.dev/reference/react/useEffect" target="_blank" rel="noopener">React — useEffect reference</a></li>
+          <li><a href="https://react.dev/reference/react/useRef" target="_blank" rel="noopener">React — useRef reference</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>შექმენი <code>ProfileCard</code> კომპონენტი, რომელიც props-ით იღებს <code>name</code>-ს და <code>bio</code>-ს, და ორჯერ გამოიძახე ის <code>App.jsx</code>-ში, სხვადასხვა მონაცემით.</li>
+          <li>ააწყვე <code>Counter</code> კომპონენტი <code>useState</code>-ის გამოყენებით — ღილაკებით +1 და -1.</li>
+          <li>შექმენი მასივი 5+ ობიექტით და <code>map()</code>-ის გამოყენებით გამოსახე სია, თითოეულ ელემენტს სწორი <code>key</code>-ით.</li>
+          <li>დაწერე <code>useEffect</code>, რომელიც <code>console.log</code>-ს აკეთებს ყოველთვის, როცა კონკრეტული state ცვლადი იცვლება (dependency მასივის გამოყენებით).</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი to-do აპლიკაცია React-ში: <code>useState</code> მასივისთვის, input დამატებისთვის, <code>map()</code> სიის გამოსახვისთვის (სწორი <code>key</code>-ებით) და ღილაკი წასაშლელად (<code>filter()</code>-ის გამოყენებით).</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson21.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson23.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

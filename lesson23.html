@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>გაკვეთილი 23 — API მუშაობა, Axios, Custom Hook, Router</title>
+  <meta name="description" content="Request async/await, Axios, error handling, loading state, Custom Hook, Styled Components, Material UI, Virtual DOM და React Router." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="brand-name">front-end-course</span>
+      </div>
+      <ul class="nav-links" id="nav-links" data-open="false">
+        <li><a href="index.html#modules">მოდულები</a></li>
+        <li><a href="index.html#syllabus">სილაბუსი</a></li>
+        <li><a href="lesson1.html">დაწყება</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="მენიუს გახსნა">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <section class="lesson-header">
+      <div class="lesson-crumbs">
+        <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">React მოდული</a> / გაკვეთილი 23
+      </div>
+      <span class="lesson-mod" style="background: var(--mod-react-bg); color: var(--mod-react);">React · 23/24</span>
+      <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
+        API მუშაობა, Axios, Custom Hook, Router
+      </h1>
+      <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
+        React აპლიკაცია იშვიათად არსებობს იზოლირებულად — თითქმის ყოველთვის მას სჭირდება
+        სერვერთან კომუნიკაცია და რამდენიმე „გვერდი". ეს გაკვეთილი სწორედ ამას ეთმობა.
+      </p>
+    </section>
+
+    <article class="lesson-article">
+
+      <h2>1. მონაცემების წამოღება: async/await + useEffect</h2>
+      <p>
+        React-ში API მოთხოვნები ჩვეულებრივ ხდება <code>useEffect</code>-ის შიგნით (მე-22
+        გაკვეთილიდან ნაცნობი), <code>async</code> ფუნქციის დახმარებით (<code>useEffect</code>-ის
+        callback თავად არ შეიძლება იყოს <code>async</code>):
+      </p>
+      <pre><code><span class="attr">function</span> ProductList() {
+  <span class="attr">const</span> [products, setProducts] = useState([]);
+  <span class="attr">const</span> [loading, setLoading] = useState(<span class="attr">true</span>);
+  <span class="attr">const</span> [error, setError] = useState(<span class="attr">null</span>);
+
+  useEffect(() => {
+    <span class="attr">async function</span> loadProducts() {
+      <span class="attr">try</span> {
+        <span class="attr">const</span> response = <span class="attr">await</span> fetch("/api/products");
+        <span class="attr">if</span> (!response.ok) <span class="attr">throw new</span> Error("წამოღება ვერ მოხერხდა");
+        <span class="attr">const</span> data = <span class="attr">await</span> response.json();
+        setProducts(data);
+      } <span class="attr">catch</span> (err) {
+        setError(err.message);
+      } <span class="attr">finally</span> {
+        setLoading(<span class="attr">false</span>); <span class="cmt">// ან წარმატებით, ან შეცდომით — loading მთავრდება</span>
+      }
+    }
+    loadProducts();
+  }, []);
+
+  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
+  <span class="attr">if</span> (error) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;შეცდომა: {error}&lt;/<span class="tag">p</span>&gt;;
+  <span class="attr">return</span> &lt;<span class="tag">ul</span>&gt;{products.map(p => &lt;<span class="tag">li</span> <span class="attr">key</span>={p.id}&gt;{p.name}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+}</code></pre>
+      <p>
+        <code>loading</code> და <code>error</code> state ცვლადები — ეს არის სტანდარტული პატერნი
+        ნებისმიერ React აპლიკაციაში, სადაც მონაცემები სერვერიდან მოდის.
+      </p>
+
+      <h2>2. Axios — ალტერნატივა Fetch-ისთვის</h2>
+      <p>
+        <strong>Axios</strong> არის პოპულარული NPM ბიბლიოთეკა HTTP მოთხოვნებისთვის — Fetch-თან
+        შედარებით გვთავაზობს ავტომატურ JSON პარსინგს, უფრო მარტივ error handling-ს და
+        request/response ინტერცეპტორებს.
+      </p>
+      <pre><code><span class="cmt"># ინსტალაცია</span>
+npm install axios</code></pre>
+      <pre><code><span class="attr">import</span> axios <span class="attr">from</span> "axios";
+
+<span class="attr">async function</span> loadProducts() {
+  <span class="attr">try</span> {
+    <span class="attr">const</span> response = <span class="attr">await</span> axios.get("/api/products"); <span class="cmt">// ავტომატურად JSON-ად პარსავს</span>
+    setProducts(response.data); <span class="cmt">// მონაცემი პირდაპირ .data-შია, .json() აღარ სჭირდება</span>
+  } <span class="attr">catch</span> (err) {
+    setError(err.message);
+  }
+}</code></pre>
+      <p>
+        Axios ასევე იძლევა საშუალებას, ერთხელ დავაყენოთ „ბაზური" კონფიგურაცია (base URL,
+        default headers) — გამოსადეგია, როცა ბევრი endpoint-თან ვმუშაობთ:
+      </p>
+      <pre><code><span class="attr">const</span> api = axios.create({
+  baseURL: "https://api.example.com",
+  headers: { Authorization: "Bearer TOKEN" },
+});
+
+<span class="attr">const</span> response = <span class="attr">await</span> api.get("/products"); <span class="cmt">// baseURL ავტომატურად ერწყმის</span></code></pre>
+
+      <h2>3. Custom Hook</h2>
+      <p>
+        Custom Hook არის ჩვეულებრივი JavaScript ფუნქცია, რომლის სახელი იწყება <code>use</code>-ით
+        და რომელიც სხვა Hook-ებს (<code>useState</code>, <code>useEffect</code>) იყენებს — ეს
+        საშუალებას გვაძლევს, გავიტანოთ განმეორებადი ლოგიკა ცალკე, ხელახლა გამოსაყენებელ ერთეულში.
+      </p>
+      <pre><code><span class="cmt">// useFetch.js — Custom Hook, რომელიც "ფარავს" loading/error/data ლოგიკას</span>
+<span class="attr">import</span> { useState, useEffect } <span class="attr">from</span> "react";
+
+<span class="attr">function</span> useFetch(url) {
+  <span class="attr">const</span> [data, setData] = useState(<span class="attr">null</span>);
+  <span class="attr">const</span> [loading, setLoading] = useState(<span class="attr">true</span>);
+  <span class="attr">const</span> [error, setError] = useState(<span class="attr">null</span>);
+
+  useEffect(() => {
+    setLoading(<span class="attr">true</span>);
+    axios.get(url)
+      .then(res => setData(res.data))
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(<span class="attr">false</span>));
+  }, [url]);
+
+  <span class="attr">return</span> { data, loading, error };
+}
+
+<span class="attr">export default</span> useFetch;</code></pre>
+      <pre><code><span class="cmt">// ProductList.jsx — ერთი ხაზი, ნაცვლად 15-ის!</span>
+<span class="attr">function</span> ProductList() {
+  <span class="attr">const</span> { data: products, loading, error } = useFetch("/api/products");
+
+  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
+  <span class="attr">if</span> (error) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;{error}&lt;/<span class="tag">p</span>&gt;;
+  <span class="attr">return</span> &lt;<span class="tag">ul</span>&gt;{products.map(p => &lt;<span class="tag">li</span> <span class="attr">key</span>={p.id}&gt;{p.name}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+}</code></pre>
+
+      <h2>4. Styled Components და Material UI</h2>
+      <p>
+        <strong>Styled Components</strong> არის ბიბლიოთეკა, რომელიც საშუალებას გვაძლევს, CSS
+        პირდაპირ JS ფაილში დავწეროთ, კომპონენტთან „მიმაგრებული":
+      </p>
+      <pre><code><span class="attr">import</span> styled <span class="attr">from</span> "styled-components";
+
+<span class="attr">const</span> Button = styled.button`
+  background: #146B5C;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+
+  &:hover {
+    background: #1B8A75;
+  }
+`;
+
+<span class="cmt">// გამოყენება ჩვეულებრივი კომპონენტივით</span>
+&lt;<span class="tag">Button</span>&gt;დაწკაპუნება&lt;/<span class="tag">Button</span>&gt;</code></pre>
+      <p>
+        <strong>Material UI</strong> (MUI) კი, Bootstrap-ის React ვერსიის მსგავსად, გვთავაზობს
+        მზა, სრულად აწყობილ React კომპონენტებს (ღილაკები, ფორმები, ცხრილები), Google-ის Material
+        Design-ის სტილში:
+      </p>
+      <pre><code><span class="attr">import</span> Button <span class="attr">from</span> "@mui/material/Button";
+
+&lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"contained"</span> <span class="attr">color</span>=<span class="str">"primary"</span>&gt;
+  შენახვა
+&lt;/<span class="tag">Button</span>&gt;</code></pre>
+
+      <h2>5. Virtual DOM — რატომ არის React სწრაფი</h2>
+      <p>
+        React ინახავს „ვირტუალურ" ასლს DOM-ისა მეხსიერებაში (Virtual DOM). state-ის შეცვლისას,
+        React ჯერ ადარებს ახალ ვირტუალურ DOM-ს ძველთან (<strong>diffing</strong>) და შემდეგ
+        ნამდვილ ბრაუზერის DOM-ში ცვლის <em>მხოლოდ</em> იმას, რაც რეალურად შეიცვალა — ეს ბევრად
+        უფრო სწრაფია, ვიდრე მთელი გვერდის ხელახლა აგება.
+      </p>
+
+      <h2>6. React Router — მრავალგვერდიანი ნავიგაცია</h2>
+      <p>
+        SPA-ში „გვერდები" სინამდვილეში ცალკე HTML ფაილები არ არის (როგორც ჩვენს
+        <code>lessonX.html</code> სისტემაში) — <strong>React Router</strong> მართავს URL-ს და
+        აჩვენებს შესაბამის კომპონენტს, გვერდის ხელახლა ჩატვირთვის გარეშე:
+      </p>
+      <pre><code><span class="cmt"># ინსტალაცია</span>
+npm install react-router-dom</code></pre>
+      <pre><code><span class="attr">import</span> { BrowserRouter, Routes, Route, Link } <span class="attr">from</span> "react-router-dom";
+
+<span class="attr">function</span> App() {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">BrowserRouter</span>&gt;
+      &lt;<span class="tag">nav</span>&gt;
+        &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/"</span>&gt;მთავარი&lt;/<span class="tag">Link</span>&gt;
+        &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/products"</span>&gt;პროდუქტები&lt;/<span class="tag">Link</span>&gt;
+      &lt;/<span class="tag">nav</span>&gt;
+
+      &lt;<span class="tag">Routes</span>&gt;
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/"</span> <span class="attr">element</span>={&lt;<span class="tag">Home</span> /&gt;} /&gt;
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/products"</span> <span class="attr">element</span>={&lt;<span class="tag">ProductList</span> /&gt;} /&gt;
+      &lt;/<span class="tag">Routes</span>&gt;
+    &lt;/<span class="tag">BrowserRouter</span>&gt;
+  );
+}</code></pre>
+      <p>
+        <code>&lt;Link&gt;</code> გამოიყენება <code>&lt;a&gt;</code>-ის ნაცვლად — ის React
+        Router-ს ატყობინებს ნავიგაციაზე, სრული გვერდის გადატვირთვის თავიდან ასაცილებლად.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
+        <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://axios-http.com/docs/intro" target="_blank" rel="noopener">Axios — ოფიციალური დოკუმენტაცია</a></li>
+          <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank" rel="noopener">React — Reusing Logic with Custom Hooks</a></li>
+          <li><a href="https://mui.com/material-ui/getting-started/" target="_blank" rel="noopener">Material UI — Getting started</a></li>
+          <li><a href="https://reactrouter.com/en/main/start/tutorial" target="_blank" rel="noopener">React Router — ოფიციალური tutorial</a></li>
+        </ul>
+      </div>
+
+      <div class="exercises">
+        <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
+        <ol style="padding-left: 20px;">
+          <li>დააინსტალირე axios და გადაწერე ერთი <code>fetch</code> მოთხოვნა Axios-ის გამოყენებით.</li>
+          <li>დაწერე <code>loading</code>/<code>error</code> state-ის სრული მართვა ერთი კომპონენტისთვის.</li>
+          <li>გამოიტანე ეს ლოგიკა <code>useFetch</code> custom hook-ად და გამოიყენე ის ორ სხვადასხვა კომპონენტში.</li>
+          <li>დააინსტალირე <code>react-router-dom</code> და ააწყვე მინიმუმ 2 „გვერდი" (მარშრუტი) ნავიგაციის ბმულებით.</li>
+          <li><em>(რთული)</em> გააერთიანე Custom Hook და Router — შექმენი გვერდი, რომელიც URL-ის პარამეტრით (<code>useParams</code>) იღებს ID-ს და <code>useFetch</code>-ის გამოყენებით ტვირთავს კონკრეტული ერთეულის დეტალურ ინფორმაციას.</li>
+        </ol>
+      </div>
+
+    </article>
+
+    <div class="lesson-pager">
+      <a class="pager-btn" href="lesson22.html">← წინა გაკვეთილი</a>
+      <a class="pager-btn" href="lesson24.html">შემდეგი გაკვეთილი →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="brand"><span class="brand-dot"></span></div>
+      <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
