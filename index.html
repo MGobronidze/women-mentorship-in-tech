@@ -35,7 +35,7 @@
       <div class="container hero-grid">
         <div>
           <span class="eyebrow">24 გაკვეთილი · HTML → CSS → JS → React</span>
-          <h1>ისწავლე ვებ-გვერდის აწყობა <em>ნულიდან</em></h1>
+          <h1>ისწავლე ვებ-გვერდის აწყობა <em>ნულიდან</em> React-ამდე</h1>
           <p class="hero-lede">
             სტრუქტურირებული Front-End Development კურსი: თითოეული გაკვეთილი შეიცავს თეორიას, კომენტირებულ კოდის მაგალითებს,
             დამატებით რესურსებს ოფიციალურ დოკუმენტაციაზე და პრაქტიკულ დავალებებს.
@@ -72,7 +72,7 @@
       <div class="container">
         <div class="section-head">
           <h2>4 მოდული, 24 გაკვეთილი</h2>
-          <p class="section-sub">კურსი ეფუძნება თანამედროვე სტანდარტებს (MDN, JavaScript.info, React დოკუმენტაცია) და მიძღვნილია სუფთა, მოდულური კოდის წერაზე.</p>
+          <p class="section-sub">კურსი ეფუძნება თანამედროვე სტანდარტებს (MDN, JavaScript.info, React დოკუმენტაცია) და მოძღვნილია სუფთა, მოდულური კოდის დაწერაზე.</p>
         </div>
         <div class="module-strip">
           <div class="module-chip" style="--chip-bg: var(--mod-html-bg); --chip-color: var(--mod-html);">
@@ -107,6 +107,14 @@
           <p class="section-sub">გაფილტრე მოდულის მიხედვით ან გადადი კონკრეტულ გაკვეთილზე.</p>
         </div>
 
+        <div class="course-progress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+          <span class="progress-text" id="progress-text">0/24 გაკვეთილი დასრულებული (0%)</span>
+          <button class="progress-reset" id="progress-reset" type="button">პროგრესის განულება</button>
+        </div>
+
         <div class="filter-row" id="filter-row">
           <button class="filter-btn" data-filter="all" data-active="true">ყველა</button>
           <button class="filter-btn" data-filter="html" style="--filter-color: var(--mod-html);">HTML</button>
@@ -122,7 +130,7 @@
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span></div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

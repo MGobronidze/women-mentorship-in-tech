@@ -430,6 +430,82 @@ code, pre { font-family: var(--font-mono); }
   margin-top: 24px;
 }
 
+/* ---------- Progress tracking (localStorage-based) ---------- */
+.lesson-progress {
+  margin-top: 20px;
+}
+.progress-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.progress-btn:hover { border-color: var(--mod-html); }
+.progress-btn[data-done="true"] {
+  background: var(--mod-html);
+  border-color: var(--mod-html);
+  color: var(--accent-contrast);
+}
+
+.course-progress {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.progress-bar-track {
+  flex: 1;
+  min-width: 160px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--mod-html), var(--mod-js));
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+.progress-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.progress-reset {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.progress-reset:hover { border-color: var(--mod-react); color: var(--mod-react); }
+
+.lesson-card.is-done { border-left-color: var(--mod-html); }
+.lesson-check {
+  color: var(--mod-html);
+  font-weight: 900;
+  margin-left: 4px;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr; }

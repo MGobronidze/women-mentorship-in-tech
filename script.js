@@ -49,7 +49,45 @@ const LESSONS = [
   { n: 24, mod: "react", title: "React Form, ავტორიზაცია, E-commerce საბოლოო პროექტი" },
 ];
 
-/* ---------- 2. სილაბუსის რენდერი ---------- */
+/* ---------- 2. პროგრესის თრექინგი (localStorage) ---------- */
+const PROGRESS_KEY = "front-end-course-progress-v1";
+let activeFilter = "all";
+
+function getProgress() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function setProgress(list) {
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(list));
+  } catch {
+    /* localStorage მიუწვდომელია (მაგ. პრივატული რეჟიმი) — ჩუმად ვცდილობთ, აპლიკაცია მაინც მუშაობს */
+  }
+}
+
+function isLessonDone(n) {
+  return getProgress().includes(n);
+}
+
+function toggleLessonDone(n) {
+  const progress = getProgress();
+  const idx = progress.indexOf(n);
+  if (idx === -1) {
+    progress.push(n);
+  } else {
+    progress.splice(idx, 1);
+  }
+  setProgress(progress);
+  return progress.includes(n);
+}
+
+/* ---------- 3. სილაბუსის რენდერი ---------- */
 function lessonFile(n) {
   return `lesson${n}.html`;
 }
@@ -59,16 +97,18 @@ function renderSyllabus(filter = "all") {
   if (!grid) return;
 
   const items = LESSONS.filter((l) => filter === "all" || l.mod === filter);
+  const progress = getProgress();
 
   grid.innerHTML = items
     .map((l) => {
       const mod = MODULES[l.mod];
       const num = String(l.n).padStart(2, "0");
+      const done = progress.includes(l.n);
       return `
-        <a class="lesson-card" href="${lessonFile(l.n)}"
+        <a class="lesson-card${done ? " is-done" : ""}" href="${lessonFile(l.n)}"
            style="--card-color:${mod.color}; --card-bg:${mod.color.replace("var(", "var(").replace(")", "-bg)")};">
           <div class="lesson-top">
-            <span class="lesson-num">გაკვეთილი ${num}</span>
+            <span class="lesson-num">გაკვეთილი ${num}${done ? ' <span class="lesson-check">✓</span>' : ""}</span>
             <span class="lesson-mod">${mod.label}</span>
           </div>
           <div class="lesson-title">${l.title}</div>
@@ -87,9 +127,58 @@ function setupFilters() {
     btn.addEventListener("click", () => {
       buttons.forEach((b) => b.setAttribute("data-active", "false"));
       btn.setAttribute("data-active", "true");
-      renderSyllabus(btn.dataset.filter);
+      activeFilter = btn.dataset.filter;
+      renderSyllabus(activeFilter);
     });
   });
+}
+
+/* ---------- 3b. კურსის საერთო პროგრესი (index.html) ---------- */
+function renderProgressSummary() {
+  const track = document.getElementById("progress-bar-fill");
+  const text = document.getElementById("progress-text");
+  if (!track || !text) return;
+
+  const done = getProgress().filter((n) => LESSONS.some((l) => l.n === n)).length;
+  const total = LESSONS.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  track.style.width = `${pct}%`;
+  text.textContent = `${done}/${total} გაკვეთილი დასრულებული (${pct}%)`;
+}
+
+function setupProgressReset() {
+  const resetBtn = document.getElementById("progress-reset");
+  if (!resetBtn) return;
+
+  resetBtn.addEventListener("click", () => {
+    setProgress([]);
+    renderProgressSummary();
+    renderSyllabus(activeFilter);
+  });
+}
+
+/* ---------- 3c. გაკვეთილის "დასრულებულია" toggle (lessonX.html) ---------- */
+function setupLessonProgress() {
+  const wrapper = document.querySelector(".lesson-progress");
+  const btn = document.getElementById("progress-btn");
+  if (!wrapper || !btn) return;
+
+  const n = Number(wrapper.dataset.lesson);
+  if (!n) return;
+
+  function render() {
+    const done = isLessonDone(n);
+    btn.textContent = done ? "✓ გაკვეთილი დასრულებულია" : "მონიშნე გაკვეთილი დასრულებულად";
+    btn.setAttribute("data-done", String(done));
+  }
+
+  btn.addEventListener("click", () => {
+    toggleLessonDone(n);
+    render();
+  });
+
+  render();
 }
 
 /* ---------- 3. მობილური ნავიგაცია ---------- */
@@ -142,4 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFilters();
   setupNav();
   setupHeroTyping();
+  renderProgressSummary();
+  setupProgressReset();
+  setupLessonProgress();
 });
