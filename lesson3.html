@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 03 — HTML ფორმები და მედია კონტენტი</title>
-  <meta name="description" content="HTML ფორმის ატრიბუტები, input-ის ტიპები, label ტეგი, და ხმის/ვიდეოს ჩაშენება გვერდზე." />
+  <title>გაკვეთილი 03 — HTML სიები, სურათები, ფორმები და მედია</title>
+  <meta name="description" content="HTML სიები (ul/ol), img ტეგი და თანამედროვე საუკეთესო პრაქტიკები, ფორმის ატრიბუტები, input-ის ტიპები, label ტეგი, და ხმის/ვიდეოს ჩაშენება გვერდზე." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,10 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-html-bg); color: var(--mod-html);">HTML · 03/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        HTML ფორმები და მედია კონტენტი
+        HTML სიები, სურათები, ფორმები და მედია
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        HTML მოდულის ბოლო გაკვეთილში ვსწავლობთ, როგორ „ვკითხოთ" რამე მომხმარებელს ფორმებით და როგორ
-        ჩავრთოთ გვერდზე ხმა და ვიდეო.
+        HTML მოდულის ბოლო გაკვეთილში შევისწავლით როგორ ჩავაშენოთ სურათები, სიები, ვიდეოები და ფორმები პროექტში.
       </p>
       <div class="lesson-progress" data-lesson="3">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -50,7 +49,151 @@
 
     <article class="lesson-article">
 
-      <h2>1. ტეგი &lt;form&gt; და მისი ატრიბუტები</h2>
+      <h2>1. სიები — &lt;ul&gt; და &lt;ol&gt;</h2>
+      <p>
+        სიები გამოსადეგია ნებისმიერი ჩამონათვლის სემანტიკურად სწორად აღსანიშნად — ნავიგაციის
+        ბმულებიდან რეცეპტის ინგრედიენტებამდე. HTML გვთავაზობს ორ ძირითად ტიპს:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>&lt;ul&gt;</strong> (Unordered List) — არადალაგებული სია, ელემენტების <em>თანმიმდევრობას მნიშვნელობა არ აქვს</em> (მარკერებით/bullet points).</li>
+        <li><strong>&lt;ol&gt;</strong> (Ordered List) — დალაგებული სია, სადაც <em>თანმიმდევრობა მნიშვნელოვანია</em> (ავტომატურად დანომრილი).</li>
+        <li><strong>&lt;li&gt;</strong> (List Item) — ორივე ტიპის სიაში ცალკეული ელემენტისთვის, ერთადერთი დასაშვები პირდაპირი შვილი.</li>
+      </ul>
+      <pre><code><span class="cmt">&lt;!-- Unordered List — თანმიმდევრობას მნიშვნელობა არ აქვს --&gt;</span>
+&lt;<span class="tag">ul</span>&gt;
+  &lt;<span class="tag">li</span>&gt;HTML&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;CSS&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;JavaScript&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ul</span>&gt;
+
+<span class="cmt">&lt;!-- Ordered List — თანმიმდევრობა მნიშვნელოვანია --&gt;</span>
+&lt;<span class="tag">ol</span>&gt;
+  &lt;<span class="tag">li</span>&gt;დააინსტალირე VS Code&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;შექმენი index.html&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;გახსენი Live Server-ით&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ol</span>&gt;</code></pre>
+
+      <h3>&lt;ol&gt;-ის დამატებითი ატრიბუტები</h3>
+      <pre><code><span class="cmt">&lt;!-- start — საიდან დაიწყოს ნუმერაცია --&gt;</span>
+&lt;<span class="tag">ol</span> <span class="attr">start</span>=<span class="str">"5"</span>&gt;
+  &lt;<span class="tag">li</span>&gt;მეხუთე ნაბიჯი&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;მეექვსე ნაბიჯი&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ol</span>&gt;
+
+<span class="cmt">&lt;!-- reversed — კლებადი ნუმერაცია (მაგ. ტოპ-სიებისთვის) --&gt;</span>
+&lt;<span class="tag">ol</span> <span class="attr">reversed</span>&gt;
+  &lt;<span class="tag">li</span>&gt;მე-3 ადგილი&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;მე-2 ადგილი&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;1-ლი ადგილი&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ol</span>&gt;
+
+<span class="cmt">&lt;!-- type — ნუმერაციის სტილი: 1 | A | a | I | i --&gt;</span>
+&lt;<span class="tag">ol</span> <span class="attr">type</span>=<span class="str">"A"</span>&gt;
+  &lt;<span class="tag">li</span>&gt;ვარიანტი A&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;ვარიანტი B&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ol</span>&gt;</code></pre>
+
+      <h3>ჩადგმული (Nested) სიები</h3>
+      <p>სია შეიძლება მოთავსდეს სხვა სიის <code>&lt;li&gt;</code>-ს შიგნით — ქმნის იერარქიულ სტრუქტურას:</p>
+      <pre><code>&lt;<span class="tag">ul</span>&gt;
+  &lt;<span class="tag">li</span>&gt;Front-end
+    &lt;<span class="tag">ul</span>&gt;
+      &lt;<span class="tag">li</span>&gt;HTML&lt;/<span class="tag">li</span>&gt;
+      &lt;<span class="tag">li</span>&gt;CSS&lt;/<span class="tag">li</span>&gt;
+    &lt;/<span class="tag">ul</span>&gt;
+  &lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;Back-end&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ul</span>&gt;</code></pre>
+      <p>
+        <strong>სემანტიკური წესი (up-to-date პრაქტიკა):</strong> სია გამოიყენე მაშინ, როცა
+        კონტენტი <em>რეალურად</em> ჩამონათვალია (screen reader ამბობს „სია, 3 ელემენტი" და ეხმარება
+        ორიენტირებას) — არა მხოლოდ ვიზუალური დაშორების მისაღწევად. დაშორებისთვის CSS-ის
+        <code>gap</code>/<code>margin</code> გამოიყენე, არა ცარიელი <code>&lt;li&gt;</code>-ები.
+        ნავიგაციის ბმულების სია (<code>&lt;nav&gt;&lt;ul&gt;...&lt;/ul&gt;&lt;/nav&gt;</code>) —
+        ზუსტად ეს პატერნია, რომელსაც ეს საიტიც იყენებს თავის ნავიგაციაში.
+      </p>
+
+      <h2>2. სურათები — &lt;img&gt; და თანამედროვე საუკეთესო პრაქტიკები</h2>
+      <p>
+        <code>&lt;img&gt;</code> უკვე მოკლედ ვახსენეთ წინა გაკვეთილში (სურათი, როგორც ბმული) —
+        ახლა კი დეტალურად განვიხილოთ, მათ შორის თანამედროვე, პერფორმანსზე ორიენტირებული
+        ატრიბუტები, რომლებსაც დღეს ყველა სერიოზული საიტი იყენებს.
+      </p>
+      <pre><code>&lt;<span class="tag">img</span>
+  <span class="attr">src</span>=<span class="str">"course-cover.jpg"</span>
+  <span class="attr">alt</span>=<span class="str">"Front-end კურსის ყდის სურათი"</span>
+  <span class="attr">width</span>=<span class="str">"1200"</span>
+  <span class="attr">height</span>=<span class="str">"630"</span>&gt;</code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>src</code> და <code>alt</code> — აუცილებელია ყოველთვის (<code>alt</code> — ხელმისაწვდომობისა და SEO-სთვის, იხ. მე-2 გაკვეთილი).</li>
+        <li><strong><code>width</code>/<code>height</code> — ყოველთვის მიუთითე</strong>, თუნდაც CSS-ით სხვა ზომას აყენებდე. ბრაუზერი წინასწარ ითვლის სურათის თანაფარდობას (aspect ratio) და ჯერ კიდევ ჩატვირთვამდე „იჯავშნის" სივრცეს — ეს ხელს უშლის <strong>Layout Shift</strong>-ს (გვერდის „ხტომას" სურათის ჩატვირთვისას).</li>
+      </ul>
+
+      <h3>loading — ზარმაცი ჩატვირთვა</h3>
+      <p>
+        <code>loading="lazy"</code> ეუბნება ბრაუზერს, არ ჩატვირთოს სურათი, სანამ მომხმარებელი
+        მასთან ახლოს არ ჩამოსქროლავს — ეს აჩქარებს საწყისი გვერდის ჩატვირთვას:
+      </p>
+      <pre><code>&lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"gallery-photo.jpg"</span> <span class="attr">alt</span>=<span class="str">"გალერეის ფოტო"</span>
+  <span class="attr">width</span>=<span class="str">"800"</span> <span class="attr">height</span>=<span class="str">"600"</span>
+  <span class="attr">loading</span>=<span class="str">"lazy"</span>&gt;</code></pre>
+      <p>
+        <strong>წესი:</strong> გამოიყენე <code>loading="lazy"</code> მხოლოდ <em>ეკრანს ქვემოთ</em>
+        მდებარე სურათებზე. პირველად ხილულ სურათებზე (განსაკუთრებით hero/ბანერზე) ის
+        <strong>არ</strong> უნდა გამოიყენო — ეს შენელებდა ყველაზე მნიშვნელოვანი, პირველივე
+        ხილული სურათის გამოჩენას.
+      </p>
+
+      <h3>fetchpriority — ჩატვირთვის პრიორიტეტი</h3>
+      <p>
+        <code>fetchpriority</code> (თანამედროვე, ფართოდ მხარდაჭერილი ატრიბუტი) ეუბნება ბრაუზერს,
+        რომელი სურათი ჩატვირთოს <em>უპირველესად</em> — გამოსადეგია გვერდის ყველაზე მთავარი,
+        თვალშისაცემი სურათისთვის (მაგ. hero ბანერი):
+      </p>
+      <pre><code><span class="cmt">&lt;!-- ყველაზე მნიშვნელოვანი სურათი — მაღალი პრიორიტეტი, ზარმაცი ჩატვირთვის გარეშე --&gt;</span>
+&lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"hero-banner.jpg"</span> <span class="attr">alt</span>=<span class="str">"მთავარი ბანერი"</span>
+  <span class="attr">width</span>=<span class="str">"1600"</span> <span class="attr">height</span>=<span class="str">"600"</span>
+  <span class="attr">fetchpriority</span>=<span class="str">"high"</span>&gt;
+
+<span class="cmt">&lt;!-- ნაკლებად მნიშვნელოვანი სურათი — დაბალი პრიორიტეტი --&gt;</span>
+&lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"sidebar-promo.jpg"</span> <span class="attr">alt</span>=<span class="str">"აქცია"</span>
+  <span class="attr">width</span>=<span class="str">"300"</span> <span class="attr">height</span>=<span class="str">"200"</span>
+  <span class="attr">fetchpriority</span>=<span class="str">"low"</span>&gt;</code></pre>
+      <p>
+        <strong>წესი:</strong> <code>fetchpriority="high"</code> და <code>loading="lazy"</code>
+        არასდროს არ გამოიყენება ერთად ერთსა და იმავე სურათზე — ეს ლოგიკურად ეწინააღმდეგება
+        ერთმანეთს (ერთი ამბობს „მალე ჩატვირთე", მეორე — „დააგვიანე ჩატვირთვა"). გამოიყენე
+        <code>fetchpriority="high"</code> მხოლოდ 1-2 ყველაზე მნიშვნელოვან სურათზე გვერდზე.
+      </p>
+
+      <h3>srcset და &lt;picture&gt; — რესპონსიული სურათები</h3>
+      <p>
+        სხვადასხვა ეკრანის ზომაზე/სიმკვრივეზე შესაძლებელია განსხვავებული ზომის სურათის
+        მიწოდება — მობილურზე დიდი დესკტოპ-სურათის ჩატვირთვა ტყუილად ხარჯავს ტრაფიკს:
+      </p>
+      <pre><code><span class="cmt">&lt;!-- srcset — ბრაუზერი თავად ირჩევს შესაბამის ზომას --&gt;</span>
+&lt;<span class="tag">img</span>
+  <span class="attr">src</span>=<span class="str">"photo-800.jpg"</span>
+  <span class="attr">srcset</span>=<span class="str">"photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"</span>
+  <span class="attr">sizes</span>=<span class="str">"(max-width: 600px) 100vw, 50vw"</span>
+  <span class="attr">alt</span>=<span class="str">"პროდუქტის ფოტო"</span>
+  <span class="attr">width</span>=<span class="str">"800"</span> <span class="attr">height</span>=<span class="str">"600"</span>&gt;</code></pre>
+      <pre><code><span class="cmt">&lt;!-- &lt;picture&gt; — თანამედროვე ფორმატის მიწოდება, ძველი ბრაუზერისთვის fallback-ით --&gt;</span>
+&lt;<span class="tag">picture</span>&gt;
+  &lt;<span class="tag">source</span> <span class="attr">srcset</span>=<span class="str">"photo.avif"</span> <span class="attr">type</span>=<span class="str">"image/avif"</span>&gt;
+  &lt;<span class="tag">source</span> <span class="attr">srcset</span>=<span class="str">"photo.webp"</span> <span class="attr">type</span>=<span class="str">"image/webp"</span>&gt;
+  &lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"photo.jpg"</span> <span class="attr">alt</span>=<span class="str">"პროდუქტის ფოტო"</span>
+    <span class="attr">width</span>=<span class="str">"800"</span> <span class="attr">height</span>=<span class="str">"600"</span>&gt;
+&lt;/<span class="tag">picture</span>&gt;</code></pre>
+      <p>
+        <strong>AVIF</strong> და <strong>WebP</strong> არის თანამედროვე სურათის ფორმატები, რომლებიც
+        JPEG/PNG-თან შედარებით ბევრად ნაკლებ ადგილს იკავებენ, იმავე ვიზუალური ხარისხით. ბრაუზერი
+        <code>&lt;picture&gt;</code>-ში თავად ირჩევს პირველ ფორმატს, რომელსაც უჭერს მხარს —
+        ხოლო ჩვეულებრივი <code>&lt;img&gt;</code> ბოლოში ყოველთვის რჩება, როგორც უნივერსალური
+        fallback ყველა ბრაუზერისთვის.
+      </p>
+
+      <h2>3. ტეგი &lt;form&gt; და მისი ატრიბუტები</h2>
       <p>
         ფორმის ყველა ელემენტი ჩასმულია <code>&lt;form&gt;</code> ტეგში. ორი ატრიბუტი განსაზღვრავს, თუ
         <strong>სად</strong> და <strong>როგორ</strong> გაეგზავნება მონაცემები სერვერს:
@@ -63,7 +206,7 @@
   <span class="cmt">&lt;!-- ფორმის ველები აქ განთავსდება --&gt;</span>
 &lt;/<span class="tag">form</span>&gt;</code></pre>
 
-      <h2>2. &lt;label&gt; — ველების „წარმდგენი"</h2>
+      <h2>4. &lt;label&gt; — ველების „წარმდგენი"</h2>
       <p>
         <code>&lt;label&gt;</code> უწყვილდება input-ს <code>for</code> ატრიბუტით (რომელიც უტოლდება
         input-ის <code>id</code>-ს). ეს accessibility-სთვისაც აუცილებელია — screen reader ხმამაღლა
@@ -76,7 +219,7 @@
         გაეგზავნება.
       </p>
 
-      <h2>3. &lt;input&gt;-ის ტიპები</h2>
+      <h2>5. &lt;input&gt;-ის ტიპები</h2>
       <p>
         <code>type</code> ატრიბუტი განსაზღვრავს ველის სახეს. ბრაუზერი ავტომატურად ამოწმებს ფორმატს
         ზოგიერთი ტიპისთვის (მაგ. <code>email</code>):
@@ -100,7 +243,7 @@
         ველი), <code>value</code> (წინასწარ შევსებული მნიშვნელობა).
       </p>
 
-      <h2>4. სავარჯიშო: მარტივი კონტაქტის ფორმა</h2>
+      <h2>6. სავარჯიშო: მარტივი კონტაქტის ფორმა</h2>
       <pre><code>&lt;<span class="tag">form</span> <span class="attr">action</span>=<span class="str">"/contact"</span> <span class="attr">method</span>=<span class="str">"POST"</span>&gt;
   &lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"fullname"</span>&gt;სრული სახელი&lt;/<span class="tag">label</span>&gt;
   &lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">id</span>=<span class="str">"fullname"</span> <span class="attr">name</span>=<span class="str">"fullname"</span> <span class="attr">required</span>&gt;
@@ -111,7 +254,7 @@
   &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;გაგზავნა&lt;/<span class="tag">button</span>&gt;
 &lt;/<span class="tag">form</span>&gt;</code></pre>
 
-      <h2>5. HTML მედია: &lt;audio&gt; და &lt;video&gt;</h2>
+      <h2>7. HTML მედია: &lt;audio&gt; და &lt;video&gt;</h2>
       <p>
         HTML5-მა შემოგვთავაზა ჩაშენებული ტეგები მედია კონტენტისთვის — დამატებითი პლაგინების გარეშე.
       </p>
@@ -132,6 +275,12 @@
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML/HTML_text_fundamentals#lists" target="_blank" rel="noopener">MDN — HTML lists (ul/ol/li)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol" target="_blank" rel="noopener">MDN — &lt;ol&gt; element (start/reversed/type)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img" target="_blank" rel="noopener">MDN — &lt;img&gt; element</a></li>
+          <li><a href="https://web.dev/articles/browser-level-image-lazy-loading" target="_blank" rel="noopener">web.dev — Browser-level image lazy loading</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/fetchPriority" target="_blank" rel="noopener">MDN — fetchPriority (Baseline 2024)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture" target="_blank" rel="noopener">MDN — &lt;picture&gt; element</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Forms" target="_blank" rel="noopener">MDN — Web forms (Learn area)</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input" target="_blank" rel="noopener">MDN — &lt;input&gt; element და მისი ტიპები</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label" target="_blank" rel="noopener">MDN — &lt;label&gt; element</a></li>
@@ -140,14 +289,29 @@
         </ul>
       </div>
 
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რა განსხვავებაა <code>&lt;ul&gt;</code>-სა და <code>&lt;ol&gt;</code>-ს შორის — როდის ავირჩევდი თითოეულს?</li>
+          <li>რატომ არ არის კარგი პრაქტიკა სიის გამოყენება მხოლოდ ვიზუალური დაშორებისთვის?</li>
+          <li>რატომ არის მნიშვნელოვანი <code>&lt;img&gt;</code>-ზე <code>width</code>/<code>height</code>-ის მითითება, თუნდაც CSS-ით სხვა ზომას აყენებდე?</li>
+          <li>რომელ სურათზე გამოიყენებდი <code>loading="lazy"</code>-ს და რომელზე — არასდროს? რატომ?</li>
+          <li>რას აკეთებს <code>srcset</code> ატრიბუტი და რატომ სჯობს მას ერთი დიდი სურათის ყველგან გამოყენებას?</li>
+        </ol>
+      </div>
+
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
+          <li>შექმენი <code>&lt;ul&gt;</code> სია შენი 5 საყვარელი ტექნოლოგიით, და <code>&lt;ol&gt;</code> სია 3-ნაბიჯიანი ინსტრუქციით (მაგ. „როგორ გავხსნა Live Server").</li>
+          <li>გამოსცადე <code>&lt;ol&gt;</code>-ის <code>start</code>, <code>reversed</code> და <code>type="A"</code> ატრიბუტები ცალ-ცალკე სიაზე და დააკვირდი განსხვავებას.</li>
+          <li>ააწყვე ჩადგმული სია — მინიმუმ 2 დონით (მაგ. კურსის მოდულები, თითოეულს ქვეშ — გაკვეთილების სია).</li>
+          <li>ჩასმენე სურათი სწორი <code>alt</code>, <code>width</code> და <code>height</code> ატრიბუტებით, და დაუმატე <code>loading="lazy"</code>.</li>
           <li>შექმენი ფორმა ორი ველით — სახელი და ელფოსტა — თითოეულს დაუყოლე <code>&lt;label&gt;</code>.</li>
           <li>დაამატე <code>password</code> ველი და <code>required</code> ატრიბუტი სავალდებულო ველებზე.</li>
           <li>შექმენი <code>radio</code> ჯგუფი 3 ვარიანტით (ერთი საერთო <code>name</code>-ით) და <code>checkbox</code> ერთი დამატებითი პირობით.</li>
           <li>ჩასმენე ვიდეო ან audio ელემენტი <code>controls</code> ატრიბუტით და fallback ტექსტით.</li>
-          <li><em>(რთული)</em> ააწყვე რეგისტრაციის ფორმა 5+ input-ის ტიპით (მათ შორის <code>date</code> და <code>file</code>) და დაამატე გვერდზე ვიდეო, რომელიც ხსნის, როგორ ივსება ფორმა.</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი „პროდუქტის ბარათი" — <code>&lt;picture&gt;</code>-ის გამოყენებით (AVIF/WebP + JPEG fallback), <code>&lt;ul&gt;</code> სიით მახასიათებლებისთვის, და რეგისტრაციის ფორმა 5+ input-ის ტიპით (მათ შორის <code>date</code> და <code>file</code>).</li>
         </ol>
       </div>
 
