@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 04 — CSS სინტაქსი, სელექტორები, Reset, Box Model</title>
-  <meta name="description" content="CSS-ის სინტაქსი, დაკავშირების გზები, სელექტორების ტიპები, Reset/Normalize და Box Model." />
+  <title>გაკვეთილი 04 — CSS სინტაქსი, სტრუქტურული ტეგები, Class/ID, Normalize, Box Model</title>
+  <meta name="description" content="CSS-ის სინტაქსი, div/section/header/main/footer ტეგები, Class და ID დეტალურად (specificity-ის ჩათვლით), Reset vs Normalize.css და CSS Box Model." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,13 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 04/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        CSS სინტაქსი, სელექტორები, Reset, Box Model
+        CSS სინტაქსი, სტრუქტურული ტეგები, Class/ID, Normalize, Box Model
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        HTML-მა მოგვცა სტრუქტურა. ახლა ვიწყებთ CSS მოდულს — ვისწავლით, როგორ ვხატავთ ამ სტრუქტურას და
-        როგორ „ითვლის" ბრაუზერი თითოეული ელემენტის ზომებს.
+        HTML-მა მოგვცა სტრუქტურა. ახლა ვიწყებთ CSS მოდულს — ჯერ გავეცნობით გვერდის „კონტეინერ"
+        ტეგებს (div/section/header/main/footer), შემდეგ ვისწავლით, როგორ ვხატავთ ამ სტრუქტურას
+        Class/ID სელექტორებით, როგორ ვამყარებთ ერთნაირ საწყის წერტილს ყველა ბრაუზერში
+        (Reset/Normalize), და როგორ „ითვლის" ბრაუზერი თითოეული ელემენტის ზომებს.
       </p>
       <div class="lesson-progress" data-lesson="4">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -52,7 +54,7 @@
 
       <h2>1. CSS-ის სინტაქსი</h2>
       <p>
-        CSS წესი შედგება <strong>სელექტორისგან</strong> (რომელ ელემენტს ვირჩევთ) და <strong>ბლოკისგან</strong>
+        CSS კოდი შედგება <strong>სელექტორისგან</strong> (რომელ ელემენტს ვირჩევთ) და <strong>ბლოკისგან</strong>
         ფიგურულ ფრჩხილებში, სადაც ჩამწერია ერთი ან მეტი <strong>თვისება: მნიშვნელობა;</strong> წყვილი.
       </p>
       <pre><code><span class="tag">selector</span> {
@@ -70,7 +72,7 @@
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
         <li><strong>გარეგანი (External)</strong> — <code>&lt;link&gt;</code> ტეგით <code>&lt;head&gt;</code>-ში. <em>საუკეთესო პრაქტიკა.</em></li>
         <li><strong>შიდა (Internal)</strong> — <code>&lt;style&gt;</code> ტეგში, <code>&lt;head&gt;</code>-ში.</li>
-        <li><strong>ჩანაწერი (Inline)</strong> — პირდაპირ ელემენტის <code>style</code> ატრიბუტში. გამოსაყენებელია იშვიათად.</li>
+        <li><strong>ჩანაწერი (Inline)</strong> — პირდაპირ ელემენტის <code>style</code> ატრიბუტში. იშვიათად გამოიყენება.</li>
       </ul>
       <pre><code><span class="cmt">&lt;!-- External — რეკომენდებული --&gt;</span>
 &lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"style.css"</span>&gt;
@@ -86,7 +88,47 @@
   padding: 10px 16px; <span class="cmt">/* ღილაკის შიდა მანძილები */</span>
 }</code></pre>
 
-      <h2>2. სელექტორების ტიპები</h2>
+      <h2>2. სტრუქტურული HTML ტეგები: div, section, header, main, footer</h2>
+      <p>
+        სანამ სელექტორებით ელემენტების სტილიზებას განვაგრძობთ, გავეცნოთ იმ „კონტეინერ" ტეგებს,
+        რომლებიც ქმნიან გვერდის ჩონჩხს, რომელსაც
+        შემდეგ Class/ID სელექტორებით ვსტილავთ.
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>&lt;div&gt;</strong> — ზოგადი, „უსახური" კონტეინერი, საკუთარი სემანტიკური მნიშვნელობის გარეშე. გამოიყენება მხოლოდ მაშინ, როცა ელემენტების დაჯგუფება/სტილიზება გვინდა, და არცერთი სემანტიკური ტეგი შინაარსობრივად არ ესადაგება.</li>
+        <li><strong>&lt;header&gt;</strong> — შესავალი/სათაურის ბლოკი. შესაძლოა იყოს ერთხელ, მთელი გვერდისთვის (ლოგო, ნავიგაცია), ან განმეორდეს ცალკეულ <code>&lt;article&gt;</code>/<code>&lt;section&gt;</code>-ში (მაგ. სტატიის სათაური და თარიღი).</li>
+        <li><strong>&lt;main&gt;</strong> — გვერდის მთავარი, უნიკალური შემცველობა. <strong>ერთი გვერდზე მხოლოდ ერთხელ</strong> გამოიყენება — screen reader-ს საშუალებას აძლევს, პირდაპირ „გადახტეს" მთავარ კონტენტზე, ნავიგაციის გვერდის ავლის გარეშე.</li>
+        <li><strong>&lt;section&gt;</strong> — თემატურად დაჯგუფებული შემცველობა, ჩვეულებრივ საკუთარი სათაურით (<code>&lt;h2&gt;</code>/<code>&lt;h3&gt;</code>). თუ ბლოკს არ აქვს ცალკე თემა/სათაური — <code>&lt;div&gt;</code> უფრო სწორი არჩევანია.</li>
+        <li><strong>&lt;footer&gt;</strong> — დამხურავი ინფორმაცია (საავტორო უფლებები, კონტაქტი, ბმულები). ისევე, როგორც <code>&lt;header&gt;</code>, შესაძლოა იყოს გვერდის დონეზეც და ცალკეულ სექციაშიც.</li>
+      </ul>
+      <p>ეს არის ზუსტად ის სტრუქტურა, რომელსაც ეს კურსის საიტი იყენებს ყველა გვერდზე:</p>
+      <pre><code>&lt;<span class="tag">body</span>&gt;
+  &lt;<span class="tag">header</span> <span class="attr">class</span>=<span class="str">"site-header"</span>&gt;      <span class="cmt">&lt;!-- ერთხელ, მთელი გვერდისთვის --&gt;</span>
+    &lt;<span class="tag">nav</span>&gt;...&lt;/<span class="tag">nav</span>&gt;
+  &lt;/<span class="tag">header</span>&gt;
+
+  &lt;<span class="tag">main</span>&gt;                        <span class="cmt">&lt;!-- ერთადერთი main გვერდზე --&gt;</span>
+    &lt;<span class="tag">section</span> <span class="attr">class</span>=<span class="str">"hero"</span>&gt;         <span class="cmt">&lt;!-- თემატური ბლოკი, სათაურით --&gt;</span>
+      &lt;<span class="tag">h1</span>&gt;სათაური&lt;/<span class="tag">h1</span>&gt;
+    &lt;/<span class="tag">section</span>&gt;
+
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"card-grid"</span>&gt;     <span class="cmt">&lt;!-- უბრალო კონტეინერი, ლეიაუტისთვის --&gt;</span>
+      &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"card"</span>&gt;...&lt;/<span class="tag">div</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  &lt;/<span class="tag">main</span>&gt;
+
+  &lt;<span class="tag">footer</span> <span class="attr">class</span>=<span class="str">"site-footer"</span>&gt;      <span class="cmt">&lt;!-- ერთხელ, მთელი გვერდისთვის --&gt;</span>
+    &lt;<span class="tag">p</span>&gt;© 2026&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">footer</span>&gt;
+&lt;/<span class="tag">body</span>&gt;</code></pre>
+      <p>
+        <strong>წესი „section vs div"-ის ამოსაცნობად:</strong> თუ დაწერდი ბლოკს ცალკე სათაურს
+        (და ის აზრიანად „იკითხება" დოკუმენტის სქემაში/outline-ში) — <code>&lt;section&gt;</code>.
+        თუ საჭიროა მხოლოდ ვიზუალური დაჯგუფება (მაგ. grid-ის კონტეინერი, wrapper padding-ისთვის) —
+        <code>&lt;div&gt;</code>.
+      </p>
+
+      <h2>3. სელექტორების ტიპები</h2>
       <p>სელექტორი განსაზღვრავს, <strong>რომელ</strong> ელემენტ(ებ)ს მიესადაგება სტილი:</p>
       <pre><code><span class="cmt">/* Element — ეხება ყველა &lt;p&gt;-ს */</span>
 <span class="tag">p</span> { line-height: 1.6; }
@@ -108,13 +150,78 @@
         გამოსაყენებელია.
       </p>
 
-      <h2>3. Browser Reset და Normalize</h2>
+      <h3> კლასი </h3>
       <p>
-        სხვადასხვა ბრაუზერს აქვს განსხვავებული ნაგულისხმევი სტილები. ამის გამო, დეველოპერები კურსის
-        დასაწყისში წერენ მცირე <strong>reset</strong> ბლოკს, რომ ყველა ბრაუზერში ერთნაირი საწყისი
-        წერტილი გვქონდეს.
+        ერთ ელემენტს შესაძლებელია ერთდროულად ბევრი Class ჰქონდეს (space-ით გამოყოფილი) —
+        ეს არის ყველაზე ხშირი, მოქნილი გზა სტილების „კომბინირებისთვის":
       </p>
-      <pre><code><span class="cmt">/* მინიმალური, თანამედროვე reset */</span>
+      <pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"card featured"</span>&gt;...&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">/* .card — ეხება ყველა card-ს */</span>
+.card { border-radius: 12px; padding: 20px; }
+
+<span class="cmt">/* .featured — ეხება ყველა featured ელემენტს (card-იც შეიძლება იყოს, სხვაც) */</span>
+.featured { border: 2px solid gold; }
+
+<span class="cmt">/* .card.featured (space-ის გარეშე!) — ეხება მხოლოდ იმ ელემენტს, სადაც ორივე კლასია ერთად */</span>
+.card.featured { box-shadow: 0 4px 12px rgba(0,0,0,.15); }</code></pre>
+
+      <h3>ID, როდის ვირჩევთ ID-ს</h3>
+      <p>ID სამი ძირითადი დანიშნულებით გამოიყენება, CSS სტილიზების გარდაც:</p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>JavaScript-იდან პოვნა</strong> — <code>document.getElementById("id")</code> ან <code>querySelector("#id")</code> (მე-15 გაკვეთილში ვისწავლით დეტალურად).</li>
+        <li><strong>Fragment ბმულები</strong> — გვერდის კონკრეტულ ნაწილზე პირდაპირი გადასვლა, მაგ. <code>index.html#syllabus</code> (ზუსტად ისე, როგორც ამ საიტის ნავიგაციაშია გამოყენებული).</li>
+        <li><strong>Form label-ის დაკავშირება</strong> — <code>&lt;label for="email"&gt;</code> უწყვილდება <code>&lt;input id="email"&gt;</code>-ს (მე-3 გაკვეთილიდან ნაცნობი).</li>
+      </ul>
+      <pre><code>&lt;<span class="tag">section</span> <span class="attr">id</span>=<span class="str">"syllabus"</span>&gt;...&lt;/<span class="tag">section</span>&gt;
+
+<span class="cmt">&lt;!-- ბმული, რომელიც პირდაპირ ამ სექციაზე ჩაასქროლავს გვერდს --&gt;</span>
+&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#syllabus"</span>&gt;სილაბუსზე გადასვლა&lt;/<span class="tag">a</span>&gt;</code></pre>
+      <p>
+        <strong>წესი:</strong> ID <em>უნდა</em> იყოს უნიკალური მთელ გვერდზე — ერთი და იგივე ID-ს
+        ორ ელემენტზე გამოყენება არასწორია და ბრაუზერის ქცევასაც არაპროგნოზირებადს ხდის
+        (მაგ. <code>getElementById</code> ყოველთვის მხოლოდ პირველ ნაპოვნ შედეგს აბრუნებს).
+      </p>
+
+      <h3>ვინ „იმარჯვებს" კონფლიქტისას</h3>
+      <p>
+        თუ ერთსა და იმავე ელემენტს ორი სხვადასხვა წესი ეხება ერთი და იმავე თვისებისთვის, ბრაუზერი
+        ირჩევს იმ წესს, რომელსაც მაღალი <strong>specificity</strong> (სპეციფიკურობა) აქვს:
+      </p>
+      <pre><code><span class="cmt">/* დაბალი → მაღალი specificity: */</span>
+p            { color: black; }   <span class="cmt">/* Element — ყველაზე დაბალი */</span>
+.text        { color: blue; }    <span class="cmt">/* Class — საშუალო */</span>
+#main-text   { color: green; }   <span class="cmt">/* ID — მაღალი */</span>
+<span class="cmt">/* inline style="color: red" — ყველაზე მაღალი (თავად HTML ელემენტზე) */</span>
+
+<span class="cmt">/* შედეგად, თუ ყველა ეს წესი ერთ &lt;p&gt;-ს ეხება — ტექსტი იქნება წითელი (ინლაინ სიესეს იმარჯვებს) 
+თუ ინლაინ არ არის გამოყენებული მაშინ გაიმარჯვებს ID და ტექსტი იქნება მწვანე და ა.შ. */</span></code></pre>
+      <p>
+        სწორედ ამის გამო ID-ს CSS სტილიზებისთვის ხშირად თავს ვარიდებთ — მისი მაღალი specificity
+        მოგვიანებით ართულებს სტილის „გადაფარვას". <strong>საუკეთესო პრაქტიკა:</strong> გამოიყენე Class
+        სტილიზებისთვის, ID კი — JS/fragment-ბმულების/label-ისთვის.
+      </p>
+
+      <h3>დასახელების კონვენციები</h3>
+      <p>
+        Class-ის სახელები იწერება <strong>kebab-case</strong>-ით (<code>card-title</code>, არა
+        <code>cardTitle</code>) — ეს არის CSS-ის სტანდარტი. დიდ პროექტებში ხშირად გამოიყენება
+        <strong>BEM</strong> მეთოდოლოგია (Block__Element--Modifier), რომელსაც უფრო დეტალურად
+        React მოდულში შევხვდებით:
+      </p>
+      <pre><code><span class="cmt">/* BEM: block__element--modifier */</span>
+.card { }                 <span class="cmt">/* Block */</span>
+.card__title { }          <span class="cmt">/* Element — card-ის ნაწილი */</span>
+.card--featured { }       <span class="cmt">/* Modifier — card-ის ვარიაცია */</span></code></pre>
+
+      <h2>4. Browser Reset და Normalize</h2>
+      <p>
+        სხვადასხვა ბრაუზერს აქვს განსხვავებული ნაგულისხმევი სტილები (ე.წ. <strong>User Agent
+        Stylesheet</strong>) — Chrome, Firefox და Safari ოდნავ განსხვავებულად „ხედავენ" ერთსა და იმავე
+        HTML-ს, სანამ საკუთარ CSS-ს დავამატებთ. ამის მოსაგვარებლად ორი ძირითადი მიდგომა არსებობს:
+        <strong>Reset</strong> და <strong>Normalize</strong>.
+      </p>
+      <pre><code><span class="cmt">/* მინიმალური, თანამედროვე reset (ეს საიტიც ამ მიდგომას იყენებს) */</span>
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -126,15 +233,60 @@ img {
   display: block;
 }</code></pre>
       <p>
-        <strong>Reset</strong> აქრობს ნაგულისხმევ სტილებს (და ყველაფერს თავიდან ვწერთ), ხოლო
-        <strong>Normalize.css</strong> ცდილობს ბრაუზერებს შორის თანაბრობის მიღწევას, ნაგულისხმევი,
-        გამოსადეგი სტილების შენარჩუნებით.
+        <strong>Reset</strong> აქრობს <em>ყველა</em> ნაგულისხმევ სტილს (margin, padding, font-size
+        სხვადასხვაობა სათაურებზე და ა.შ.) — შედეგად, ყველაფერი თავიდან თავად უნდა დაწერო.
+        ეს არის „სუფთა ფურცელი" მიდგომა.
       </p>
 
-      <h2>4. CSS Box Model</h2>
+      <h3>რა არის Normalize.css და რატომ განსხვავდება Reset-ისგან</h3>
+      <p>
+        <strong>Normalize.css</strong> არის პატარა, open source  CSS ბიბლიოთეკა (ავტორი: Nicolas
+        Gallagher), რომელიც არ „აქრობს" ნაგულისხმევ სტილებს, არამედ <em>ასწორებს კონკრეტულ
+        უთანხმოებებს</em> ბრაუზერებს შორის — ინარჩუნებს იმას, რაც სასარგებლოა, და ასწორებს მხოლოდ
+        იმას, რაც ბრაუზერებში სხვადასხვანაირად მუშაობს. მაგალითად, Normalize.css:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ასწორებს <code>&lt;h1&gt;</code>-ის ზომას, როცა ის ჩადგმულია <code>&lt;section&gt;</code>/<code>&lt;article&gt;</code>-ში (ზოგ ბრაუზერში ეს სხვანაირად გამოისახება).</li>
+        <li>უზრუნველყოფს, რომ HTML5-ის სემანტიკური ტეგები (<code>&lt;main&gt;</code>, <code>&lt;details&gt;</code> და სხვ.) სწორად გამოისახოს ძველ ბრაუზერებში, რომლებმაც ეს ტეგები არ იციან.</li>
+        <li>აყალიბებს ფორმის ელემენტების (<code>button</code>, <code>input</code>, <code>select</code>) ფონტს ერთნაირად — ნაგულისხმევად ეს ბრაუზერებში ხშირად სხვადასხვაა.</li>
+        <li>ასწორებს <code>&lt;button&gt;</code>-ის „ფარულ" შიდა padding-ს Firefox-ში, რომელიც სხვა ბრაუზერებში არ არსებობს.</li>
+        <li>აყალიბებს <code>line-height</code>-ს ერთნაირად ყველა ბრაუზერისთვის.</li>
+      </ul>
+      <p>
+        <strong>მოკლედ განსხვავება:</strong> Reset ამბობს „არაფერი არ მინდა ნაგულისხმევად, ყველაფერს
+        თავად ვწერ". Normalize ამბობს „მინდა გონივრული, ერთნაირი საწყისი წერტილი ყველა
+        ბრაუზერში — შემდეგ მხოლოდ საჭირო ცვლილებებს დავამატებ".
+      </p>
+
+      <h3>როგორ გამოვიყენოთ Normalize.css</h3>
+      <p>სამი გავრცელებული გზა არსებობს პროექტში Normalize.css-ის დასამატებლად:</p>
+      <pre><code><span class="cmt">&lt;!-- 1. CDN-ით, &lt;head&gt;-ში, საკუთარი style.css-ის წინ --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span>
+      <span class="attr">href</span>=<span class="str">"https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"</span>&gt;
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"style.css"</span>&gt;</code></pre>
+      <pre><code><span class="cmt"># 2. NPM-ით (თუ პროექტს აქვს build-სისტემა, მაგ. Vite — React მოდულში ვნახავთ)</span>
+npm install normalize.css</code></pre>
+      <pre><code><span class="cmt">/* 3. style.css-ის თავში, @import-ით (ან პირდაპირ ჩასმული ფაილის შემცველობა) */</span>
+@import "normalize.css";
+
+<span class="cmt">/* ამის შემდეგ იწყება შენი საკუთარი სტილები */</span>
+body { font-family: sans-serif; }</code></pre>
+      <p>
+        <strong>თანმიმდევრობა კრიტიკულია:</strong> Normalize.css ყოველთვის უნდა ჩაიტვირთოს
+        <em>შენი საკუთარი</em> სტილების <strong>წინ</strong> — წინააღმდეგ შემთხვევაში მან შეიძლება
+        გადაფაროს შენი განზრახ დაწერილი წესები.
+      </p>
+      <p>
+        <strong>როდის ვირჩევთ რომელს:</strong> პატარა, პერსონალურ პროექტში (ან სასწავლო კურსში, ამ
+        საიტის მსგავსად) ხშირად საკმარისია მინიმალური, ხელით დაწერილი reset — სრული კონტროლისთვის.
+        დიდ პროექტში, რომლებიც ბევრ ბრაუზერზე უნდა მუშაობდეს ერთნაირად და დროის დაზოგვა გვჭირდება 
+        დეტალების ხელახლა დაწერაზე — Normalize.css ხშირად პრაქტიკულია.
+      </p>
+
+      <h2>5. CSS Box Model</h2>
       <p>
         ყოველი HTML ელემენტი ბრაუზერისთვის არის მართკუთხა „ყუთი" (box), რომელიც შედგება ოთხი ფენისგან,
-        შიდადან გარეთ:
+        შიგნიდან გარეთ:
       </p>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
         <li><strong>Content</strong> — ტექსტი ან სხვა შემცველობა.</li>
@@ -172,18 +324,38 @@ img {
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps/What_is_CSS" target="_blank" rel="noopener">MDN — What is CSS?</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section" target="_blank" rel="noopener">MDN — &lt;section&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div" target="_blank" rel="noopener">MDN — &lt;div&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main" target="_blank" rel="noopener">MDN — &lt;main&gt; element</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_selectors" target="_blank" rel="noopener">MDN — CSS Selectors</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascade/Specificity" target="_blank" rel="noopener">MDN — CSS Specificity</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model" target="_blank" rel="noopener">MDN — The box model</a></li>
           <li><a href="https://necolas.github.io/normalize.css/" target="_blank" rel="noopener">Normalize.css — ოფიციალური საიტი</a></li>
+          <li><a href="https://github.com/necolas/normalize.css/blob/master/normalize.css" target="_blank" rel="noopener">Normalize.css — სრული, კომენტირებული კოდი GitHub-ზე</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რა განსხვავებაა <code>&lt;div&gt;</code>-სა და <code>&lt;section&gt;</code>-ს შორის — რომელ კითხვას დაუსვამდი საკუთარ თავს, რომ ერთ-ერთი აირჩიო?</li>
+          <li>რატომ შეიძლება <code>&lt;main&gt;</code> გვერდზე მხოლოდ ერთხელ გამოჩნდეს?</li>
+          <li>რა შემთხვევაში აირჩევდი Class-ს და რა შემთხვევაში — ID-ს?</li>
+          <li>რომელი გაიმარჯვებს, თუ ერთსა და იმავე ელემენტს <code>.title</code> და <code>#main-title</code> ორივე ანიჭებს ფერს? რატომ?</li>
+          <li>რა განსხვავებაა Reset-სა და Normalize.css-ს შორის — რომელი „შლის" და რომელი „ასწორებს"?</li>
+          <li>რატომ არის მნიშვნელოვანი, რომ Normalize.css საკუთარ style.css-ზე <em>ადრე</em> ჩაიტვირთოს?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
           <li>დაუკავშირე გარეგანი <code>style.css</code> ერთ HTML გვერდს <code>&lt;link&gt;</code> ტეგით.</li>
-          <li>დაწერე Element, Class და ID სელექტორები ერთსა და იმავე გვერდზე — თითოეული განსხვავებულ ელემენტს ასტილებდეს.</li>
+          <li>ააწყვე გვერდის საბაზისო ჩონჩხი <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code> (ერთი <code>&lt;section&gt;</code>-ით შიგნით) და <code>&lt;footer&gt;</code>-ის გამოყენებით.</li>
+          <li>დაამატე ერთ ბლოკს ორი Class ერთდროულად (მაგ. <code>class="card featured"</code>) და დაწერე სამი CSS წესი — ერთი თითოეული class-ისთვის ცალკე, და ერთი — ორივესთვის ერთად (<code>.card.featured</code>).</li>
+          <li>დაწერე Element, Class და ID სელექტორები ერთსა და იმავე გვერდზე — თითოეული განსხვავებულ ელემენტს ასტილებდეს — და ერთ ელემენტზე შეგნებულად შექმენი specificity კონფლიქტი (class და id ერთსა და იმავე თვისებაზე), დააკვირდი DevTools-ის Elements → Styles ტაბში, რომელი წესია გადახაზული.</li>
           <li>დაამატე მინიმალური reset ბლოკი შენს პროექტში და DevTools-ის Elements ტაბში დააკვირდი, რა შეიცვალა.</li>
+          <li>დაუკავშირე Normalize.css CDN-ით (საკუთარი style.css-ის წინ) და შეადარე გვერდის გარეგნობა — რა შეიცვალა სათაურებში, ღილაკებში, ფორმის ველებში?</li>
           <li>შექმენი ყუთი განსაზღვრული <code>width</code>, <code>padding</code>, <code>border</code> და <code>margin</code>-ით.</li>
           <li><em>(რთული)</em> ერთი და იმავე ელემენტისთვის შეადარე ზომა <code>content-box</code>-სა და <code>border-box</code>-ს შორის — გაზომე DevTools-ის Elements → Computed ტაბში.</li>
         </ol>

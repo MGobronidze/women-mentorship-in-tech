@@ -22,9 +22,9 @@ const MODULES = {
 const LESSONS = [
   { n: 1, mod: "html", title: "ინტერნეტი, HTTP და Front-end პროფესია" },
   { n: 2, mod: "html", title: "HTML სტრუქტურა, ტერმინები, ტექსტის ტეგები და ბმულები" },
-  { n: 3, mod: "html", title: "HTML ფორმები და მედია კონტენტი (Audio/Video)" },
+  { n: 3, mod: "html", title: "HTML სიები, სურათები, ფორმები და მედია" },
 
-  { n: 4, mod: "css", title: "CSS სინტაქსი, სელექტორები, Reset, Box Model" },
+  { n: 4, mod: "css", title: "CSS სინტაქსი, სტრუქტურული ტეგები, Class/ID, Normalize" },
   { n: 5, mod: "css", title: "Display თვისებები, Background, ტექსტის ფორმატირება" },
   { n: 6, mod: "css", title: "CSS Flexbox და Positioned Elements" },
   { n: 7, mod: "css", title: "Pseudo-classes, Transitions, Animations, Variables, Autoprefixer" },
