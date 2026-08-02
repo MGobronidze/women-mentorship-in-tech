@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>გაკვეთილი 03 — HTML სიები, სურათები, ფორმები და მედია</title>
-  <meta name="description" content="HTML სიები (ul/ol), img ტეგი და თანამედროვე საუკეთესო პრაქტიკები, ფორმის ატრიბუტები, input-ის ტიპები, label ტეგი, და ხმის/ვიდეოს ჩაშენება გვერდზე." />
+  <meta name="description" content="HTML სიები (ul/ol), img ტეგი და თანამედროვე საუკეთესო პრაქტიკები, ფორმის ატრიბუტები, input-ის ტიპები, label ტეგი, ხმის/ვიდეოს ჩაშენება და Google Maps-ის iframe ჩანერგვა." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
         HTML სიები, სურათები, ფორმები და მედია
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        HTML მოდულის ბოლო გაკვეთილში შევისწავლით როგორ ჩავაშენოთ სურათები, სიები, ვიდეოები და ფორმები პროექტში.
+        HTML მოდულის ბოლო გაკვეთილში შევისწავლით როგორ ჩავაშენოთ სურათები, სიები, ვიდეოები ფორმები და რუკა პროექტში.
       </p>
       <div class="lesson-progress" data-lesson="3">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -272,6 +272,42 @@
         შემდეგ ჩაწერილი ტექსტი (fallback) ჩანს მხოლოდ იმ ბრაუზერებში, რომლებმაც ტეგი ვერ ამოიცნეს.
       </p>
 
+      <h2>8. რუკის ჩაშენება — &lt;iframe&gt; (Google Maps)</h2>
+      <p>
+        <strong>&lt;iframe&gt;</strong> (Inline Frame) არის ტეგი, რომელიც სხვა, დამოუკიდებელ ვებ-გვერდს
+        (ან მის ნაწილს) „ჩარჩოში" ჩასვამს შენს გვერდზე — ისე, თითქოს პატარა, ცალკე ბრაუზერის ფანჯარა
+        იყოს გვერდის შიგნით. ეს არის სტანდარტული გზა Google Maps-ის, YouTube ვიდეოს და სხვა გარე
+        სერვისების ჩასაშენებლად.
+      </p>
+
+      <h3>Google Maps-ის embed კოდის მიღება</h3>
+      <ol style="padding-left: 20px;">
+        <li>გახსენი <a href="https://maps.google.com" target="_blank" rel="noopener">maps.google.com</a> და მოძებნე სასურველი მდებარეობა.</li>
+        <li>დააჭირე „გაზიარებას" (Share) → ტაბი <strong>„რუკის ჩაშენება" (Embed a map)</strong>.</li>
+        <li>დააკოპირე მოწოდებული <code>&lt;iframe&gt;</code> კოდი და ჩასვი შენს HTML-ში.</li>
+      </ol>
+
+      <pre><code><span class="cmt">&lt;!-- Google-ის მიერ გენერირებული, ტიპური embed კოდი --&gt;</span>
+&lt;<span class="tag">iframe</span>
+  <span class="attr">src</span>=<span class="str">"https://www.google.com/maps/embed?pb=..."</span>
+  <span class="attr">width</span>=<span class="str">"600"</span>
+  <span class="attr">height</span>=<span class="str">"450"</span>
+  <span class="attr">style</span>=<span class="str">"border:0"</span>
+  <span class="attr">allowfullscreen</span>
+  <span class="attr">loading</span>=<span class="str">"lazy"</span>
+  <span class="attr">referrerpolicy</span>=<span class="str">"no-referrer-when-downgrade"</span>
+  <span class="attr">title</span>=<span class="str">"მდებარეობა: Front-End Course, თბილისი"</span>&gt;
+&lt;/<span class="tag">iframe</span>&gt;</code></pre>
+
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>src</code> — Google-ის მიერ გენერირებული, უნიკალური embed URL (თავად არასდროს არ იწერება ხელით).</li>
+        <li><code>loading="lazy"</code> — ისევე, როგორც სურათებზე (იხ. ზემოთ) — რუკა „მძიმეა", ამიტომ ღირს ჩატვირთვის გადადება, თუ ის ეკრანს ქვემოთაა.</li>
+        <li><code>referrerpolicy="no-referrer-when-downgrade"</code> — Google-ის მიერ რეკომენდებული, სტანდარტული მნიშვნელობა ამ ტიპის embed-ისთვის.</li>
+        <li><code>title</code> — <strong>ყოველთვის დაამატე</strong>; screen reader-ისთვის ეს არის ერთადერთი გზა, გაიგოს, რა შემცველობაა ჩარჩოში (ანალოგიურია <code>img</code>-ის <code>alt</code>-ისა).</li>
+        <li><code>allowfullscreen</code> — მომხმარებელს რუკის მთელ ეკრანზე გაშლის საშუალებას აძლევს.</li>
+      </ul>
+
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
@@ -286,6 +322,8 @@
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label" target="_blank" rel="noopener">MDN — &lt;label&gt; element</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video" target="_blank" rel="noopener">MDN — &lt;video&gt; element</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio" target="_blank" rel="noopener">MDN — &lt;audio&gt; element</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe" target="_blank" rel="noopener">MDN — &lt;iframe&gt; element</a></li>
+          <li><a href="https://developers.google.com/maps/documentation/embed/get-started" target="_blank" rel="noopener">Google — Maps Embed API (ოფიციალური დოკუმენტაცია)</a></li>
         </ul>
       </div>
 
@@ -297,6 +335,7 @@
           <li>რატომ არის მნიშვნელოვანი <code>&lt;img&gt;</code>-ზე <code>width</code>/<code>height</code>-ის მითითება, თუნდაც CSS-ით სხვა ზომას აყენებდე?</li>
           <li>რომელ სურათზე გამოიყენებდი <code>loading="lazy"</code>-ს და რომელზე — არასდროს? რატომ?</li>
           <li>რას აკეთებს <code>srcset</code> ატრიბუტი და რატომ სჯობს მას ერთი დიდი სურათის ყველგან გამოყენებას?</li>
+          <li>რატომ არის აუცილებელი <code>title</code> ატრიბუტი <code>&lt;iframe&gt;</code>-ზე, თუნდაც ვიზუალურად ყველაფერი კარგად გამოიყურებოდეს?</li>
         </ol>
       </div>
 
@@ -311,7 +350,8 @@
           <li>დაამატე <code>password</code> ველი და <code>required</code> ატრიბუტი სავალდებულო ველებზე.</li>
           <li>შექმენი <code>radio</code> ჯგუფი 3 ვარიანტით (ერთი საერთო <code>name</code>-ით) და <code>checkbox</code> ერთი დამატებითი პირობით.</li>
           <li>ჩასვი ვიდეო ან audio ელემენტი <code>controls</code> ატრიბუტით და fallback ტექსტით.</li>
-          <li><em>(რთული)</em> ააწყვე მარტივი „პროდუქტის ბარათი" — <code>&lt;picture&gt;</code>-ის გამოყენებით (AVIF/WebP + JPEG fallback), <code>&lt;ul&gt;</code> სიით მახასიათებლებისთვის, და რეგისტრაციის ფორმა 5+ input-ის ტიპით (მათ შორის <code>date</code> და <code>file</code>).</li>
+          <li>მოძებნე <a href="https://maps.google.com" target="_blank" rel="noopener">Google Maps</a>-ზე შენი საყვარელი ადგილი, აიღე embed კოდი და ჩასვი გვერდზე — დაამატე <code>loading="lazy"</code> და <code>title</code> ატრიბუტები, თუ Google-ის მიერ გენერირებულ კოდს არ აქვს.</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი „საკონტაქტო გვერდი" — <code>&lt;picture&gt;</code>-ის გამოყენებით (AVIF/WebP + JPEG fallback), <code>&lt;ul&gt;</code> სიით საკონტაქტო ინფორმაციისთვის, რეგისტრაციის ფორმა 5+ input-ის ტიპით, და Google Maps-ის რუკა.</li>
         </ol>
       </div>
 
@@ -326,7 +366,7 @@
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span></div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
