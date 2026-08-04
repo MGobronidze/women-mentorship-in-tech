@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 05 — Display, Background, ტექსტის ფორმატირება</title>
-  <meta name="description" content="CSS display თვისებები (block/inline/inline-block/none), background და ტექსტის ფორმატირება — fonts, spacing, alignment." />
+  <title>გაკვეთილი 05 — Display, Background, ტექსტი, Figma</title>
+  <meta name="description" content="CSS display თვისებები (block/inline/inline-block/none), background და ტექსტის ფორმატირება, და Figma-ს საფუძვლები — დიზაინიდან CSS-ამდე." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 05/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Display თვისებები, Background და ტექსტის ფორმატირება
+        Display თვისებები, Background, ტექსტი და Figma
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         წინა გაკვეთილში ვისწავლეთ, როგორ „ითვლის" ბრაუზერი ელემენტის ზომას. ახლა ვნახოთ, როგორ
-        განლაგდება ეს ყუთები ერთმანეთთან და როგორ ვასტილებთ ფონსა და ტექსტს.
+        განლაგდება ეს ყუთები ერთმანეთთან, როგორ ვასტილებთ ფონსა და ტექსტს, და როგორ ვკითხულობთ
+        ზუსტ დიზაინის მნიშვნელობებს Figma-დან, რომ ისინი კოდში გადავიტანოთ.
       </p>
       <div class="lesson-progress" data-lesson="5">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -101,6 +102,58 @@
         მაშინ პროპორციულად თვლის font-size-ის მიხედვით — ეს კარგი პრაქტიკაა responsive დიზაინისთვის.
       </p>
 
+      <h2>4. Figma — დიზაინიდან კოდამდე</h2>
+      <p>
+        აქამდე ყველა მაგალითში ფერების, ზომებისა და ფონტების მნიშვნელობებს „გამოგონილად" ვწერდით.
+        რეალურ სამუშაოში კი front-end დეველოპერი, ჩვეულებრივ, იღებს მზა დიზაინს <strong>Figma</strong>-ში
+        და მისი ამოცანაა, ზუსტად ეს დიზაინი გადააქციოს HTML/CSS-ად.
+      </p>
+      <p>
+        <strong>Figma</strong> არის ბრაუზერზე დაფუძნებული (და დესკტოპ) UI/UX დიზაინის ინსტრუმენტი —
+        დღეს ინდუსტრიის სტანდარტი ინტერფეისების დიზაინისთვის, ისევე როგორც VS Code სტანდარტია
+        კოდისთვის. მისი მთავარი უპირატესობა — რეალურ დროში თანამშრომლობა (რამდენიმე ადამიანი
+        ერთდროულად მუშაობს ერთსა და იმავე ფაილზე, Google Docs-ის მსგავსად).
+      </p>
+
+      <h3>ძირითადი ცნებები, რომლებიც დეველოპერს სჭირდება</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Frame</strong> — დიზაინის „ტილო", რომელიც წარმოადგენს ერთ ეკრანს/გვერდს კონკრეტული სიგანით (მაგ. 1440px დესკტოპისთვის, 375px მობილურისთვის) — პირდაპირ პარალელურია HTML-ის <code>&lt;body&gt;</code>-სთან.</li>
+        <li><strong>Layers პანელი</strong> — მარცხენა მხარეს, იერარქიული სია ყველა ელემენტისა — ზუსტად ისე, როგორც DevTools-ის Elements ტაბი DOM-ს აჩვენებს.</li>
+        <li><strong>Auto Layout</strong> — Figma-ის ფუნქცია, რომელიც <strong>თითქმის პირდაპირ შეესაბამება CSS Flexbox-ს</strong> (შემდეგ გაკვეთილში ვისწავლით): აქვს მიმართულება (row/column), <code>gap</code>, padding — დიზაინერი, რომელიც Auto Layout-ს იყენებს, ფაქტობრივად უკვე „ფიქრობს" Flexbox-ის ტერმინებში.</li>
+        <li><strong>კომპონენტები და ვარიანტები</strong> — ხელახლა გამოსაყენებელი ელემენტები (ღილაკი, card) სხვადასხვა მდგომარეობით (hover, disabled) — კონცეპტუალურად იგივეა, რასაც React-ის კომპონენტებში მოგვიანებით ვნახავთ.</li>
+      </ul>
+
+      <h3>Inspect / Dev Mode — ზუსტი CSS მნიშვნელობების ამოღება</h3>
+      <p>
+        როცა Figma-ში ირჩევ ელემენტს, მარჯვენა პანელში ჩანს <strong>ზუსტი</strong> მნიშვნელობები —
+        ფერის hex კოდი, ზომები, ფონტის დეტალები — თითქმის მზა CSS-ის სახით:
+      </p>
+      <pre><code><span class="cmt">/* Figma-ს Inspect პანელიდან წაკითხული მონაცემები, პირდაპირ CSS-ად გადატანილი */</span>
+.<span class="tag">btn-primary</span> {
+  background-color: #146B5C;   <span class="cmt">/* Fill — Figma-ში ჩანს ზუსტად ეს hex კოდი */</span>
+  border-radius: 8px;          <span class="cmt">/* Corner radius */</span>
+  padding: 12px 24px;           <span class="cmt">/* Auto Layout-ის padding */</span>
+  font-family: "Inter";        <span class="cmt">/* Text-ის თვისებებიდან */</span>
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;             <span class="cmt">/* ხშირად "Line height" პროცენტულადაა Figma-ში (150%) — 1.5-ად გადაიყვანება */</span>
+}</code></pre>
+      <p>
+        ბევრ Figma ფაილში შესაძლებელია პირდაპირ „Copy as CSS" ღილაკის დაჭერაც — ეს ავტომატურად
+        აკოპირებს არჩეული ელემენტის სტილს, თითქმის მზა CSS ბლოკის სახით (თუმცა ხშირად საჭიროებს
+        მცირე „გასუფთავებას" და საკუთარ დიზაინ-სისტემასთან შესაბამისობაში მოყვანას — მაგ. ჩვენს
+        <code>style.css</code>-ში უკვე განსაზღვრული <code>var(--accent)</code>-ის გამოყენებას,
+        ახალი, ცალკე hex კოდის ნაცვლად).
+      </p>
+
+      <h3>Assets-ის ექსპორტი</h3>
+      <p>
+        სურათებისა და ხატულების (icons) მისაღებად, Figma-ში შესაძლებელია მათი ექსპორტი სხვადასხვა
+        ფორმატში (PNG, SVG, WebP) და გარჩევადობაში — ეს პირდაპირ უკავშირდება მე-3 გაკვეთილში
+        ნასწავლ <code>srcset</code>-ის (1x/2x/3x ვერსიები სხვადასხვა ეკრანის სიმკვრივისთვის) და
+        <code>&lt;picture&gt;</code>-ის (WebP/AVIF ფორმატების) ცოდნას.
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
@@ -108,7 +161,21 @@
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background" target="_blank" rel="noopener">MDN — background shorthand</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Fundamentals" target="_blank" rel="noopener">MDN — Fundamental text/font styling</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/line-height" target="_blank" rel="noopener">MDN — line-height</a></li>
+          <li><a href="https://help.figma.com/hc/en-us/articles/360040451373-Guide-to-the-Figma-interface" target="_blank" rel="noopener">Figma — Guide to the Figma interface</a></li>
+          <li><a href="https://help.figma.com/hc/en-us/articles/360040451373" target="_blank" rel="noopener">Figma — Auto Layout გზამკვლევი</a></li>
+          <li><a href="https://help.figma.com/hc/en-us/articles/15023124644247-Guide-to-Dev-Mode" target="_blank" rel="noopener">Figma — Guide to Dev Mode (Inspect)</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რატომ სჭირდება front-end დეველოპერს Figma-ს ცოდნა, თუნდაც ის თავად დიზაინს არ ქმნიდეს?</li>
+          <li>რა არის Figma-ს Frame და რას შეესაბამება ის HTML-ში?</li>
+          <li>რატომ არის Auto Layout მნიშვნელოვანი ცნება front-end დეველოპერისთვის კონკრეტულად?</li>
+          <li>რას გაძლევს Figma-ს Inspect/Dev Mode პანელი და როგორ გამოვიყენებთ ამ ინფორმაციას CSS-ში?</li>
+          <li>რატომ არ არის საკმარისი Figma-დან „Copy as CSS"-ის კოდის პირდაპირ ჩასმა, ცვლილების გარეშე?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -118,7 +185,9 @@
           <li>დამალე ერთი ელემენტი <code>display: none</code>-ით და შეამოწმე DevTools-ში, რომ ის საერთოდ აღარ იკავებს სივრცეს.</li>
           <li>დაუყენე ერთ სექციას ფონის ფერი და მეორეს — ფონის სურათი <code>cover</code> და <code>center</code> პარამეტრებით.</li>
           <li>დაასტილე ერთი აბზაცი: შეცვალე <code>font-size</code>, <code>line-height</code>, <code>letter-spacing</code> და <code>text-align</code>.</li>
-          <li><em>(რთული)</em> ააწყვე მარტივი „ბარათი" (card): ჩარჩო, ფონის ფერი, სათაური განსხვავებული ფონტის სისქით და ტექსტი — გამოიყენე ერთდროულად box model, display და ტექსტის თვისებები.</li>
+          <li>შექმენი უფასო Figma ანგარიში (<a href="https://figma.com" target="_blank" rel="noopener">figma.com</a>), გახსენი ნებისმიერი საჯარო, გასაზიარებელი (community) design ფაილი, აირჩიე ერთი ღილაკი და Inspect პანელში ნახე მისი ზუსტი ფერი, padding და ფონტის მნიშვნელობები.</li>
+          <li>იგივე Figma ღილაკის მონაცემები (ფერი, padding, border-radius, ფონტი) გადაიტანე რეალურ CSS-ში — ააწყვე HTML ღილაკი, რომელიც ვიზუალურად რაც შეიძლება ახლოს იმეორებს დიზაინს.</li>
+          <li><em>(რთული)</em> ააწყვე მარტივი „ბარათი" (card): ჩარჩო, ფონის ფერი, სათაური განსხვავებული ფონტის სისქით და ტექსტი — გამოიყენე ერთდროულად box model, display და ტექსტის თვისებები. თუ გინდა, ჯერ დახატე (ან იპოვე) ამ ბარათის დიზაინი Figma-ში და მხოლოდ შემდეგ დაწერე კოდი — ეს ზუსტად ის workflow-ია, რასაც რეალურ სამუშაოში გამოიყენებ.</li>
         </ol>
       </div>
 
@@ -133,7 +202,7 @@
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span></div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
