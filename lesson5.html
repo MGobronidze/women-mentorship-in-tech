@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 05 — Display, Background, ტექსტი, Figma</title>
-  <meta name="description" content="CSS display თვისებები (block/inline/inline-block/none), background და ტექსტის ფორმატირება, და Figma-ს საფუძვლები — დიზაინიდან CSS-ამდე." />
+  <title>გაკვეთილი 05 — Display, Background, ტექსტი, ფონტები, Figma</title>
+  <meta name="description" content="CSS display თვისებები, background და ტექსტის ფორმატირება, ქართული და ლათინური ვებ-ფონტები (Google Fonts, web-fonts.ge, @font-face), და Figma-ს საფუძვლები." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,12 +37,13 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 05/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Display თვისებები, Background, ტექსტი და Figma
+        Display, Background, ტექსტი, ფონტები და Figma
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         წინა გაკვეთილში ვისწავლეთ, როგორ „ითვლის" ბრაუზერი ელემენტის ზომას. ახლა ვნახოთ, როგორ
-        განლაგდება ეს ყუთები ერთმანეთთან, როგორ ვასტილებთ ფონსა და ტექსტს, და როგორ ვკითხულობთ
-        ზუსტ დიზაინის მნიშვნელობებს Figma-დან, რომ ისინი კოდში გადავიტანოთ.
+        განლაგდება ეს ყუთები ერთმანეთთან, როგორ ვსტილავთ ფონსა და ტექსტს, საიდან ვიღებთ
+        ქართულ და ლათინურ ვებ-ფონტებს, და როგორ ვკითხულობთ ზუსტ დიზაინის მნიშვნელობებს
+        Figma-დან, რომ ისინი კოდში გადავიტანოთ.
       </p>
       <div class="lesson-progress" data-lesson="5">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -102,9 +103,118 @@
         მაშინ პროპორციულად თვლის font-size-ის მიხედვით — ეს კარგი პრაქტიკაა responsive დიზაინისთვის.
       </p>
 
-      <h2>4. Figma — დიზაინიდან კოდამდე</h2>
+      <h2>4. ქართული და ლათინური ფონტები ვებში</h2>
       <p>
-        აქამდე ყველა მაგალითში ფერების, ზომებისა და ფონტების მნიშვნელობებს „გამოგონილად" ვწერდით.
+        <code>font-family</code>-ში ფონტის სახელის ჩაწერა საკმარისი არ არის — ეს ფონტი ჯერ
+        „მოსატანია" ბრაუზერისთვის, თუ ის მომხმარებლის მოწყობილობაზე უკვე დაყენებული არ არის.
+        ორი ყველაზე გავრცელებული წყაროა <strong>Google Fonts</strong> (ლათინური და ასევე
+        ქართული Unicode-ფონტებისთვის) და <strong>web-fonts.ge</strong> (ტრადიციული ქართული
+        ვებ-ფონტების სპეციალიზებული კატალოგი).
+      </p>
+
+      <h3>Google Fonts — <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a></h3>
+      <p>
+        Google Fonts არის უფასო, ღიაკოდიანი ფონტების უდიდესი ბიბლიოთეკა — ათასობით ლათინური
+        ფონტის გარდა, მასში შედის ქართული Unicode-ის (Mkhedruli) მხარდამჭერი ოჯახებიც, მაგ.
+        <strong>Noto Sans Georgian</strong> და <strong>Noto Serif Georgian</strong> — ზუსტად ეს
+        ფონტებია გამოყენებული ამ კურსის საიტზეც (გადახედე ნებისმიერი გვერდის
+        <code>&lt;head&gt;</code>-ს).
+      </p>
+      <p>გამოყენების ნაბიჯები: საიტზე ირჩევ ფონტს → წონებს (weights) → იღებ მზა embed კოდს:</p>
+      <pre><code><span class="cmt">&lt;!-- 1. &lt;head&gt;-ში: preconnect აჩქარებს დაკავშირებას Google-ის სერვერთან --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"preconnect"</span> <span class="attr">href</span>=<span class="str">"https://fonts.googleapis.com"</span>&gt;
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"preconnect"</span> <span class="attr">href</span>=<span class="str">"https://fonts.gstatic.com"</span> <span class="attr">crossorigin</span>&gt;
+
+<span class="cmt">&lt;!-- 2. თავად ფონტი — რომელი ოჯახი, რომელი წონები (wght) --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">href</span>=<span class="str">"https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;700&display=swap"</span>
+      <span class="attr">rel</span>=<span class="str">"stylesheet"</span>&gt;</code></pre>
+      <pre><code><span class="cmt">/* 3. CSS-ში — ფონტის სახელი ზუსტად ისე, როგორც Google Fonts-ის საიტზეა მითითებული */</span>
+body {
+  font-family: "Noto Sans Georgian", sans-serif;
+}</code></pre>
+      <p>
+        <code>display=swap</code> პარამეტრი (URL-ში) გადაითარგმნება <code>font-display: swap</code>-ად —
+        ის უზრუნველყოფს, რომ ტექსტი ჩანდეს fallback ფონტით მაშინვე, ხოლო როცა კონკრეტული ფონტი
+        ჩაიტვირთება — გლუვად „გადაერთოს" მასზე (ცარიელი, უხილავი ტექსტის ნაცვლად ჩატვირთვისას).
+      </p>
+
+      <h3>web-fonts.ge — ქართული ვებ-ფონტების კატალოგი</h3>
+      <p>
+        <a href="https://web-fonts.ge" target="_blank" rel="noopener">web-fonts.ge</a> არის
+        ქართული პროექტი, რომელიც აერთიანებს 120+-ზე მეტ, ტრადიციულ ქართულ ფონტს (BPG ოჯახი და
+        სხვ.) — ბევრი მათგანი Google Fonts-ზე საერთოდ არ მოიძებნება. გამოსადეგია, როცა დიზაინი
+        (მაგ. Figma-დან) კონკრეტულ, კლასიკურ ქართულ ტიპოგრაფიულ სტილს მოითხოვს.
+      </p>
+      <p>თითოეული ფონტის გვერდზე (მაგ. <em>BPG Nateli</em>) მოცემულია რამდენიმე გზა მის დასაკავშირებლად — უმარტივესი CDN-ითაა:</p>
+      <pre><code><span class="cmt">&lt;!-- &lt;head&gt;-ში --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span>
+      <span class="attr">href</span>=<span class="str">"//cdn.web-fonts.ge/fonts/bpg-nateli/css/bpg-nateli.min.css"</span>&gt;</code></pre>
+      <pre><code><span class="cmt">/* CSS-ში */</span>
+h1, h2, h3 {
+  font-family: "BPG Nateli", sans-serif;
+}</code></pre>
+      <p>
+        დამატებით, web-fonts.ge გვთავაზობს ხელით (self-hosted) დაყენებასაც — ჩამოტვირთავ
+        <code>.woff</code>/<code>.woff2</code> ფაილებს და თავად წერ <code>@font-face</code>-ს
+        (იხ. ქვემოთ). ხშირად ეს არჩევანია პროდაქშენ პროექტებში, სადაც გვინდა სრული კონტროლი
+        ჩატვირთვაზე და დამოკიდებულება არ გვქონდეს გარე CDN-ზე.
+      </p>
+
+      <h3>@font-face — საკუთარი (self-hosted) ფონტის ხელით დამატება</h3>
+      <p>
+        როცა ფონტის ფაილები (<code>.woff2</code>/<code>.woff</code>) უკვე გაქვს ჩამოტვირთული —
+        Google Fonts-იდანაც და web-fonts.ge-დანაც — <code>@font-face</code> წესით თავად აცხადებ,
+        როგორ ერქმევა ეს ფონტი და საიდან უნდა ჩაიტვირთოს:
+      </p>
+      <pre><code>@font-face {
+  font-family: "BPG Nateli";
+  src: url("/fonts/bpg-nateli.woff2") format("woff2"),  <span class="cmt">/* თანამედროვე, პატარა ზომის ფორმატი — პირველ რიგში */</span>
+       url("/fonts/bpg-nateli.woff") format("woff");    <span class="cmt">/* fallback ძველი ბრაუზერებისთვის */</span>
+  font-weight: 400;
+  font-display: swap;
+}
+
+body {
+  font-family: "BPG Nateli", sans-serif; <span class="cmt">/* შემდეგ ჩვეულებრივად გამოიყენება */</span>
+}</code></pre>
+      <p>
+        <code>src</code>-ში ჩამონათვალი — ბრაუზერი ცდის მარცხნიდან მარჯვნივ და იყენებს პირველივე
+        ფორმატს, რომელსაც უჭერს მხარს. <code>font-display: swap</code> აქაც იგივეს აკეთებს, რასაც
+        Google Fonts-ის URL-პარამეტრი — ტექსტს მალევე აჩენს fallback ფონტით.
+      </p>
+
+      <h3>Google Fonts CDN vs საკუთარი ჰოსტინგი</h3>
+      <p>
+        Google-ის ოფიციალური მონაცემებით, Google Fonts-ის CDN-იდან ფონტის ჩატვირთვისას
+        მომხმარებლის ბრაუზერი პირდაპირ აგზავნის მოთხოვნას  Google-ის სერვერზე — რაც გულისხმობს
+        მომხმარებლის IP მისამართის გადაცემას. 
+       
+      </p>
+      <p>
+        <strong>პრაქტიკული დასკვნა:</strong> სასწავლო/პირად პროექტში Google Fonts-ის ჩვეულებრივი
+        <code>&lt;link&gt;</code>-ით დაკავშირება სავსებით მისაღებია (ეს კურსიც ასეა აწყობილი).
+        პროფესიული აუდიტორიისთვის განკუთვნილ პროექტში კი, ხშირად ჯობია ფონტების
+        <strong>თვითდაჰოსტვა</strong> (<code>@font-face</code>-ის გამოყენებით, საკუთარ სერვერზე
+        ატვირთული ფაილებით) — რაც სრულად გამორიცხავს მესამე მხარის სერვერთან კავშირს .
+      </p>
+
+      <h3>საუკეთესო პრაქტიკა — ქართული და ლათინური ერთ font stack-ში</h3>
+      <p>
+        რეალურ პროექტში ტექსტი ხშირად შერეულია — ქართული სიტყვები, ლათინური ტერმინები, ციფრები.
+        <code>font-family</code>-ში რამდენიმე ფონტის ჩამონათვალი (fallback ჯაჭვი) უზრუნველყოფს,
+        რომ ყოველი სიმბოლო „დაიჭიროს" შესაბამისმა ფონტმა:
+      </p>
+      <pre><code>body {
+  font-family: "Noto Sans Georgian", "Noto Sans", Arial, sans-serif;
+  <span class="cmt">/* 1. Noto Sans Georgian — ქართული ასოებისთვის
+     2. Noto Sans — იმავე ოჯახის ლათინური ვერსია, თანმიმდევრული სტილისთვის
+     3. Arial — სისტემური fallback, თუ Google Fonts ვერ ჩაიტვირთა
+     4. sans-serif — საბოლოო, გენერიკული fallback, ყოველთვის არსებობს ყველა მოწყობილობაზე */</span>
+}</code></pre>
+
+      <h2>5. Figma — დიზაინიდან კოდამდე</h2>
+      <p>
+        აქამდე ყველა მაგალითში ფერების, ზომებისა და ფონტების მნიშვნელობებს ჩვენ თვითონ ვწერდით.
         რეალურ სამუშაოში კი front-end დეველოპერი, ჩვეულებრივ, იღებს მზა დიზაინს <strong>Figma</strong>-ში
         და მისი ამოცანაა, ზუსტად ეს დიზაინი გადააქციოს HTML/CSS-ად.
       </p>
@@ -161,6 +271,11 @@
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background" target="_blank" rel="noopener">MDN — background shorthand</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Fundamentals" target="_blank" rel="noopener">MDN — Fundamental text/font styling</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/line-height" target="_blank" rel="noopener">MDN — line-height</a></li>
+          <li><a href="https://fonts.google.com" target="_blank" rel="noopener">Google Fonts — fonts.google.com</a></li>
+          <li><a href="https://web-fonts.ge" target="_blank" rel="noopener">web-fonts.ge — ქართული ვებ-ფონტების კატალოგი</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face" target="_blank" rel="noopener">MDN — @font-face</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/font-display" target="_blank" rel="noopener">MDN — font-display</a></li>
+          <li><a href="https://developers.google.com/fonts/faq/privacy" target="_blank" rel="noopener">Google Fonts — Privacy and Data Collection FAQ</a></li>
           <li><a href="https://help.figma.com/hc/en-us/articles/360040451373-Guide-to-the-Figma-interface" target="_blank" rel="noopener">Figma — Guide to the Figma interface</a></li>
           <li><a href="https://help.figma.com/hc/en-us/articles/360040451373" target="_blank" rel="noopener">Figma — Auto Layout გზამკვლევი</a></li>
           <li><a href="https://help.figma.com/hc/en-us/articles/15023124644247-Guide-to-Dev-Mode" target="_blank" rel="noopener">Figma — Guide to Dev Mode (Inspect)</a></li>
@@ -170,6 +285,11 @@
       <div class="resources">
         <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
         <ol style="padding-left: 20px;">
+          <li>რატომ არ არის საკმარისი <code>font-family: "Noto Sans Georgian";</code>-ის ჩაწერა, თუ ეს ფონტი წინასწარ არსად „მოტანილია"?</li>
+          <li>რა განსხვავებაა Google Fonts-სა და web-fonts.ge-ს შორის — რომელ შემთხვევაში აირჩევდი თითოეულს?</li>
+          <li>რას აკეთებს <code>font-display: swap</code> და რატომ არის ის მნიშვნელოვანი მომხმარებლის გამოცდილებისთვის?</li>
+          <li>რატომ წერენ <code>src</code>-ში ჩვეულებრივ ჯერ <code>.woff2</code>-ს და მხოლოდ შემდეგ <code>.woff</code>-ს?</li>
+          <li>რატომ შეიძლება იყოს პრობლემური Google Fonts-ის პირდაპირ CDN-იდან ჩატვირთვა ევროპული აუდიტორიისთვის, და რა არის გამოსავალი?</li>
           <li>რატომ სჭირდება front-end დეველოპერს Figma-ს ცოდნა, თუნდაც ის თავად დიზაინს არ ქმნიდეს?</li>
           <li>რა არის Figma-ს Frame და რას შეესაბამება ის HTML-ში?</li>
           <li>რატომ არის Auto Layout მნიშვნელოვანი ცნება front-end დეველოპერისთვის კონკრეტულად?</li>
@@ -185,6 +305,10 @@
           <li>დამალე ერთი ელემენტი <code>display: none</code>-ით და შეამოწმე DevTools-ში, რომ ის საერთოდ აღარ იკავებს სივრცეს.</li>
           <li>დაუყენე ერთ სექციას ფონის ფერი და მეორეს — ფონის სურათი <code>cover</code> და <code>center</code> პარამეტრებით.</li>
           <li>დაასტილე ერთი აბზაცი: შეცვალე <code>font-size</code>, <code>line-height</code>, <code>letter-spacing</code> და <code>text-align</code>.</li>
+          <li>გახსენი <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a>, აირჩიე ერთი ლათინური ფონტი, აიღე მისი embed კოდი და გამოიყენე შენს პროექტში სათაურებისთვის.</li>
+          <li>გახსენი <a href="https://web-fonts.ge" target="_blank" rel="noopener">web-fonts.ge</a>, აირჩიე ერთი ტრადიციული ქართული ფონტი (მაგ. BPG ოჯახიდან), დაუკავშირე CDN-ით და შეადარე ვიზუალურად Google Fonts-ის Noto Sans Georgian-თან.</li>
+          <li>დაწერე <code>@font-face</code> წესი, თითქოს საკუთარ სერვერზე ატვირთული ფონტის ფაილები გაქვს (<code>.woff2</code>/<code>.woff</code> ორივე), <code>font-display: swap</code>-ის გამოყენებით.</li>
+          <li>ააწყვე font stack მინიმუმ 3 ფონტით (ქართული ფონტი → ლათინური ანალოგი → სისტემური fallback) და გამოსცადე, რა ხდება, თუ პირველი ფონტის სახელს შეგნებულად შეცდომით (typo-თი) ჩაწერ.</li>
           <li>შექმენი უფასო Figma ანგარიში (<a href="https://figma.com" target="_blank" rel="noopener">figma.com</a>), გახსენი ნებისმიერი საჯარო, გასაზიარებელი (community) design ფაილი, აირჩიე ერთი ღილაკი და Inspect პანელში ნახე მისი ზუსტი ფერი, padding და ფონტის მნიშვნელობები.</li>
           <li>იგივე Figma ღილაკის მონაცემები (ფერი, padding, border-radius, ფონტი) გადაიტანე რეალურ CSS-ში — ააწყვე HTML ღილაკი, რომელიც ვიზუალურად რაც შეიძლება ახლოს იმეორებს დიზაინს.</li>
           <li><em>(რთული)</em> ააწყვე მარტივი „ბარათი" (card): ჩარჩო, ფონის ფერი, სათაური განსხვავებული ფონტის სისქით და ტექსტი — გამოიყენე ერთდროულად box model, display და ტექსტის თვისებები. თუ გინდა, ჯერ დახატე (ან იპოვე) ამ ბარათის დიზაინი Figma-ში და მხოლოდ შემდეგ დაწერე კოდი — ეს ზუსტად ის workflow-ია, რასაც რეალურ სამუშაოში გამოიყენებ.</li>
