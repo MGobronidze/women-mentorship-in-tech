@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Edu VIC WA NT Hand Pre';
+    src: url('fonts/EduVICWANTHandPre-Regular.eot');
+    src: url('fonts/EduVICWANTHandPre-Regular.eot?#iefix') format('embedded-opentype'),
+        url('fonts/EduVICWANTHandPre-Regular.woff2') format('woff2'),
+        url('fonts/EduVICWANTHandPre-Regular.woff') format('woff'),
+        url('fonts/EduVICWANTHandPre-Regular.ttf') format('truetype'),
+        url('fonts/EduVICWANTHandPre-Regular.svg#EduVICWANTHandPre-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

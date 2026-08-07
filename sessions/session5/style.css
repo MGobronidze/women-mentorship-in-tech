@@ -1,0 +1,72 @@
+  /* .block-el{
+    display: block;
+    width: 1000px;
+    height: 200px;
+    background-color: rgb(43, 255, 0);
+
+  }
+  .inline-el{
+    display: inline;
+    width: 1000px;
+    height: 200px;
+    background-color: red;
+  }
+  .hybrid-el{
+    display: inline-block;
+     width: 1000px;
+    height: 200px;
+    background-color: rgb(43, 255, 0);
+  }
+  .hidden-el{
+    display: none;
+  } */
+
+  /* div{
+    color: white;
+    width: 1000px;
+    height: 100vh;
+    background-color: rgb(43, 255, 0);
+    background-image: url(cover.webp);
+    background-position: center;
+    background-size: cover;
+  } */
+/* 
+  .sekuya-font{
+     font-family: "Sekuya", system-ui;
+     
+  }
+  .geo-font{
+    font-family: "ALK Rex Bold", sans-serif;
+  }
+  .geo-fonts-2{
+    font-family: 'ALK Rex Bold';
+  }
+  .edu-fonts{
+    font-family: 'Edu VIC WA NT Hand Pre';
+  } */
+
+  .fonts-propertys{
+    font-family: 'Edu VIC WA NT Hand Pre';
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 2;
+    letter-spacing: 0.2rem;
+    text-align: justify;
+    text-transform: lowercase;
+    text-decoration: line-through;
+    text-shadow: 2px 2px 4px #000000;
+    text-decoration:none;
+  }
+  a{
+    text-decoration: none;
+  }
+
+  body {
+    background-color: rgb(3, 14, 0);
+  }
+  .line{
+    margin-left: 10%;
+    width: 80%;
+    height: 1px;
+    background-color: white;
+  }
