@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 06 — CSS Flexbox და პოზიციონირება</title>
-  <meta name="description" content="CSS Flexbox: container და items თვისებები, და პოზიციონირება — static, relative, absolute, fixed, sticky." />
+  <title>გაკვეთილი 06 — Flexbox, Typography Units, პოზიციონირება</title>
+  <meta name="description" content="CSS Flexbox სრული თეორია (Main/Cross Axis, container და items თვისებები), px/rem/em/%/vw/clamp() ტიპოგრაფიის ერთეულები, პოზიციონირება, და პრაქტიკული სავარჯიშო Figma დიზაინის მიხედვით." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,11 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 06/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        CSS Flexbox და პოზიციონირება
+        Flexbox, Typography Units, პოზიციონირება
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        Flexbox არის ის ინსტრუმენტი, რომელიც საბოლოოდ წყვეტს „როგორ დავალაგო ელემენტები ერთმანეთის
-        გვერდით" პრობლემას. ამას ვამატებთ პოზიციონირების სისტემასაც — ორივეს ერთად ხშირად ვიყენებთ.
+        მიმდინარე შეხვედრაზე განვიხილავთ — Flexbox-ს, ტიპოგრაფიის ერთეულებს (px/rem/em/%/vw/clamp),
+        ელემენტების პოზიციონირებას. ბოლოს განხილული იქნება  პრაქტიკული სავარჯიშო რეალური Figma დიზაინის მიხედვით.
       </p>
       <div class="lesson-progress" data-lesson="6">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -52,8 +52,8 @@
 
       <h2>1. Flexbox — საბაზისო კონცეფცია</h2>
       <p>
-        Flexbox არის ცალგანზომილებიანი (ერთი ხაზის მიმართულებით — ჰორიზონტალურად ან ვერტიკალურად)
-        განლაგების სისტემა. ის შედგება ორი მხრიდან: <strong>container</strong> (მშობელი ელემენტი,
+        Flexbox არის ერთგანზომილებიანი (ერთი განზომილების მიმართულებით — ჰორიზონტალურად ან ვერტიკალურად)
+        განლაგების სისტემა. ის შედგება ორი ძირითადი მახასიათებლისაგან: <strong>container</strong> (მშობელი ელემენტი,
         რომელსაც ვუწერთ <code>display: flex</code>) და <strong>items</strong> (მისი პირდაპირი შვილები).
       </p>
       <pre><code>.<span class="tag">container</span> {
@@ -61,39 +61,181 @@
 }</code></pre>
       <p>
         როგორც კი მშობელს დავუწერთ <code>display: flex</code>-ს, ყველა მისი პირდაპირი შვილი ავტომატურად
-        დალაგდება ერთ ხაზზე, გვერდიგვერდ.
+        დალაგდება ერთ ხაზზე, გვერდიგვერდ. <code>inline-flex</code> იგივეს აკეთებს, მაგრამ თავად
+        container-ს აქცევს inline ელემენტად (მე-5 გაკვეთილის <code>display</code>-ის მსგავსად).
       </p>
 
-      <h2>2. Container-ის თვისებები</h2>
+      <h2>2. Main Axis და Cross Axis — ღერძების კონცეფცია</h2>
+      <p>
+        Flexbox-ის სიღმისეულად გასააზრებლად, მნიშვნელოვანია გვესმოდეს როგორ მუშაობს — ორი ღერძის (axis) ცნება. ყველა container-ის, მშობლის, თვისება „მუშაობს" ერთ-ერთი ამ ღერძის მიმართ:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Main Axis (მთავარი ღერძი)</strong> — მიმართულება, რომლითაც items-ი „მისდევს" ერთმანეთს. მას განსაზღვრავს <code>flex-direction</code>. <code>justify-content</code> მუშაობს <strong>მთავარი ღერძის</strong> მიმართ.</li>
+        <li><strong>Cross Axis (განივი ღერძი)</strong> — Main Axis-ის პერპენდიკულარული მიმართულება. <code>align-items</code> და <code>align-content</code> მუშაობს <strong>განივი ღერძის</strong> მიმართ.</li>
+      </ul>
+      <pre><code><span class="cmt">/* flex-direction: row (ნაგულისხმევი) */</span>
+<span class="cmt">/* Main Axis:  →  (მარცხნიდან მარჯვნივ)   */</span>
+<span class="cmt">/* Cross Axis: ↓  (ზემოდან ქვემოთ)        */</span>
+
+.container { display: flex; flex-direction: row; }
+<span class="cmt">/* justify-content აქ ჰორიზონტალურად ალაგებს items-ს */</span>
+<span class="cmt">/* align-items    აქ ვერტიკალურად ალაგებს items-ს    */</span></code></pre>
+      <pre><code><span class="cmt">/* flex-direction: column — ღერძები 90°-ით "ბრუნდება"! */</span>
+<span class="cmt">/* Main Axis:  ↓  (ზემოდან ქვემოთ)        */</span>
+<span class="cmt">/* Cross Axis: →  (მარცხნიდან მარჯვნივ)   */</span>
+
+.container { display: flex; flex-direction: column; }
+<span class="cmt">/* justify-content ახლა ვერტიკალურად ალაგებს items-ს */</span>
+<span class="cmt">/* align-items    ახლა ჰორიზონტალურად ალაგებს items-ს */</span></code></pre>
+      <p>
+        <strong>შენიშნა:</strong> <code>justify-content</code> ყოველთვის Main
+        Axis-ზეა პასუხისმგებელი, <code>align-items</code>/<code>align-content</code> — ყოველთვის
+        Cross Axis-ზე. როცა <code>flex-direction</code> იცვლება <code>row</code>-დან
+        <code>column</code>-ზე, ეს ორი ღერძი ერთმანეთს „ენაცვლება".</p>
+
+      <h2>3. Flex Container-ის თვისებები — სრული ჩამონათვალი</h2>
+
+      <h3>flex-direction და flex-wrap</h3>
       <pre><code>.<span class="tag">container</span> {
   display: flex;
+  flex-direction: row;            <span class="cmt">/* row | row-reverse | column | column-reverse */</span>
+  flex-wrap: nowrap;              <span class="cmt">/* nowrap | wrap | wrap-reverse */</span>
 
-  flex-direction: row;        <span class="cmt">/* row | row-reverse | column | column-reverse */</span>
-  flex-wrap: wrap;            <span class="cmt">/* nowrap | wrap — გადადის თუ არა შემდეგ ხაზზე */</span>
-
-  justify-content: space-between; <span class="cmt">/* განლაგება მთავარი ღერძის მიმართულებით */</span>
-  align-items: center;            <span class="cmt">/* განლაგება განივი ღერძის მიმართულებით */</span>
+  <span class="cmt">/* flex-flow — shorthand ორივესთვის ერთად */</span>
+  flex-flow: row wrap;            <span class="cmt">/* flex-direction flex-wrap */</span>
 }</code></pre>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li><code>flex-direction</code> — განსაზღვრავს მთავარ ღერძს: <code>row</code> (ჰორიზონტალურად, ნაგულისხმევი) თუ <code>column</code> (ვერტიკალურად).</li>
-        <li><code>flex-wrap</code> — <code>nowrap</code> (ნაგულისხმევი, ელემენტები „იჭყლიტება" ერთ ხაზზე) თუ <code>wrap</code> (გადადის ახალ ხაზზე, თუ ადგილი აღარ ჰყოფნის).</li>
-        <li><code>justify-content</code> — მთავარი ღერძის მიმართულებით განლაგება: <code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>space-between</code>, <code>space-around</code>.</li>
-        <li><code>align-items</code> — განივი ღერძის მიმართულებით განლაგება: <code>stretch</code> (ნაგულისხმევი), <code>center</code>, <code>flex-start</code>, <code>flex-end</code>.</li>
+        <li><code>row-reverse</code>/<code>column-reverse</code> — იგივე მიმართულება, მაგრამ საპირისპირო თანმიმდევრობით (ვიზუალურად, HTML-ის შეცვლის გარეშე).</li>
+        <li><code>wrap</code> — items გადადის ახალ ხაზზე, თუ container-ში ადგილი აღარ ჰყოფნის; <code>wrap-reverse</code> — იგივე, მაგრამ ხაზები საპირისპირო მიმართულებით ლაგდება.</li>
       </ul>
 
-      <h2>3. Items-ის თვისებები</h2>
-      <p>ამ თვისებებს ვწერთ ცალკეულ item-ს, არა container-ს:</p>
-      <pre><code>.<span class="tag">item</span> {
-  order: 2;          <span class="cmt">/* ცვლის ვიზუალურ თანმიმდევრობას (ნაგულისხმევი: 0) */</span>
-  align-self: flex-end; <span class="cmt">/* ერთი კონკრეტული item-ის align-items-ის „გადაფარვა" */</span>
+      <h3>justify-content — Main Axis-ის განლაგება</h3>
+      <pre><code>.container {
+  justify-content: flex-start;    <span class="cmt">/* ნაგულისხმევი — items იწყება Main Axis-ის დასაწყისიდან */</span>
+  justify-content: flex-end;      <span class="cmt">/* items იკრიბება ბოლოში */</span>
+  justify-content: center;        <span class="cmt">/* items ცენტრირებულია */</span>
+  justify-content: space-between; <span class="cmt">/* პირველი/ბოლო — კიდეებზე, დანარჩენი — თანაბრად შორის */</span>
+  justify-content: space-around;  <span class="cmt">/* თანაბარი სივრცე ყოველი item-ის გარშემო */</span>
+  justify-content: space-evenly;  <span class="cmt">/* ზუსტად თანაბარი სივრცე ყველგან, კიდეების ჩათვლითაც */</span>
+}</code></pre>
+
+      <h3>align-items — Cross Axis-ის განლაგება (ერთი ხაზის შიგნით)</h3>
+      <pre><code>.container {
+  align-items: stretch;     <span class="cmt">/* ნაგულისხმევი — items "იჭიმება" container-ის სრულ სიმაღლეზე */</span>
+  align-items: flex-start;  <span class="cmt">/* items იწყება Cross Axis-ის დასაწყისიდან */</span>
+  align-items: flex-end;    <span class="cmt">/* items იკრიბება ბოლოში */</span>
+  align-items: center;      <span class="cmt">/* items ცენტრირებულია განივად */</span>
+  align-items: baseline;    <span class="cmt">/* items ლაგდება ტექსტის baseline-ის მიხედვით (განსხვავებული font-size-ების დროსაც თანაბრად) */</span>
+}</code></pre>
+
+      <h3>align-content — Cross Axis-ის განლაგება (ხაზებს შორის)</h3>
+      <p>
+        <strong>ხშირი გაუგებრობა:</strong> <code>align-content</code> მუშაობს მხოლოდ მაშინ, როცა
+        container-ს აქვს <code>flex-wrap: wrap</code> <em>და</em> items რამდენიმე ხაზზეა
+        გადანაწილებული, <em>და</em> Cross Axis-ზე დამატებითი, გამოუყენებელი სივრცე რჩება.
+        <code>align-items</code> ალაგებს items-ს ერთი ხაზის შიგნით, ხოლო <code>align-content</code> —
+        <strong>თავად ხაზებს</strong> ერთმანეთის მიმართ.
+      </p>
+      <pre><code>.container {
+  flex-wrap: wrap;
+  align-content: space-between; <span class="cmt">/* flex-start | flex-end | center | space-between | space-around | space-evenly | stretch */</span>
+}</code></pre>
+
+      <h3>gap, row-gap, column-gap</h3>
+      <pre><code>.container {
+  gap: 16px;              <span class="cmt">/* მანძილი items-ს შორის ორივე ღერძზე — margin-ის გარეშე! */</span>
+  row-gap: 20px;           <span class="cmt">/* მანძილი მხოლოდ ხაზებს შორის (wrap-ის დროს) */</span>
+  column-gap: 12px;        <span class="cmt">/* მანძილი მხოლოდ სვეტებს შორის */</span>
+
+  <span class="cmt">/* shorthand: gap: row-gap column-gap; */</span>
+  gap: 20px 12px;
+}</code></pre>
+      
+
+      <h2>4. Flex Items-ის თვისებები — სრული ჩამონათვალი</h2>
+      <p>ეს თვისებები ეწერება ცალკეულ item-ს, არა container-ს:</p>
+
+      <h3>order და align-self</h3>
+      <pre><code>.item {
+  order: 2;              <span class="cmt">/* ცვლის ვიზუალურ თანმიმდევრობას (ნაგულისხმევი ყველასთვის: 0) */</span>
+  align-self: flex-end;  <span class="cmt">/* ერთი კონკრეტული item-ის align-items-ის "გადაფარვა" */</span>
+}</code></pre>
+
+      <h3>flex-grow, flex-shrink, flex-basis</h3>
+      <p>
+        ეს სამი თვისება განსაზღვრავს, როგორ გაინაწილებენ ელემენტები ერთმანეთს შორის container-ის
+        ხელმისაწვდომ სივრცეს:
+      </p>
+      <pre><code>.item {
+  flex-basis: 200px;  <span class="cmt">/* item-ის საწყისი ზომა, "growing/shrinking"-მდე */</span>
+  flex-grow: 1;        <span class="cmt">/* რამდენად "იზრდება" item, თუ container-ში ზედმეტი სივრცეა (თანაფარდობა) */</span>
+  flex-shrink: 1;      <span class="cmt">/* რამდენად "იკუმშება" item, თუ container-ში სივრცე არ ჰყოფნის (თანაფარდობა) */</span>
 }</code></pre>
       <p>
-        <code>order</code> გამოსადეგია, როცა გვინდა ერთი კონკრეტული ელემენტი ვიზუალურად სხვა ადგილას
-        გამოჩნდეს, HTML-ის თანმიმდევრობის შეცვლის გარეშე. <code>align-self</code> კი საშუალებას გვაძლევს
-        ერთ item-ს ჰქონდეს container-ის <code>align-items</code>-გან განსხვავებული განლაგება.
+        <code>flex-grow</code> და <code>flex-shrink</code> არის <strong>თანაფარდობები</strong>, არა
+        აბსოლუტური მნიშვნელობები. მაგალითად, თუ სამ item-ს აქვს <code>flex-grow: 1, 2, 1</code> —
+        დამატებითი სივრცე გადანაწილდება პროპორციით 1:2:1 (მეორეს ორჯერ მეტი დამატებითი სივრცე ერგება):
       </p>
+      <pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"row"</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"a"</span>&gt;A&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"b"</span>&gt;B&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"c"</span>&gt;C&lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
 
-      <h3>პრაქტიკული მაგალითი: ნავიგაციის ზოლი</h3>
+<span class="cmt">/* CSS */</span>
+.row { display: flex; gap: 8px; }
+.a { flex-grow: 1; }  <span class="cmt">/* იღებს 1 ნაწილს დამატებითი სივრციდან */</span>
+.b { flex-grow: 2; }  <span class="cmt">/* იღებს 2-ჯერ მეტს, ვიდრე A ან C */</span>
+.c { flex-grow: 1; }  <span class="cmt">/* იღებს 1 ნაწილს */</span></code></pre>
+
+      <h3>flex — shorthand (რეკომენდებული ფორმა)</h3>
+      <p>
+        პრაქტიკაში, სამივე თვისებას ჩვეულებრივ ერთად, <code>flex</code> shorthand-ით ვწერთ:
+        <code>flex: [grow] [shrink] [basis]</code>. 
+      </p>
+      <pre><code>.item { flex: 1 1 200px; }  <span class="cmt">/* გაიზრდება, შემცირდება, საწყისი ზომა 200px */</span>
+
+.item { flex: 1; }          <span class="cmt">/* shorthand "flex: 1 1 0%" — ტოლი გაყოფა, საწყისი ზომის იგნორირებით */</span>
+.item { flex: auto; }       <span class="cmt">/* shorthand "flex: 1 1 auto" — იზრდება/იკუმშება, საწყისი ზომა content-ის მიხედვით */</span>
+.item { flex: none; }       <span class="cmt">/* shorthand "flex: 0 0 auto" — არც იზრდება, არც იკუმშება — ფიქსირებული ზომა */</span></code></pre>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">Shorthand</th>
+            <th style="text-align: left; padding: 8px;">grow</th>
+            <th style="text-align: left; padding: 8px;">shrink</th>
+            <th style="text-align: left; padding: 8px;">basis</th>
+            <th style="text-align: left; padding: 8px;">გამოყენების შემთხვევა</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>flex: 1</code></td>
+            <td style="padding: 8px;">1</td>
+            <td style="padding: 8px;">1</td>
+            <td style="padding: 8px;">0%</td>
+            <td style="padding: 8px;">თანაბრად გაყოფილი სვეტები/ბარათები</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>flex: auto</code></td>
+            <td style="padding: 8px;">1</td>
+            <td style="padding: 8px;">1</td>
+            <td style="padding: 8px;">auto</td>
+            <td style="padding: 8px;">content-ის ზომიდან იზრდება/იკუმშება</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;"><code>flex: none</code></td>
+            <td style="padding: 8px;">0</td>
+            <td style="padding: 8px;">0</td>
+            <td style="padding: 8px;">auto</td>
+            <td style="padding: 8px;">ფიქსირებული ზომის sidebar/icon</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>5. პრაქტიკული მაგალითები</h2>
+
+      <h3>5.1 — ნავიგაციის ზოლი</h3>
       <pre><code>&lt;<span class="tag">nav</span> <span class="attr">class</span>=<span class="str">"navbar"</span>&gt;
   &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"logo"</span>&gt;front-end-course&lt;/<span class="tag">div</span>&gt;
   &lt;<span class="tag">ul</span> <span class="attr">class</span>=<span class="str">"links"</span>&gt;
@@ -113,15 +255,29 @@
   gap: 24px; <span class="cmt">/* მანძილი ელემენტებს შორის, margin-ის გარეშე */</span>
 }</code></pre>
 
-      <h2>4. Positioned Elements</h2>
+      <h3>5.2 — რესპონსიული ბარათების რიგი (flex-grow/shrink/basis)</h3>
+      <p>
+        3 ბარათი, რომლებიც თანაბრად იზიარებენ სივრცეს, მაგრამ არასდროს იკუმშება 220px-ზე
+        ნაკლებზე — ამის ნაცვლად, ახალ ხაზზე გადადის (<code>flex-wrap</code>-თან ერთად):
+      </p>
+      <pre><code>.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.card {
+  flex: 1 1 220px; <span class="cmt">/* გაიზრდება, შემცირდება, მაგრამ საწყისი/მინიმალური ~220px */</span>
+}</code></pre>
+
+      <h2>6. Positioned Elements</h2>
       <p>
         <code>position</code> თვისება განსაზღვრავს, როგორ „გაერევა" ელემენტი ჩვეულებრივ დინებაში
         (document flow) და გამოიყენება <code>top</code>/<code>right</code>/<code>bottom</code>/<code>left</code>-თან ერთად:
       </p>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li><strong>static</strong> — ნაგულისხმევი მნიშვნელობა; ელემენტი მისდევს ჩვეულებრივ დინებას, <code>top</code>/<code>left</code> და სხვ. არ მოქმედებს.</li>
+        <li><strong>static</strong>ეს არის CSS-ის სტანდარტული მდგომარეობა. ელემენტი განთავსებულია ზუსტად იმ ადგილას, სადაც HTML-ის იერარქიაში წერია. <code>top</code>/<code>left</code>. (შენიშვნა: top/right/bottom/left/z-index: ამ თვისებებს არანაირი ეფექტი არ აქვს static ელემენტზე.)</li>
         <li><strong>relative</strong> — ელემენტი „გადაინაცვლებს" საკუთარი, ნაგულისხმევი პოზიციიდან, მაგრამ ისევ იკავებს ორიგინალურ ადგილს დინებაში (სხვები „ხედავენ" მას, თითქოს არსად წასულა).</li>
-        <li><strong>absolute</strong> — ელემენტი მთლიანად ამოვარდება დინებიდან და პოზიციონირდება უახლოესი <code>relative</code> (ან <code>absolute</code>/<code>fixed</code>) წინაპრის მიმართ.</li>
+        <li><strong>absolute</strong> — ელემენტი მთლიანად ამოვარდება დინებიდან და პოზიციონირდება უახლოესი <code>relative</code> (ან <code>absolute</code>/<code>fixed</code>/<code>sticky</code>) წინაპრის მიმართ. (თუ ასეთი წინაპარი არ არსებობს: მდებარეობას აიღებს უშუალოდ HTML დოკუმენტის პირველადი კონტეინერის (<html> / Viewport) მიმართ.)</li>
         <li><strong>fixed</strong> — პოზიციონირდება ბრაუზერის ფანჯრის მიმართ და „მიმაგრებულია" — არ მოძრაობს სქროლვისას.</li>
         <li><strong>sticky</strong> — ჰიბრიდი: იქცევა როგორც <code>relative</code>, სანამ არ მიაღწევს განსაზღვრულ ზღვარს (მაგ. <code>top: 0</code>), შემდეგ იქცევა როგორც <code>fixed</code>.</li>
       </ul>
@@ -140,23 +296,238 @@
   right: 8px;
 }</code></pre>
 
+      <h2>7. Typography Units — px, rem, em, %, vw/vh, clamp()</h2>
+      <p>
+        ტექსტის (და ხშირად სხვა თვისებების) ზომების ერთეულის სწორად არჩევა პირდაპირ გავლენას
+        ახდენს საიტის ხელმისაწვდომობასა (accessibility) და რესპონსიულობაზე.
+      </p>
+
+      <h3>px — აბსოლუტური ერთეული</h3>
+      <p>
+        <code>px</code> ყოველთვის ერთი და იგივე, ფიქსირებული ზომაა — არ იცვლება არაფრის მიხედვით.
+      </p>
+      <pre><code>p { font-size: 16px; } <span class="cmt">/* ყოველთვის ზუსტად 16px, ყველგან */</span></code></pre>
+      <p>
+        <strong>რატომ არ არის რეკომენდებული ტექსტისთვის:</strong> ბრაუზერებს აქვთ პარამეტრი
+        (Accessibility Settings), რომლითაც მომხმარებელს შეუძლია გაზარდოს ნაგულისხმევი ფონტის
+        ზომა (მაგ. მხედველობის დაქვეითების გამო). <code>px</code>-ით ჩაწერილი ტექსტი ამ პარამეტრს
+        <strong>არ ემორჩილება</strong> — რჩება ფიქსირებული, მიუხედავად მომხმარებლის პარამეტრებისა.
+        <code>rem</code>-ით ჩაწერილი კი — მასშტაბირდება.
+      </p>
+
+      <h3>rem — Root-ის მიმართ (Root EM)</h3>
+      <p>
+        <code>rem</code> ყოველთვის ითვლება <code>&lt;html&gt;</code> (root) ელემენტის
+        <code>font-size</code>-ის მიმართ — ნაგულისხმევად ეს არის <strong>16px</strong> თითქმის
+        ყველა ბრაუზერში:
+      </p>
+      <pre><code>html { font-size: 16px; } <span class="cmt">/* ეს ჩვეულებრივ ნაგულისხმევია, ხელით არ სჭირდება წერა */</span>
+
+h1 { font-size: 2rem; }    <span class="cmt">/* 2 × 16px = 32px */</span>
+p  { font-size: 1rem; }    <span class="cmt">/* 1 × 16px = 16px */</span>
+small { font-size: 0.875rem; } <span class="cmt">/* 0.875 × 16px = 14px */</span></code></pre>
+      <p>
+        <strong>რატომ არის ინდუსტრიის სტანდარტი:</strong> <code>rem</code> ყოველთვის ერთსა და
+        იმავე „წყაროს" (root) მიემართება, დაბუდვის (nesting) სიღრმის მიუხედავად — ამიტომ
+        პროგნოზირებადია. ამავე დროს, <code>px</code>-ისგან განსხვავებით, <strong>რეაგირებს</strong>
+        მომხმარებლის ბრაუზერის accessibility-პარამეტრებზე, თუ მან root-ის font-size შეცვალა.
+      </p>
+
+      <h3>em — მშობლის მიმართ</h3>
+      <p>
+        <code>em</code> ითვლება <strong>უშუალო მშობელი</strong> ელემენტის <code>font-size</code>-ის
+        მიმართ — არა root-ის, არამედ იმ კონკრეტული ელემენტისა, რომელშიც ის ჩადგმულია.
+      </p>
+      <pre><code>.card { font-size: 18px; }
+.card .title { font-size: 1.5em; } <span class="cmt">/* 1.5 × 18px = 27px (.card-ის მიმართ) */</span></code></pre>
+
+      <h4 style="font-size: 15px; font-weight: 700; margin: 20px 0 8px;">Cascading პრობლემა — რატომ „მრავლდება" em</h4>
+      <p>
+        <code>em</code>-ის მთავარი „ხაფანგი" — ის აგრძელებს ერთმანეთზე გამრავლებას, თუ ჩადგმული
+        ელემენტების ჯაჭვშია გამოყენებული:
+      </p>
+      <pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"a"</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"b"</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"c"</span>&gt;ტექსტი&lt;/<span class="tag">div</span>&gt;
+  &lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">/* CSS */</span>
+.a { font-size: 16px; }
+.b { font-size: 1.5em; } <span class="cmt">/* 16 × 1.5 = 24px */</span>
+.c { font-size: 1.5em; } <span class="cmt">/* 24 × 1.5 = 36px — არა 16 × 1.5 = 24px, როგორც ერთი შეხედვით ჩანს! */</span></code></pre>
+      <p>
+        ყოველი ჩადგმის დონე ამრავლებს წინას — გაუთვალისწინებელი, „გაქცეული" ზომები რთულ,
+        ღრმად ჩადგმულ კომპონენტებში. <code>rem</code> ამ პრობლემას მთლიანად გამორიცხავს, რადგან
+        ყოველთვის root-ს მიემართება, ჩადგმის დონის მიუხედავად.
+      </p>
+      <p>
+        <strong>საუკეთესო გამოყენების შემთხვევა em-ისთვის:</strong> როცა შეგნებულად გინდა, რომ
+        თვისება (ჩვეულებრივ <code>padding</code>/<code>margin</code>, არა <code>font-size</code>)
+        პროპორციული იყოს <em>კონკრეტული კომპონენტის</em> ტექსტის ზომის მიმართ — მაგ. ღილაკის
+        padding, რომ დიდი ტექსტის ღილაკს ავტომატურად ჰქონდეს დიდი padding-იც:
+      </p>
+      <pre><code>.btn {
+  font-size: 1rem;      <span class="cmt">/* rem — პროგნოზირებადი ტექსტის ზომა */</span>
+  padding: 0.75em 1.5em; <span class="cmt">/* em — padding "მისდევს" ღილაკის font-size-ს */</span>
+}
+.btn.large { font-size: 1.25rem; } <span class="cmt">/* padding ავტომატურად პროპორციულად გაიზრდება, ხელახლა წერის გარეშე */</span></code></pre>
+
+      <h3>% და Viewport Units (vw, vh) და clamp()</h3>
+      <p>
+        <code>%</code> მუშაობს <code>em</code>-ის მსგავსად — მშობლის ზომის მიმართ (ჩვეულებრივ
+        <code>width</code>/<code>height</code>-სთვის გამოიყენება, არა ტექსტისთვის).
+        <code>vw</code>/<code>vh</code> კი ეთვლის ბრაუზერის <strong>ვიუპორტს</strong> (ხილულ ეკრანს):
+        <code>1vw</code> = ვიუპორტის სიგანის 1%, <code>1vh</code> = სიმაღლის 1%.
+      </p>
+      <pre><code>.hero-title {
+  font-size: 5vw; <span class="cmt">/* ეკრანის სიგანის მიხედვით მასშტაბირდება — მაგრამ საშიშია მარტო! */</span>
+}
+<span class="cmt">/* პრობლემა: ძალიან პატარა ეკრანზე — წაუკითხავად პატარა; ძალიან დიდზე — გადაჭარბებულად დიდი */</span></code></pre>
+      <p>
+        სწორედ ამის გადასაჭრელად არსებობს <strong><code>clamp()</code></strong> — თანამედროვე,
+        რეკომენდებული ფუნქცია რესპონსიული ტიპოგრაფიისთვის:
+      </p>
+      <pre><code>font-size: clamp(<span class="str">მინიმუმი</span>, <span class="str">სასურველი (fluid)</span>, <span class="str">მაქსიმუმი</span>);
+
+<span class="cmt">/* პრაქტიკული მაგალითი */</span>
+h1 {
+  font-size: clamp(1.75rem, 4vw + 1rem, 3rem);
+  <span class="cmt">/* არასდროს იქნება 1.75rem-ზე ნაკლები */</span>
+  <span class="cmt">/* არასდროს იქნება 3rem-ზე მეტი           */</span>
+  <span class="cmt">/* შუალედში კი გლუვად "მიჰყვება" ეკრანის სიგანეს (4vw + 1rem) */</span>
+}</code></pre>
+      <p>
+        ეს ერთი ხაზი ანაცვლებს ბევრ <code>@media</code> query-ს, რომლებიც სხვადასხვა
+        breakpoint-ზე სხვადასხვა ფიქსირებულ <code>font-size</code>-ს აწესებდა — <code>clamp()</code>
+        გლუვად, უწყვეტად „მიჰყვება" ეკრანის ზომას, ორ ზღვარს შორის.
+      </p>
+
+      <h3>ერთეულების შედარების ცხრილი</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">ერთეული</th>
+            <th style="text-align: left; padding: 8px;">ითვლება</th>
+            <th style="text-align: left; padding: 8px;">გამოყენება</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>px</code></td>
+            <td style="padding: 8px;">აბსოლუტური, ფიქსირებული</td>
+            <td style="padding: 8px;">border-width, box-shadow — არა ტექსტი</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>rem</code></td>
+            <td style="padding: 8px;">Root (<code>&lt;html&gt;</code>)-ის მიმართ</td>
+            <td style="padding: 8px;"><strong>font-size</strong> — სტანდარტული არჩევანი</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>em</code></td>
+            <td style="padding: 8px;">უშუალო მშობლის მიმართ</td>
+            <td style="padding: 8px;">padding/margin, კომპონენტის font-size-ის პროპორციულად</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>%</code></td>
+            <td style="padding: 8px;">მშობლის ზომის მიმართ</td>
+            <td style="padding: 8px;">width/height — layout-ისთვის</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>vw</code>/<code>vh</code></td>
+            <td style="padding: 8px;">ვიუპორტის ზომის მიმართ</td>
+            <td style="padding: 8px;">fluid ზომები — ყოველთვის <code>clamp()</code>-თან ერთად</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;"><code>clamp()</code></td>
+            <td style="padding: 8px;">min/preferred/max კომბინაცია</td>
+            <td style="padding: 8px;">რესპონსიული ტიპოგრაფია — <strong>თანამედროვე სტანდარტი</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>px → rem კონვერტაცია — ფორმულა და ცხრილი</h3>
+      <p>
+        თუ root-ის <code>font-size</code> ნაგულისხმევი 16px-ია (როგორც თითქმის ყოველთვის),
+        კონვერტაციის ფორმულა მარტივია:
+      </p>
+      <pre><code>rem = px ÷ 16</code></pre>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">px</th>
+            <th style="text-align: left; padding: 8px;">rem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">12px</td><td style="padding: 8px;">0.75rem</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">14px</td><td style="padding: 8px;">0.875rem</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">16px</td><td style="padding: 8px;">1rem</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">18px</td><td style="padding: 8px;">1.125rem</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">20px</td><td style="padding: 8px;">1.25rem</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">24px</td><td style="padding: 8px;">1.5rem</td></tr>
+          <tr><td style="padding: 8px;">32px</td><td style="padding: 8px;">2rem</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>პრაქტიკული რჩევა:</strong> Figma-ს დიზაინში ზომები თითქმის ყოველთვის px-შია
+        მითითებული (Inspect პანელში, მე-5 გაკვეთილიდან ნაცნობი). კოდში გადატანისას, ტექსტის
+        ზომებისთვის ეს px კონვერტირდება <code>rem</code>-ად ზემოთ მოცემული ფორმულით.
+      </p>
+
+      <h2>8. პრაქტიკული სავარჯიშო — Figma დიზაინის მიხედვით</h2>
+      <p>
+        ახლა დროა, ყველაფერი ერთად გამოვსცადოთ — რეალურ, მზა დიზაინზე. საილუსტრაციო პროექტი:
+      </p>
+      <p>
+        <a href="https://www.figma.com/design/1s6UTwiDZH1oVUfo0h2hNB/Responsive?node-id=2-106&t=8PN2p4rbIIGXoT8S-0" target="_blank" rel="noopener">
+          Figma Design — Responsive (გახსენი ახალ ტაბში)
+        </a>
+      </p>
+      <ol style="padding-left: 20px;">
+        <li>გახსენი ბმული და გადართე <strong>Dev Mode</strong>-ზე (<code>Shift + D</code>, ან იხ. მე-5 გაკვეთილის Figma სექცია).</li>
+        <li>მონიშნე კონკრეტული ფრეიმი/კომპონენტი Layers პანელში — მარჯვნივ გამოჩნდება ზუსტი px-მნიშვნელობები (padding, gap, font-size).</li>
+        <li>თითოეული ტექსტის <code>font-size</code> გადაიყვანე <code>rem</code>-ად ზემოთ მოცემული ფორმულით.</li>
+        <li>დაადგინე, დიზაინი Flexbox-ის რომელ თვისებებს „ჰგავს" — მწკრივია თუ სვეტი? თანაბრადაა გადანაწილებული სივრცე (<code>justify-content</code>) თუ item-ებს შორის ფიქსირებული <code>gap</code>-ია?</li>
+      </ol>
+      
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener">CSS-Tricks — A Complete Guide to Flexbox</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox" target="_blank" rel="noopener">MDN — Flexbox (Learn area)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox" target="_blank" rel="noopener">MDN — Basic concepts of flexbox (Main/Cross Axis)</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/position" target="_blank" rel="noopener">MDN — position property</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/length#relative_length_units_based_on_font" target="_blank" rel="noopener">MDN — Relative length units (rem/em)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp" target="_blank" rel="noopener">MDN — clamp() function</a></li>
+          <li><a href="https://www.figma.com/design/1s6UTwiDZH1oVUfo0h2hNB/Responsive?node-id=2-106&t=8PN2p4rbIIGXoT8S-0" target="_blank" rel="noopener">Figma Design — Responsive (სავარჯიშოს ფაილი)</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რა განსხვავებაა Main Axis-სა და Cross Axis-ს შორის, და რატომ „იცვლებიან" ისინი <code>flex-direction: column</code>-ზე გადასვლისას?</li>
+          <li>რა განსხვავებაა <code>align-items</code>-სა და <code>align-content</code>-ს შორის?</li>
+          <li>რას აკეთებს <code>flex: 1</code> — რომელ სამ თვისებას შეესაბამება ეს shorthand?</li>
+          <li>რატომ არ არის რეკომენდებული ტექსტის ზომების <code>px</code>-ით განსაზღვრა accessibility-ის თვალსაზრისით?</li>
+          <li>რატომ „მრავლდება" <code>em</code> ჩადგმულ ელემენტებში, და როგორ გვიხსნის ამ პრობლემას <code>rem</code>?</li>
+          <li>რას აკეთებს <code>clamp()</code> და რატომ სჯობს მას მარტო <code>vw</code>-ის გამოყენებას ტიპოგრაფიისთვის?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>შექმენი 3 ყუთი ერთ container-ში, დაუყენე <code>display: flex</code> და გამოსცადე <code>justify-content</code>-ის სხვადასხვა მნიშვნელობები.</li>
-          <li>იგივე container-ს დაუყენე <code>flex-direction: column</code> და დააკვირდი, როგორ იცვლება განლაგება.</li>
+          <li>შექმენი 3 ყუთი ერთ container-ში, დაუყენე <code>display: flex</code> და გამოსცადე <code>justify-content</code>-ის ყველა მნიშვნელობა (<code>flex-start</code>-დან <code>space-evenly</code>-მდე).</li>
+          <li>იგივე container-ს დაუყენე <code>flex-direction: column</code> და დააკვირდი, რომელი თვისება (justify-content თუ align-items) აკონტროლებს ახლა რომელ მიმართულებას.</li>
+          <li>შექმენი 4 item, სხვადასხვა <code>flex-grow</code> მნიშვნელობით (მაგ. 1, 2, 1, 3) და დააკვირდი, როგორ ნაწილდება დამატებითი სივრცე.</li>
           <li>ააწყვე ნავიგაციის ზოლი ლოგოთი მარცხნივ და ბმულებით მარჯვნივ, <code>space-between</code>-ის გამოყენებით.</li>
+          <li>ააწყვე 3-ბარათიანი რიგი <code>flex: 1 1 220px</code>-ის გამოყენებით — შეამოწმე, რომ ვიწრო ეკრანზე ისინი ახალ ხაზზე გადადის.</li>
           <li>შექმენი card, რომელშიც ერთი „badge" ელემენტი <code>position: absolute</code>-ით მიმაგრებულია კუთხეში.</li>
-          <li><em>(რთული)</em> ააწყვე <code>sticky</code> ჰედერი, რომელიც სქროლვისას რჩება ეკრანის თავზე — შეამოწმე, რომ <code>z-index</code> სწორადაა დაყენებული და ის სხვა კონტენტს არ ეფარება.</li>
+          <li>დაწერე ერთი და იგივე სათაური სამივე ერთეულით — <code>px</code>, <code>rem</code> და <code>clamp()</code> — და ბრაუზერის Zoom/Font Size პარამეტრებში შეამოწმე, რომელი რეაგირებს ცვლილებაზე.</li>
+          <li><em>(რთული)</em> გახსენი <a href="https://www.figma.com/design/1s6UTwiDZH1oVUfo0h2hNB/Responsive?node-id=2-106&t=8PN2p4rbIIGXoT8S-0" target="_blank" rel="noopener">Figma-ს დიზაინის ბმული</a>, Dev Mode-ში ამოიღე ერთი კონკრეტული კომპონენტის ზუსტი px-მნიშვნელობები (padding, gap, font-size) და ააგე ის Flexbox-ითა და <code>rem</code>-ით — ამ გაკვეთილის „profile-card" მაგალითის პატერნის გამოყენებით.</li>
         </ol>
       </div>
 
@@ -171,7 +542,7 @@
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

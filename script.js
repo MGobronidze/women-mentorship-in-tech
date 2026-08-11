@@ -26,7 +26,7 @@ const LESSONS = [
 
   { n: 4, mod: "css", title: "CSS სინტაქსი, სტრუქტურული ტეგები, Class/ID, Normalize" },
   { n: 5, mod: "css", title: "Display, Background, ტექსტი, ვებ-ფონტები, Figma" },
-  { n: 6, mod: "css", title: "CSS Flexbox და Positioned Elements" },
+  { n: 6, mod: "css", title: "Flexbox სრულად, Typography Units, პოზიციონირება" },
   { n: 7, mod: "css", title: "Pseudo-classes, Transitions, Animations, Variables, Autoprefixer" },
   { n: 8, mod: "css", title: "Bootstrap, Git & GitHub, რესპონსიული დიზაინი (Media Queries)" },
 
