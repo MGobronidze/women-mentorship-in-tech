@@ -40,7 +40,7 @@
         Pseudo-classes, Transitions, Animations, Variables
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        დროა CSS-ს „სიცოცხლე ჩავუბეროთ" — ვისწავლოთ, როგორ რეაგირებს ელემენტი მომხმარებლის
+        დღეს ვისწავლით თუ, როგორ რეაგირებს ელემენტი მომხმარებლის
         მოქმედებებზე, როგორ ვამოძრავებთ სტილებს გლუვად და როგორ ვწერთ ხელახლა-გამოსაყენებელ მნიშვნელობებს.
       </p>
       <div class="lesson-progress" data-lesson="7">
@@ -94,8 +94,7 @@
 
       <h2>3. Transitions — გლუვი გადასვლა</h2>
       <p>
-        <code>transition</code> საშუალებას გვაძლევს, სტილის ცვლილება (მაგ. <code>:hover</code>-ზე) მოხდეს
-        მყისიერად კი არა, არამედ გლუვად, დროში გაწელილად.
+        <code>transition</code> საშუალებას გვაძლევს, სტილის ცვლილება (მაგ. <code>:hover</code>-ზე) მოხდეს გლუვად, დროში გაწელილად.
       </p>
       <pre><code>.<span class="tag">btn</span> {
   background: #146B5C;
@@ -115,7 +114,7 @@
       <h2>4. Animations — @keyframes</h2>
       <p>
         <code>transition</code> მუშაობს მხოლოდ ორ მდგომარეობას შორის (მაგ. ჩვეულებრივი → hover).
-        როცა გვჭირდება უფრო რთული, მრავალსაფეხურიანი ან თვითდაწყებადი ანიმაცია — ვიყენებთ
+        როცა გვჭირდება უფრო რთული, მრავალსაფეხურიანი ანიმაცია — ვიყენებთ
         <code>@keyframes</code>-ს.
       </p>
       <pre><code><span class="cmt">/* ვაღწერთ ანიმაციის საფეხურებს პროცენტულად */</span>
@@ -134,7 +133,7 @@
   animation-name: fade-in-up;
   animation-duration: 400ms;
   animation-timing-function: ease-out;
-  animation-fill-mode: both; <span class="cmt">/* ინარჩუნებს "to" მდგომარეობას დასრულების შემდეგ */</span>
+  
 
   <span class="cmt">/* ან shorthand: */</span>
   animation: fade-in-up 400ms ease-out both;
@@ -165,6 +164,10 @@
 
       <h2>6. Autoprefixer — რატომ გვჭირდება</h2>
       <p>
+        
+        Autoprefixer არის PostCSS-ის პლაგინი (ინსტრუმენტი), რომელიც ავტომატურად ამატებს ვენდორულ პრეფიქსებს (Vendor Prefixes: -webkit-, -moz-, -ms-, -o-) თქვენს CSS კოდში, Can I Use მონაცემთა ბაზაზე დაყრდნობით.
+
+        მარტივად რომ ვთქვათ: თქვენ წერთ თანამედროვე, სტანდარტულ CSS-ს, ხოლო Autoprefixer ზრუნავს იმაზე, რომ ეს კოდი ყველა ბრაუზერში (ძველშიც და ახალშიც) გამართულად გამოჩნდეს.
         ზოგიერთ CSS თვისებას სხვადასხვა ბრაუზერში სჭირდება <strong>vendor prefix</strong> (მაგ.
         <code>-webkit-</code>, <code>-moz-</code>), განსაკუთრებით ახალ ან ექსპერიმენტულ თვისებებზე:
       </p>
@@ -180,6 +183,109 @@
         ხელით აღარ სჭირდება მათი მართვა.
       </p>
 
+      <h2>7. ღილაკები (Buttons)</h2>
+      <p>
+        ღილაკი ალბათ ყველაზე კარგი მაგალითია იმისა, თუ როგორ „მუშაობს ერთად" დღეს ნასწავლი ოთხივე
+        თემა: <code>pseudo-classes</code> უზრუნველყოფს რეაქციას მდგომარეობებზე, <code>transition</code> —
+        გლუვ გადასვლას, CSS ცვლადები — ერთიან და მარტივად შესაცვლელ დიზაინის სისტემას, ხოლო
+        Autoprefixer ზრუნავს იმაზე, რომ ეს ყველაფერი სტაბილურად იმუშაოს სხვადასხვა ბრაუზერში.
+      </p>
+      <pre><code>:root {
+  --btn-bg: #146B5C;
+  --btn-bg-hover: #1B8A75;
+  --btn-bg-active: #0F4F44;
+  --btn-radius: 10px;
+  --btn-shadow: 0 4px 14px rgba(20, 107, 92, 0.25);
+}
+
+.<span class="tag">btn</span> {
+  background: var(--btn-bg);
+  color: #fff;
+  border: none;
+  border-radius: var(--btn-radius);
+  padding: 12px 22px;
+  font-weight: 600;
+  cursor: pointer;
+
+  <span class="cmt">/* გლუვი გადასვლა ყველა state-ს შორის */</span>
+  transition: background 180ms ease-out,
+              transform 120ms ease-out,
+              box-shadow 180ms ease-out;
+}
+
+<span class="cmt">/* :hover — კურსორი ღილაკზეა */</span>
+.<span class="tag">btn</span>:<span class="attr">hover</span> {
+  background: var(--btn-bg-hover);
+  box-shadow: var(--btn-shadow);
+  transform: translateY(-2px);
+}
+
+<span class="cmt">/* :active — დაწკაპუნების მომენტი */</span>
+.<span class="tag">btn</span>:<span class="attr">active</span> {
+  background: var(--btn-bg-active);
+  transform: translateY(0) scale(0.97);
+  box-shadow: none;
+}
+
+<span class="cmt">/* :focus-visible — კლავიატურით ნავიგაციისას (Tab), მნიშვნელოვანია accessibility-სთვის */</span>
+.<span class="tag">btn</span>:<span class="attr">focus-visible</span> {
+  outline: 2px solid var(--btn-bg-hover);
+  outline-offset: 2px;
+}
+
+<span class="cmt">/* :disabled — გამორთული მდგომარეობა */</span>
+.<span class="tag">btn</span>:<span class="attr">disabled</span> {
+  background: #B9B4A6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+<span class="cmt">/* დამატებითი დეკორატიული ისარი, HTML-ის შეცვლის გარეშე */</span>
+.<span class="tag">btn</span>::<span class="attr">after</span> {
+  content: "→";
+  margin-left: 8px;
+  display: inline-block;
+  transition: transform 180ms ease-out;
+}
+.<span class="tag">btn</span>:<span class="attr">hover</span>::<span class="attr">after</span> {
+  transform: translateX(4px);
+}
+
+<span class="cmt">/* დატვირთვის ანიმაცია — @keyframes, თუ ღილაკს დინამიურად ვამატებთ გვერდზე */</span>
+@keyframes btn-pop-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.<span class="tag">btn</span> {
+  animation: btn-pop-in 250ms ease-out both;
+}</code></pre>
+      <p>
+        რამდენიმე მნიშვნელოვანი დეტალი:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc;">
+        <li>
+          <code>:hover</code> და <code>:active</code> ერთმანეთისგან განსხვავებულ მდგომარეობებს
+          წარმოადგენს — <code>:hover</code> „მდგრადია" (სანამ კურსორი ზემოთაა), <code>:active</code>
+          კი მხოლოდ დაწკაპუნების წამია.
+        </li>
+        <li>
+          <code>:focus-visible</code> (და არა უბრალო <code>:focus</code>) გამოიყენება იმისთვის, რომ
+          outline მხოლოდ კლავიატურით ნავიგაციისას გამოჩნდეს და არა თაგუნათი დაწკაპუნებისას — ეს
+          ვიზუალურად უფრო სუფთა შედეგს იძლევა accessibility-ის დაკარგვის გარეშე.
+        </li>
+        <li>
+          ყველა ფერი და რადიუსი გატანილია <code>:root</code>-ის ცვლადებში — თუ პროექტს მეორე
+          ღილაკის ვარიანტი (მაგ. წითელი „საშიში" ღილაკი) დასჭირდება, საკმარისია ახალი კლასი
+          სხვა ცვლადის მნიშვნელობებით, კოდის დუბლირების გარეშე.
+        </li>
+        <li>
+          <code>transform: scale()</code> და <code>translateY()</code> გამოიყენება <code>margin</code>-ის
+          ან <code>top</code>-ის ცვლილების მაგივრად, რადგან ისინი GPU-ზე მუშავდება და არ იწვევს
+          გვერდის თავიდან გადაწყობას (reflow) — ანიმაცია გაცილებით გლუვია.
+        </li>
+      </ul>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
@@ -189,6 +295,7 @@
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations" target="_blank" rel="noopener">MDN — Using CSS animations</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties" target="_blank" rel="noopener">MDN — Using CSS custom properties</a></li>
           <li><a href="https://github.com/postcss/autoprefixer" target="_blank" rel="noopener">Autoprefixer — GitHub რეპოზიტორი</a></li>
+          <li><a href="https://autoprefixer.github.io/"  target="_blank" rel="noopener">Autoprefixer — ვებგვერდი</a></li>
         </ul>
       </div>
 

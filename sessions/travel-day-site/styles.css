@@ -1,0 +1,320 @@
+/* =========================================================
+   Travel Day.com — Desktop layout
+   Fonts: Poppins (display) / Inter (body)
+   ========================================================= */
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #FFFFFF;
+  color: #171412;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-width: 1280px;
+}
+
+a { text-decoration: none; color: inherit; }
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 96px;
+}
+
+/* ===================== Header ===================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fff;
+  border-bottom: 1px solid #E4E4E4;
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  height: 84px;
+  padding: 0 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #F2703C;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+}
+
+.logo-icon { flex-shrink: 0; }
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.main-nav a {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2B2B2B;
+  transition: color .15s ease;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+  color: #F2703C;
+}
+
+.user-btn {
+  border: none;
+  background: none;
+  color: #171412;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background .15s ease;
+}
+
+.user-btn:hover { background: #F4F4F4; }
+
+/* ===================== Hero ===================== */
+
+.hero {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 78%, rgba(255,196,120,0.55) 0, rgba(255,196,120,0) 3.5%),
+    radial-gradient(circle at 20% 85%, rgba(255,170,90,0.5) 0, rgba(255,170,90,0) 3%),
+    radial-gradient(circle at 30% 68%, rgba(255,214,150,0.45) 0, rgba(255,214,150,0) 4%),
+    radial-gradient(circle at 42% 80%, rgba(255,180,110,0.5) 0, rgba(255,180,110,0) 2.5%),
+    radial-gradient(circle at 55% 60%, rgba(255,205,140,0.35) 0, rgba(255,205,140,0) 5%),
+    radial-gradient(circle at 68% 82%, rgba(255,190,120,0.4) 0, rgba(255,190,120,0) 3%),
+    radial-gradient(circle at 80% 70%, rgba(255,170,100,0.35) 0, rgba(255,170,100,0) 4%),
+    radial-gradient(circle at 90% 88%, rgba(255,200,140,0.4) 0, rgba(255,200,140,0) 3%),
+    linear-gradient(180deg, #1A1B22 0%, #241D22 45%, #2E2019 100%);
+  background-size: cover;
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10,10,15,0.55) 0%, rgba(10,10,15,0.15) 55%, rgba(10,10,15,0.35) 100%);
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 96px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 64px;
+  align-items: center;
+}
+
+.hero-copy h1 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 48px;
+  color: #fff;
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.35);
+  letter-spacing: 0.01em;
+}
+
+.hero-copy p {
+  color: rgba(255,255,255,0.88);
+  font-size: 15px;
+  line-height: 1.75;
+  max-width: 520px;
+  margin: 0;
+}
+
+.more-news {
+  background: #fff;
+  padding: 32px 32px 8px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+}
+
+.more-news-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.more-news-head h2 {
+  font-family: "Poppins", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.more-news-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.more-news-icons button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #EFEFEF;
+  color: #8A8A8A;
+}
+
+.more-news-icons button.active {
+  background: #F2703C;
+  color: #fff;
+}
+
+.more-news-item {
+  padding: 18px 0;
+  border-top: 1px solid #E4E4E4;
+}
+
+.more-news-item:first-of-type { border-top: none; }
+
+.more-news-item .eyebrow {
+  color: #F2703C;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.more-news-item p:not(.eyebrow) {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #4B4B4B;
+}
+
+/* ===================== Section titles ===================== */
+
+.section-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 28px;
+}
+
+.discovery { padding: 88px 0 0; }
+.photograph { padding: 72px 0 100px; }
+
+/* ===================== Cards (Discovery + small Photograph) ===================== */
+
+.discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.card {
+  border: 1px solid #DCDCDC;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.card-media {
+  aspect-ratio: 380 / 190;
+  overflow: hidden;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-body {
+  padding: 20px 22px 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-body h4 {
+  font-family: "Poppins", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.card-body p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #4B4B4B;
+  margin: 0;
+  flex: 1;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  color: #171412;
+}
+
+.card-meta span {
+  font-size: 12.5px;
+  color: #4B4B4B;
+}
+
+/* ===================== Photograph section ===================== */
+
+
+/* ===================== Footer ===================== */
+
+.site-footer {
+  background: #14120F;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 26px 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.footer-icon { color: #fff; }
