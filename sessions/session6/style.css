@@ -1,0 +1,49 @@
+/* body{
+  display: flex;
+  justify-content: center;
+}
+
+.container{
+  width: 500px;
+  height: 1000px;
+  background-color: bisque;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: baseline;
+  
+}
+.item{
+  width: 50px;
+  height: 50px;
+  background-color: aquamarine;
+  margin: 5px;
+  padding: 5px;
+  padding: 5px;
+}
+.item5{
+  align-self: flex-end;
+} */
+
+.row { 
+  display: flex; 
+  gap: 8px; 
+}
+.a { 
+  flex-basis: 100px;
+  flex-grow: 1; 
+  flex-shrink: 4;
+  background-color: lightblue;
+}  /* იღებს 1 ნაწილს დამატებითი სივრციდან */
+.b { 
+  flex-basis: 100px;
+  flex-grow: 2; 
+  flex-shrink: 1;
+  background-color: lightgreen; 
+}  /* იღებს 2-ჯერ მეტს, ვიდრე A ან C */
+.c { 
+  flex-basis: 100px;
+  flex-grow: 1; 
+  flex-shrink: 4;
+  background-color: lightcoral;
+}  /* იღებს 1 ნაწილს */
