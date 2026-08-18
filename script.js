@@ -28,7 +28,7 @@ const LESSONS = [
   { n: 5, mod: "css", title: "Display, Background, ტექსტი, ვებ-ფონტები, Figma" },
   { n: 6, mod: "css", title: "Flexbox სრულად, Typography Units, პოზიციონირება" },
   { n: 7, mod: "css", title: "Pseudo-classes, Transitions, Animations, Variables, Autoprefixer" },
-  { n: 8, mod: "css", title: "Bootstrap, Git & GitHub, რესპონსიული დიზაინი (Media Queries)" },
+  { n: 8, mod: "css", title: "Bootstrap, Git & GitHub, Media/Container Queries" },
 
   { n: 9, mod: "js", title: "AI ვებ დეველოპმენტში — ChatGPT, Claude და დებაგირება" },
   { n: 10, mod: "js", title: "JS სინტაქსი, NPM გარემო, ცვლადები და მონაცემთა ტიპები" },

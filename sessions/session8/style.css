@@ -1,0 +1,17 @@
+body{
+  background-color: blue;
+}
+
+/* ტაბლეტი და მეტი (≥768px) */
+@media (min-width: 768px) {
+ body{
+  background-color: blueviolet;
+ }
+}
+
+/* დესკტოპი (≥1024px) */
+@media (min-width: 1024px) {
+  body{
+  background-color: rgb(185, 32, 32);
+ }
+}

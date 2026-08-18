@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 08 — Bootstrap, Git & GitHub, რესპონსიული დიზაინი</title>
-  <meta name="description" content="Bootstrap-ის საბაზისო გამოყენება, Git & GitHub-ის საფუძვლები და რესპონსიული დიზაინი CSS Media Queries-ით." />
+  <title>გაკვეთილი 08 — Bootstrap, Git & GitHub, რესპონსიული დიზაინი და Container Queries</title>
+  <meta name="description" content="Bootstrap 5.3-ის სრული გამოყენება, Git & GitHub-ის თანამედროვე workflow (switch/restore, conventional commits, Pull Request), Media Queries და CSS Container Queries." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -35,13 +35,14 @@
       <div class="lesson-crumbs">
         <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">CSS მოდული</a> / გაკვეთილი 08
       </div>
-      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 08/24</span>
+      <span class="lesson-mod" style="background: var(--mod-css-bg); color: var(--mod-css);">CSS · 08/24 — მოდულის ბოლო გაკვეთილი</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Bootstrap, Git & GitHub, რესპონსიული დიზაინი
+        Bootstrap, Git & GitHub, რესპონსიული დიზაინი და Container Queries
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        CSS მოდულის ბოლო გაკვეთილი სამ პრაქტიკულ თემას აერთიანებს: მზა CSS ჩარჩოს (Bootstrap),
-        კოდის ვერსიების მართვას (Git) და იმას, თუ როგორ ვხდით საიტს ყველა ეკრანზე გამოსადეგს.
+        CSS მოდულის ბოლო გაკვეთილი სამ პრაქტიკულ თემას აერთიანებს:
+        მზა CSS ჩარჩოს (Bootstrap), კოდის ვერსიების მართვისა და გუნდური მუშაობის სისტემას
+        (Git & GitHub), და იმას, თუ როგორ ვხდით საიტს ყველა ეკრანსა და კონტექსტში გამოსადეგს.
       </p>
       <div class="lesson-progress" data-lesson="8">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -50,33 +51,131 @@
 
     <article class="lesson-article">
 
-      <h2>1. Bootstrap — საბაზისო გამოყენება</h2>
+      <h2>1. Bootstrap</h2>
       <p>
         <strong>Bootstrap</strong> არის მზა CSS (და JS) ბიბლიოთეკა, რომელიც გვთავაზობს გამზადებულ
-        კომპონენტებს (ღილაკები, ბარათები, ნავიგაცია) და 12-სვეტიან grid სისტემას. სწრაფად მუშავდება,
-        თუმცა ცოტა ამცირებს დიზაინის კონტროლს, საკუთარი CSS-თან შედარებით.
+        კომპონენტებს (ღილაკები, ბარათები, ნავიგაცია, მოდალები) და 12-სვეტიან grid სისტემას.
+        მარტივი და სწრაფია, თუმცა ცოტა ამცირებს დიზაინის კონტროლს, საკუთარი CSS-თან შედარებით.
+        ამჟამინდელი ვერსია — <strong>Bootstrap 5.3</strong> (ბოლო patch: 5.3.8) — არ
+        საჭიროებს jQuery-ს, აქვს ჩაშენებული Dark Mode მხარდაჭერა და CSS ცვლადებზე (custom
+        properties) აწყობილი დიზაინ-სისტემა.
       </p>
-      <pre><code><span class="cmt">&lt;!-- CDN-ით დაკავშირება, საკუთარი style.css-ის ზემოთ --&gt;</span>
-&lt;<span class="tag">link</span> <span class="attr">href</span>=<span class="str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span>
-      <span class="attr">rel</span>=<span class="str">"stylesheet"</span>&gt;</code></pre>
-      <pre><code><span class="cmt">&lt;!-- Bootstrap-ის grid სისტემა და მზა კომპონენტები --&gt;</span>
-&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"container"</span>&gt;
-  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"row"</span>&gt;
-    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"col-md-6"</span>&gt;პირველი სვეტი&lt;/<span class="tag">div</span>&gt;
-    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"col-md-6"</span>&gt;მეორე სვეტი&lt;/<span class="tag">div</span>&gt;
-  &lt;/<span class="tag">div</span>&gt;
+      <pre><code><span class="cmt">&lt;!-- ოფიციალური CDN, SRI hash-ით (უსაფრთხოების საუკეთესო პრაქტიკა) --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">href</span>=<span class="str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"</span>
+      <span class="attr">rel</span>=<span class="str">"stylesheet"</span>
+      <span class="attr">integrity</span>=<span class="str">"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"</span>
+      <span class="attr">crossorigin</span>=<span class="str">"anonymous"</span>&gt;
 
-  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"btn btn-primary"</span>&gt;მოქმედება&lt;/<span class="tag">button</span>&gt;
+<span class="cmt">&lt;!-- JS (ბოლოში, &lt;/body&gt;-ის წინ) — მოდალებისთვის, dropdown-ებისთვის და სხვ. --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"</span>
+        <span class="attr">integrity</span>=<span class="str">"sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"</span>
+        <span class="attr">crossorigin</span>=<span class="str">"anonymous"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+      <p>
+        <code>integrity</code> ატრიბუტი (SRI — Subresource Integrity) ამოწმებს, რომ CDN-დან
+        ჩამოტვირთული ფაილი ზუსტად ისეთია, როგორადაც გამოქვეყნდა — არავის შეუძლია მისი „ჩანაცვლება"
+        მავნე კოდით. ეს კონკრეტული hash-ები Bootstrap-ის ოფიციალურ საიტზეა გამოქვეყნებული და
+        ყოველი ვერსიისთვის განსხვავებულია.
+      </p>
+
+      <h3>Breakpoints — grid-ის ზუსტი ზღვრები</h3>
+      <p>
+        Bootstrap-ის grid სისტემა ეფუძნება 6 ზუსტ breakpoint-ს (ეკრანის სიგანის ზღვარს):
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">Class პრეფიქსი</th>
+            <th style="text-align: left; padding: 8px;">მინიმალური სიგანე</th>
+            <th style="text-align: left; padding: 8px;">მოწყობილობა</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>col-</code></td><td style="padding: 8px;">0px</td><td style="padding: 8px;">ყველა ეკრანი (X-Small)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>col-sm-</code></td><td style="padding: 8px;">576px</td><td style="padding: 8px;">ტელეფონი, თარაზული</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>col-md-</code></td><td style="padding: 8px;">768px</td><td style="padding: 8px;">ტაბლეტი</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>col-lg-</code></td><td style="padding: 8px;">992px</td><td style="padding: 8px;">ლეპტოპი</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>col-xl-</code></td><td style="padding: 8px;">1200px</td><td style="padding: 8px;">დესკტოპი</td></tr>
+          <tr><td style="padding: 8px;"><code>col-xxl-</code></td><td style="padding: 8px;">1400px</td><td style="padding: 8px;">დიდი მონიტორი</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Grid სისტემა — პრაქტიკული მაგალითი</h3>
+      <pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"container"</span>&gt;         <span class="cmt">&lt;!-- ან .container-fluid, სრული სიგანისთვის --&gt;</span>
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"row"</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"col-12 col-md-6 col-lg-4"</span>&gt;
+      <span class="cmt">&lt;!-- მობილურზე: 12/12 (მთელი სიგანე)
+           ტაბლეტზე (≥768px): 6/12 (ნახევარი)
+           დესკტოპზე (≥992px): 4/12 (ერთი მესამედი) --&gt;
+      ბარათი 1
+    &lt;/<span class="tag">div</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"col-12 col-md-6 col-lg-4"</span>&gt;ბარათი 2&lt;/<span class="tag">div</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"col-12 col-md-6 col-lg-4"</span>&gt;ბარათი 3&lt;/<span class="tag">div</span>&gt;
+  &lt;/<span class="tag">div</span>&gt;
 &lt;/<span class="tag">div</span>&gt;</code></pre>
       <p>
-        <code>col-md-6</code> ნიშნავს: „medium (≥768px) ეკრანზე დაიკავე 12-დან 6 სვეტი" — ანუ ნახევარი
-        სიგანე. პატარა ეკრანზე კი, ნაგულისხმევად, თითოეული სვეტი მთელ სიგანეს იკავებს.
+        ეს Mobile-First მიდგომაა (ისევე, როგორც ხელით დაწერილ CSS-ში) — თითოეული კლასი
+        <em>„მინიმუმ ამ სიგანიდან"</em> მოქმედებს, არა ზუსტად ამ სიგანეზე.
       </p>
 
+      <h3>ხშირად გამოსაყენებელი კომპონენტები</h3>
+      <pre><code><span class="cmt">&lt;!-- ღილაკები — ფერი/ზომა/ვარიაცია utility-კლასებით --&gt;</span>
+&lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"btn btn-primary"</span>&gt;მთავარი&lt;/<span class="tag">button</span>&gt;
+&lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"btn btn-outline-secondary btn-sm"</span>&gt;მეორადი&lt;/<span class="tag">button</span>&gt;
+
+<span class="cmt">&lt;!-- ბარათი (Card) --&gt;</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"card"</span>&gt;
+  &lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"..."</span> <span class="attr">class</span>=<span class="str">"card-img-top"</span> <span class="attr">alt</span>=<span class="str">"..."</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"card-body"</span>&gt;
+    &lt;<span class="tag">h5</span> <span class="attr">class</span>=<span class="str">"card-title"</span>&gt;სათაური&lt;/<span class="tag">h5</span>&gt;
+    &lt;<span class="tag">p</span> <span class="attr">class</span>=<span class="str">"card-text"</span>&gt;აღწერა&lt;/<span class="tag">p</span>&gt;
+  &lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">&lt;!-- Alert (შეტყობინება) --&gt;</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"alert alert-success"</span> <span class="attr">role</span>=<span class="str">"alert"</span>&gt;
+  წარმატებით შენახულია!
+&lt;/<span class="tag">div</span>&gt;</code></pre>
+
+      <h3>Utility კლასები — spacing, flex, ტექსტი</h3>
+      <p>
+        Bootstrap-ის ერთ-ერთი ყველაზე ხშირად გამოსაყენებელი ნაწილი — მზა „utility" კლასები,
+        რომლებიც ერთ CSS თვისებას შეესაბამება (ჩვენი მე-6 გაკვეთილის Flexbox-ის ცოდნაც პირდაპირ
+        გამოსადეგია აქ):
+      </p>
+      <pre><code><span class="cmt">/* Spacing: m/p + t/b/s/e/x/y + 0-5 (mt-3 = margin-top) */</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"mt-4 mb-2 px-3"</span>&gt;...&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">/* Flexbox utility-კლასები — პირდაპირ შეესაბამება მე-6 გაკვეთილს */</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"d-flex justify-content-between align-items-center gap-3"</span>&gt;...&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">/* ტექსტი და ფერები */</span>
+&lt;<span class="tag">p</span> <span class="attr">class</span>=<span class="str">"text-center text-muted fw-bold"</span>&gt;...&lt;/<span class="tag">p</span>&gt;</code></pre>
+      <p>
+        <strong>საუკეთესო პრაქტიკა:</strong> Bootstrap გამოსადეგია სწრაფი პროტოტიპირებისთვის,
+        MVP-სთვის ან შიდა ინსტრუმენტებისთვის. თუ პროექტს სჭირდება უნიკალური, ბრენდირებული
+        დიზაინი — ხშირად უკეთესია საკუთარი CSS სისტემის აწყობა (ისევე, როგორც ამ კურსის საიტზეა
+        გაკეთებული), ან Bootstrap-ის Sass ცვლადების საშუალებით მორგება.
+      </p>
+
+      <p>
+        <strong>შენიშვნა: </strong>
+        <br>
+        მიმართულება:
+        
+        t = top(ზემოთ) b = bottom(ქვემოთ) s = start(მარცხნივ, LTR რეჟიმში) e = end(მარჯვნივ, LTR რეჟიმში) x = ჰორიზონტალურად(მარცხნივ + მარჯვნივ) y = ვერტიკალურად(ზემოთ + ქვემოთ) თუ მიმართულების ასოს არ მიუწერთ (მაგ. m-3), ოთხივე მხარეს იმოქმედებს. 
+        <br>
+        ზომების შკალა (0-5):
+        <ul>
+          <li> 0 = 0</li>
+          <li> 1 = 0.25rem = 4px</li>
+          <li> 2 = 0.5rem = 8px</li>
+          <li> 3 = 1rem = 16px</li>
+          <li> 4 = 1.5rem = 24px</li>
+          <li> 5 = 3rem = 48px</li>
+        </ul>
       <h2>2. Git — ვერსიების კონტროლის სისტემა</h2>
       <p>
-        <strong>Git</strong> აღრიცხავს კოდის ცვლილებების ისტორიას — შესაძლებელია ნებისმიერ მომენტში
-        დაბრუნება წინა ვერსიაზე, ცვლილებების შედარება, და სხვადასხვა დეველოპერების პარალელური მუშაობა.
+        <strong>Git</strong> აღრიცხავს კოდის ცვლილებების ისტორიას — წინა ვერსიაზე დაბრუნებას შესაძლებელს ხდის, ასევე ამ ხელსაწყოს გამოყენებით დეველოპერებს ერთად მუშაობა შეგვიძლია ერთსა და იმავე პროექტზე.
       </p>
       <pre><code><span class="cmt"># პროექტის ინიციალიზაცია და პირველი commit</span>
 git init
@@ -85,24 +184,115 @@ git commit -m "პირველი commit: საწყისი სტრუ�
 
 <span class="cmt"># ცვლილებების ისტორიის ნახვა</span>
 git status
-git log --oneline
+git log --oneline</code></pre>
 
-<span class="cmt"># ახალი branch-ის შექმნა ფუნქციონალზე სამუშაოდ</span>
-git checkout -b feature/navbar</code></pre>
+      <h3>git switch / git restore — თანამედროვე სტანდარტი</h3>
+      <p>
+        ძველად branch-ის გადართვისთვისაც და ფაილის აღდგენისთვისაც ერთი ბრძანება — <code>git
+        checkout</code> — გამოიყენებოდა, რაც ხშირად აბნევდა (ორი, სრულიად განსხვავებული
+        დანიშნულება ერთ ბრძანებაში). Git 2.23-დან (2019) და დღემდე, ეს ორ ცალკე, მკაფიო
+        ბრძანებადაა გაყოფილი — 2025-2026-ის მდგომარეობით ეს არის რეკომენდებული სტანდარტი:
+      </p>
+      <pre><code><span class="cmt"># branch-ის გადართვისთვის — git switch</span>
+git switch feature/navbar        <span class="cmt"># არსებულ branch-ზე გადართვა</span>
+git switch -c feature/new-navbar <span class="cmt"># ახალი branch-ის შექმნა + გადართვა (-c = create)</span>
 
-      <h3>GitHub — დისტანციური რეპოზიტორია</h3>
+<span class="cmt"># ფაილის ცვლილებების გაუქმებისთვის — git restore</span>
+git restore style.css            <span class="cmt"># ბოლო commit-ის მდგომარეობაზე დაბრუნება</span>
+git restore --staged style.css   <span class="cmt"># "staged"-იდან მოხსნა (git add-ის გაუქმება)</span></code></pre>
+      <p>
+        <strong>წესი დასამახსოვრებლად:</strong> Branch = <code>switch</code>. ფაილი =
+        <code>restore</code>. ძველი <code>git checkout</code> კვლავ მუშაობს,
+        მაგრამ ახალ პროექტებში/გუნდებში ორი ცალკე ბრძანების გამოყენება უფრო უსაფრთხო და
+        ცალსახაა.
+      </p>
+
+      <h3>Commit-ების სტილი — Conventional Commits</h3>
+      <p>
+        დიდ პროექტებში/გუნდებში მიღებულია commit-ის შეტყობინებების სტანდარტიზებული ფორმატი,
+        რომელიც commit-ის <strong>ტიპსაც</strong> გამოხატავს:
+      </p>
+      <pre><code><span class="cmt"># ცუდი: ყველაფერი ერთ commit-ში, გაურკვეველი შეტყობინება</span>
+git add .
+git commit -m "fix stuff"
+
+<span class="cmt"># კარგი: ერთი commit — ერთი ლოგიკური ცვლილება, ტიპით</span>
+git add src/auth/
+git commit -m "fix(auth): expired token-ის სწორად დამუშავება"
+
+git add README.md
+git commit -m "docs: ავტორიზაციის სექციის განახლება"</code></pre>
+      <p>ხშირად გამოსაყენებელი ტიპებია: <code>feat</code> (ახალი ფუნქციონალი), <code>fix</code> (შეცდომის გასწორება), <code>docs</code> (დოკუმენტაცია), <code>style</code> (ფორმატირება, ლოგიკის შეცვლის გარეშე), <code>refactor</code> (კოდის რესტრუქტურიზაცია).</p>
+
+      <h3>git stash — დროებითი „გვერდზე გადადება"</h3>
+      <pre><code><span class="cmt"># სამუშაო, დაუმთავრებელი ცვლილებების დროებით შენახვა</span>
+git stash push -m "მუშაობა navbar-ის დიზაინზე"
+
+git switch main       <span class="cmt"># სხვა branch-ზე გადასვლა, სუფთა working tree-ით</span>
+<span class="cmt"># ... სასწრაფო შესწორება ...</span>
+
+git switch feature/navbar
+git stash pop          <span class="cmt"># შენახული ცვლილებების დაბრუნება</span>
+git stash list          <span class="cmt"># ყველა stash-ის ნახვა</span></code></pre>
+
+      <h3>.gitignore — რისი აღრიცხვა არ გვინდა</h3>
+      <p>
+        ზოგიერთი ფაილი/საქაღალდე (მაგ. დამოკიდებულებები, დროებითი ფაილები) საერთოდ არ უნდა
+        მოხვდეს Git-ის ისტორიაში:
+      </p>
+      <pre><code><span class="cmt"># .gitignore ფაილის შემცველობა</span>
+node_modules/
+.DS_Store
+.env
+*.log
+dist/</code></pre>
+
+      <h2>3. GitHub — თანამშრომლობა და Pull Request Workflow</h2>
       <p>
         <strong>GitHub</strong> არის Git-ის საფუძველზე აშენებული პლატფორმა, სადაც პროექტი ინახება
-        ღრუბელში, ხელმისაწვდომია გუნდისთვის და შესაძლებელია პორტფოლიოს სახითაც იქცეს.
+        ღრუბელში, ხელმისაწვდომია გუნდისთვის და შესაძლებელია პორტფოლიოს სახედაც იქცეს.
       </p>
       <pre><code><span class="cmt"># ლოკალური რეპოზიტორიის დაკავშირება GitHub-თან</span>
 git remote add origin https://github.com/username/front-end-course.git
+git branch -M main
 git push -u origin main</code></pre>
 
-      <h2>3. რესპონსიული დიზაინი და CSS Media Queries</h2>
+      <h3>რეალური გუნდური workflow — Pull Request</h3>
+      <p>
+        გუნდურ პროექტში პირდაპირ <code>main</code> branch-ზე მუშაობა თითქმის არასდროს ხდება.
+        სტანდარტული ციკლი ასეთია:
+      </p>
+      <pre><code><span class="cmt"># 1. ახალი, აღწერითი სახელის branch (feature/, fix/, docs/ პრეფიქსით)</span>
+git switch -c feature/dark-mode-toggle
+
+<span class="cmt"># 2. ცვლილებები, commit-ები (Conventional Commits ფორმატით)</span>
+git add .
+git commit -m "feat(theme): dark mode toggle ღილაკის დამატება"
+
+<span class="cmt"># 3. push GitHub-ზე, ამ კონკრეტულ branch-ზე</span>
+git push -u origin feature/dark-mode-toggle
+
+<span class="cmt"># 4. GitHub-ის საიტზე იხსნება "Pull Request" —
+#    გუნდი review-ს უკეთებს, კომენტარებს სვამს, შემდეგ "Merge"-ს აწესებს main-ში</span></code></pre>
+      <p>
+        <strong>Pull Request (PR)</strong> არის ფორმალური მოთხოვნა, რომ branch-ის ცვლილებები
+        „შეერწყას" მთავარ branch-ს — ის იძლევა შესაძლებლობას, გუნდმა კოდი გადახედოს
+        (Code Review), ავტომატური ტესტები გაეშვას (CI), და მხოლოდ მას შემდეგ მოხდეს merge.
+      </p>
+      <p>
+        <strong>force push-ის საფრთხე გაზიარებულ branch-ზე:</strong> თუ ისტორია უკვე
+        ხელახლა დაწერე (მაგ. <code>rebase</code>-ის შემდეგ) და ხელახლა push გჭირდება, არასდროს
+        გამოიყენო უბრალო <code>git push --force</code> გაზიარებულ branch-ზე — ეს შეიძლება
+        გადაფაროს კოლეგის ცვლილებები. სანაცვლოდ:
+      </p>
+      <pre><code><span class="cmt"># უსაფრთხო ალტერნატივა — მხოლოდ იმ შემთხვევაში "ჩაწერს", თუ ვინმეს ცვლილება არ დაგეკარგება</span>
+git push --force-with-lease</code></pre>
+
+      <h2>4. რესპონსიული დიზაინი და CSS Media Queries</h2>
       <p>
         რესპონსიული (responsive) დიზაინი ნიშნავს, რომ ერთი და იგივე HTML/CSS კარგად გამოიყურება
-        ტელეფონზეც, ტაბლეტზეც და დიდ მონიტორზეც. ამის მთავარი ინსტრუმენტია <code>@media</code> query.
+        ტელეფონზეც, ტაბლეტზეც და დიდ მონიტორზეც. ამის მთავარი, კლასიკური ინსტრუმენტია
+        <code>@media</code> query — ის რეაგირებს <strong>ბრაუზერის ვიუპორტის</strong> ზომაზე.
       </p>
       <pre><code><span class="cmt">/* საბაზისო სტილი — მობილურისთვის (Mobile-First მიდგომა) */</span>
 .<span class="tag">grid</span> {
@@ -135,24 +325,82 @@ git push -u origin main</code></pre>
       </p>
       <pre><code>&lt;<span class="tag">meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span>&gt;</code></pre>
 
+      <h2>5. Container Queries — Media Queries-ის თანამედროვე გაგრძელება</h2>
+      <p>
+        <code>@media</code>-ს ერთადერთი „ბრმა წერტილი" — ის ხედავს მხოლოდ <strong>მთელი
+        ბრაუზერის ვიუპორტის</strong> სიგანეს, არა კონკრეტული კომპონენტის სივრცეს. პრობლემა ჩნდება,
+        როცა ერთი და იგივე კომპონენტი (მაგ. card) სხვადასხვა კონტექსტში ჩნდება — ერთხელ სრული
+        სიგანის სექციაში, ერთხელ ვიწრო sidebar-ში — მაგრამ media query ამას ვერ არჩევს, რადგან
+        ვიუპორტი ორივე შემთხვევაში ერთი და იგივეა.
+      </p>
+      <p>
+        <strong><code>@container</code></strong> query წყვეტს ზუსტად ამ პრობლემას — კომპონენტი
+        რეაგირებს <em>საკუთარი მშობელი კონტეინერის</em> სიგანეზე, ვიუპორტისგან დამოუკიდებლად.
+        2025 წლის აგვისტოდან ეს თვისება <strong>Baseline Widely Available</strong> სტატუსშია —
+        ანუ სრულად მხარდაჭერილია ყველა თანამედროვე ბრაუზერში (Chrome, Safari, Firefox, Edge),
+        საიმედოდ გამოსაყენებელია production პროექტებშიც.
+      </p>
+      <pre><code><span class="cmt">/* 1. მშობელს ვუცხადებთ, რომ ის არის "container" */</span>
+.card-wrapper {
+  container-type: inline-size; <span class="cmt">/* გვაინტერესებს სიგანეს (არა სიმაღლეს) */</span>
+  container-name: card-area;    <span class="cmt">/* არასავალდებულო, მაგრამ სასარგებლო სახელი */</span>
+}
+
+<span class="cmt">/* 2. შვილი ელემენტი რეაგირებს container-ის (არა ვიუპორტის!) სიგანეზე */</span>
+@container card-area (min-width: 400px) {
+  .card {
+    display: flex; <span class="cmt">/* ფართო container-ში — გვერდიგვერდ */</span>
+  }
+}
+
+@container card-area (max-width: 399px) {
+  .card {
+    display: block; <span class="cmt">/* ვიწრო container-ში (მაგ. sidebar) — დაწყობილი */</span>
+  }
+}</code></pre>
+      <p>
+        ეს ნიშნავს, რომ ერთი და იგივე <code>.card</code> კომპონენტი ავტომატურად „სწორად"
+        გამოიყურება, სადაც არ უნდა ჩასვა ის — ვრცელ სექციაშიც და ვიწრო sidebar-შიც — HTML-ის
+        ან media query-ების დუბლირების გარეშე. სწორედ ეს განასხვავებს მას media query-სგან:
+        <strong>media query ეკუთვნის გვერდს, container query ეკუთვნის კომპონენტს.</strong>
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
-          <li><a href="https://getbootstrap.com/docs/5.3/getting-started/introduction/" target="_blank" rel="noopener">Bootstrap — ოფიციალური დოკუმენტაცია</a></li>
-          <li><a href="https://docs.github.com/en/get-started/using-git/about-git" target="_blank" rel="noopener">GitHub Docs — About Git</a></li>
+          <li><a href="https://getbootstrap.com/docs/5.3/getting-started/introduction/" target="_blank" rel="noopener">Bootstrap 5.3 — ოფიციალური დოკუმენტაცია</a></li>
+          <li><a href="https://getbootstrap.com/docs/5.3/layout/breakpoints/" target="_blank" rel="noopener">Bootstrap — Breakpoints</a></li>
+          <li><a href="https://git-scm.com/docs/git-switch" target="_blank" rel="noopener">Git — ოფიციალური დოკუმენტაცია: git switch</a></li>
+          <li><a href="https://www.conventionalcommits.org/" target="_blank" rel="noopener">Conventional Commits — ოფიციალური სპეციფიკაცია</a></li>
+          <li><a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests" target="_blank" rel="noopener">GitHub Docs — About Pull Requests</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_media_queries/Using_media_queries" target="_blank" rel="noopener">MDN — Using media queries</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design" target="_blank" rel="noopener">MDN — Responsive design</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries" target="_blank" rel="noopener">MDN — CSS Container Queries</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას ნიშნავს <code>col-md-6</code> Bootstrap-ის grid სისტემაში?</li>
+          <li>რა განსხვავებაა <code>git switch</code>-სა და ძველ <code>git checkout</code>-ს შორის — რატომ დაყვეს ეს ორ ბრძანებად?</li>
+          <li>რას აკეთებს Conventional Commits ფორმატი და რატომ არის სასარგებლო გუნდურ პროექტში?</li>
+          <li>რას აკეთებს <code>git push --force-with-lease</code> და რატომ სჯობს ის უბრალო <code>--force</code>-ს?</li>
+          <li>რა არის Pull Request და რატომ არ ხდება პირდაპირ <code>main</code>-ზე მუშაობა გუნდურ პროექტში?</li>
+          <li>რა განსხვავებაა Media Query-სა და Container Query-ს შორის — რომელი „ხედავს" ვიუპორტს, და რომელი — კომპონენტის მშობელს?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>დაუკავშირე Bootstrap CDN ერთ გვერდს და ააწყვე 2-სვეტიანი განლაგება <code>row</code>/<code>col-md-6</code>-ის გამოყენებით.</li>
-          <li>დააინსტალირე Git (თუ ჯერ არ გაქვს), შექმენი ლოკალური რეპოზიტორია და გააკეთე პირველი commit.</li>
-          <li>შექმენი GitHub ანგარიში (თუ ჯერ არ გაქვს) და ატვირთე პროექტი <code>git push</code>-ით.</li>
+          <li>დაუკავშირე Bootstrap CDN (SRI hash-ით) ერთ გვერდს და ააწყვე 3-სვეტიანი განლაგება <code>col-12 col-md-6 col-lg-4</code>-ის გამოყენებით.</li>
+          <li>გამოსცადე მინიმუმ 3 Bootstrap-ის utility კლასი (spacing, flex, ტექსტი) ერთ კომპონენტზე.</li>
+          <li>დააინსტალირე Git (თუ ჯერ არ გაქვს), შექმენი ლოკალური რეპოზიტორია, გააკეთე 3 commit Conventional Commits ფორმატით.</li>
+          <li>შექმენი GitHub ანგარიში (თუ ჯერ არ გაქვს), ატვირთე პროექტი, დაამატე ცვლილება.
+          </li>
           <li>დაწერე grid, რომელსაც აქვს 1 სვეტი მობილურზე, 2 — ტაბლეტზე, 3 — დესკტოპზე, <code>@media (min-width: ...)</code>-ის გამოყენებით.</li>
-          <li><em>(რთული)</em> გახსენი DevTools-ის Device Toolbar (Ctrl/Cmd + Shift + M) და შეამოწმე შენი გვერდის რესპონსიულობა 3 სხვადასხვა ეკრანის ზომაზე — ჩამწერე, რა გატყდა, თუ რამე გატყდა.</li>
+          <li>ააწყვე card კომპონენტი <code>@container</code> query-ით — ისე, რომ ვიწრო container-ში ვერტიკალურად განლაგდეს, ფართოში — გვერდიგვერდ (ჰორიზონტალურად).</li>
+          <li><em>(რთული)</em> გახსენი DevTools-ის Device Toolbar (Ctrl/Cmd + Shift + M) და შეამოწმე შენი გვერდის რესპონსიულობა 3 სხვადასხვა ეკრანის ზომაზე — ჩამწერე, რა გაფუჭდა, თუ რამე გაფუჭდა, და გაასწორე Media/Container Query-ების გამოყენებით.</li>
         </ol>
       </div>
 
