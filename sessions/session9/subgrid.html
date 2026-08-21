@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Card Grid & Subgrid Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      padding: 32px 16px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* -------------------------------------------------------------
+       1. MAIN GRID LAYOUT (media query-ების გარეშე responsive)
+    ------------------------------------------------------------- */
+    .card-grid {
+      display: grid;
+      /* ავტომატურად ირგებს სვეტებს ეკრანის ზომის მიხედვით */
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      /* 3 ზონა Subgrid-ისთვის: სათაური / ტექსტი / ღილაკი */
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+    }
+
+    /* -------------------------------------------------------------
+       2. FALLBACK (ბრაუზერებისთვის Subgrid მხარდაჭერის გარეშე)
+    ------------------------------------------------------------- */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+      /* Fallback: Flexbox-ის გამოყენებით ღილაკის ქვემოთ ჩამოწევა */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-content {
+      margin-bottom: 16px;
+    }
+
+    /* -------------------------------------------------------------
+       3. SUBGRID (თანამედროვე ბრაუზერებისთვის)
+    ------------------------------------------------------------- */
+    @supports (grid-template-rows: subgrid) {
+      .card {
+        display: grid;
+        grid-row: span 3; /* ბარათი იკავებს მშობლის 3 რიგს */
+        grid-template-rows: subgrid; /* სესხულობს მშობლის row-ტრეკებს */
+      }
+
+      /* Subgrid-ის დროს wrapper აღარ გვაქვს საჭირო, პირდაპირ შიდა ელემენტები ჯდება ტრეკებში */
+      .card-content {
+        display: contents; 
+      }
+    }
+
+    /* -------------------------------------------------------------
+       4. FEATURED CARD (span 2 - ორ სვეტზე გადაჭიმვა)
+    ------------------------------------------------------------- */
+    .card.featured {
+      grid-column: span 2;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    /* -------------------------------------------------------------
+       5. ELEMENT STYLES (დიზაინი)
+    ------------------------------------------------------------- */
+    .card h3 {
+      margin: 0 0 12px 0;
+      color: #0f172a;
+      font-size: 1.125rem;
+    }
+
+    .card p {
+      margin: 0 0 16px 0;
+      color: #475569;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .card button {
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
+
+    .card button:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* span 2 ბარათის განსხვავებული ღილაკი */
+    .card.featured button {
+      background-color: #0284c7;
+    }
+    .card.featured button:hover {
+      background-color: #0369a1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card-grid">
+
+      <!-- ბარათი 1 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>მოკლე სათაური</h3>
+          <p>ეს არის სტანდარტული მოკლე აღწერა.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+      <!-- ბარათი 2 (Featured - იკავებს 2 სვეტს) -->
+      <div class="card featured">
+        <div class="card-content">
+          <h3>გამოყოფილი ბარათი (span 2)</h3>
+          <p>ეს ბარათი იყენებს <code>grid-column: span 2</code>-ს. დააკვირდით, როგორ იკავებს ორ სვეტს და როგორ გადააქვს დანარჩენი ბარათები მომდევნო თავისუფალ პოზიციებზე.</p>
+        </div>
+        <button>სპეციალური შეთავაზება</button>
+      </div>
+
+      <!-- ბარათი 3 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>საშუალო სიგრძის სათაური ტესტისთვის</h3>
+          <p>აქ ცოტა მეტი ტექსტია მოთავსებული.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+      <!-- ბარათი 4 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>სათაური</h3>
+          <p>ამ ბარათში ძალიან ბევრი ტექსტია. Subgrid-ის წყალობით, სათაურები, ტექსტები და ღილაკები ყველა ბარათში იდეალურად ერთ ხაზზეა გასწორებული, მიუხედავად შიგთავსის სიგრძისა.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+      <!-- ბარათი 5 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>მოკლე</h3>
+          <p>კიდევ ერთი მოკლე ბარათი.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+      <!-- ბარათი 6 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>ორხაზიანი <br>სათაური</h3>
+          <p>სათაური ორ ხაზზეა, მაგრამ ტექსტის ზონა მაინც იმავე დონეზე იწყება, სადაც სხვა ბარათებში.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+      <!-- ბარათი 7 -->
+      <div class="card">
+        <div class="card-content">
+          <h3>მე-7 ბარათი</h3>
+          <p>დამატებითი ბარათი Grid-ის შესამოწმებლად.</p>
+        </div>
+        <button>დეტალურად</button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

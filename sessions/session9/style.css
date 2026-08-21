@@ -1,0 +1,14 @@
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-rows: auto 1fr auto; /* სათაური / ტექსტი / ღილაკი — სამი "ზონა" */
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid; /* card "სესხულობს" მშობლის row-ტრეკებს */
+}
+/* შედეგი: ყველა card-ის სათაური/ტექსტი/ღილაკი ერთ ხაზზეა გასწორებული,
+   მიუხედავად თითოეულის content-ის სხვადასხვა სიგრძისა */

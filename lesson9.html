@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 09 — AI ხელსაწყოები ვებ დეველოპმენტში</title>
-  <meta name="description" content="Artificial Intelligence ვებ დეველოპმენტში, ChatGPT/Claude-ის გამოყენება HTML/CSS გენერაციისთვის, დებაგირებისთვის და responsive დიზაინისთვის." />
+  <title>გაკვეთილი 09 — AI ხელსაწყოები ვებ დეველოპმენტში და CSS Grid</title>
+  <meta name="description" content="AI ასისტენტები და აგენტები ვებ დეველოპმენტში 2026 წელს, ეფექტური პრომპტინგი, debugging, და CSS Grid — სრული სისტემა, როდის და როგორ გამოვიყენოთ, საუკეთესო პრაქტიკები." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,12 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 09/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        AI ხელსაწყოები ვებ დეველოპმენტში
+        AI ხელსაწყოები ვებ დეველოპმენტში და CSS Grid
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        სანამ JavaScript-ს დაწვრილებით შევუდგებით, გავეცნოთ ინსტრუმენტს, რომელიც უკვე შენი
-        ყოველდღიური სამუშაოს ნაწილია — AI ასისტენტებს. ეს გაკვეთილი გასწავლის, როგორ გამოიყენო ისინი
-        ეფექტურად და პასუხისმგებლობით, კოდის ფუნდამენტების გვერდის ავლის გარეშე.
+        სანამ JavaScript-ის შესწავლაზე გადავიდოდეთ, გავეცნოთ ინსტრუმენტს, რომელიც უკვე ჩვენი
+        ყოველდღიური სამუშაოს ნაწილია. გავეცნოთ AI ასისტენტებსა და აგენტებს და დავხუროთ CSS მოდულის
+        ერთი ბოლო, მნიშვნელოვანი თემა: CSS Grid, ორგანზომილებიანი განლაგების სისტემა.
       </p>
       <div class="lesson-progress" data-lesson="9">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -53,15 +53,35 @@
 
       <h2>1. რა არის Artificial Intelligence ვებ დეველოპმენტში</h2>
       <p>
-        დღეს ვებ დეველოპერების უმეტესობა იყენებს AI ასისტენტებს (<strong>ChatGPT</strong>,
-        <strong>Claude</strong> და სხვ.) სამუშაო პროცესის დასაჩქარებლად — კოდის დაწერაში,
-        დებაგირებაში, დოკუმენტაციის კითხვასა და ახსნაში. მნიშვნელოვანია გვესმოდეს: AI არ
-        <strong>ცვლის</strong> დეველოპერს — ის აჩქარებს მას, თუ დეველოპერს კარგად ესმის, რასაც
-        სთხოვს და რასაც იღებს პასუხად.
+        დღეს ვებ დეველოპერების უმეტესობა იყენებს AI ასისტენტებს სამუშაო პროცესის დასაჩქარებლად —
+        კოდის დაწერაში, დებაგირებაში, დოკუმენტაციის კითხვასა და ახსნაში. მნიშვნელოვანია გვესმოდეს:
+        AI არ <strong>ცვლის</strong> დეველოპერს — ის აჩქარებს მას, თუ დეველოპერს კარგად ესმის,
+        რასაც სთხოვს და რასაც იღებს პასუხად.
       </p>
       <p>
-        სწორედ ამიტომ ეს გაკვეთილი მოდის HTML/CSS-ის საფუძვლების <em>შემდეგ</em> — AI-ს ეფექტურად
+        სწორედ ამიტომ ეს გაკვეთილი მოდის HTML/CSS-ის საფუძვლების <em>შემდეგ</em> — AI ეფექტურად
         რომ გამოვიყენოთ, ჯერ თავად უნდა გვესმოდეს, რას აკეთებს გენერირებული კოდი.
+      </p>
+
+      <h3>ჩატიდან აგენტამდე — 2025-2026 წლების ცვლილება</h3>
+      <p>
+        ბოლო ორი წლის განმავლობაში AI-ს გამოყენების ხერხი მნიშვნელოვნად შეიცვალა. თუ 2023 წელს
+        დეველოპერი უბრალოდ <em>კითხულობდა</em> ChatGPT-ს/Claude-ს ჩატში და ხელით აკოპირებდა
+        პასუხს, დღეს გავრცელებულია <strong>აგენტური (agentic) ხელსაწყოები</strong> — ისინი
+        პირდაპირ კოდის ედიტორში ან ტერმინალში მუშაობენ, თავად კითხულობენ პროექტის ფაილებს,
+        ცვლიან რამდენიმე ფაილს ერთდროულად, უშვებენ ტესტებს და ასწორებენ საკუთარ შეცდომებს:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Chat-ზე დაფუძნებული ასისტენტები</strong> (ChatGPT, Claude.ai) — საუბრის ფორმატში, კოდის ხელით კოპირება/ჩასმა სჭირდება.</li>
+        <li><strong>Inline ავტოშევსება</strong> (მაგ. GitHub Copilot-ის კლასიკური რეჟიმი) — კოდის დაწერისას, ხაზ-ხაზ, პროგნოზირებულ შემოთავაზებებს იძლევა.</li>
+        <li><strong>აგენტური ხელსაწყოები</strong> (მაგ. Claude Code, Cursor, GitHub Copilot Agent Mode) — თავად კითხულობენ მთელ პროექტს, გეგმავენ ცვლილებას, ცვლიან რამდენიმე ფაილს, უშვებენ ბრძანებებს ტერმინალში და ამოწმებენ შედეგს — მინიმალური ხელით ჩარევით.</li>
+      </ul>
+      <p>
+        <strong>მნიშვნელოვანი, გამოცდილებით დადასტურებული ფაქტი:</strong> 2025 წლის კვლევებით,
+        დეველოპერების 84%-მა თქვა, რომ იყენებს ან გეგმავს AI ხელსაწყოების გამოყენებას — მაგრამ
+        მხოლოდ 29%-მა ენდო მათი პასუხის სიზუსტეს (წინა წელს 40%-თან შედარებით შემცირდა). ეს არ
+        ნიშნავს, რომ AI არ ღირს გამოყენებად, თუმცა <strong>გადამოწმება ყოველთვის
+        სავალდებულოა</strong>, დამწყები დეველოპერისთვისაც და გამოცდილისთვისაც.
       </p>
 
       <h2>2. HTML სტრუქტურის და CSS იდეების გენერაცია</h2>
@@ -71,7 +91,7 @@
         მნიშვნელოვანია პრომპტი იყოს <strong>კონკრეტული</strong>:
       </p>
       <pre><code><span class="cmt">// სუსტი პრომპტი — ბუნდოვანია</span>
-"დამიწერე ბარათი"
+"შემიდგინე card კომპონენტი"
 
 <span class="cmt">// ძლიერი პრომპტი — კონკრეტულია</span>
 "დამიწერე HTML/CSS card კომპონენტი: სურათი ზემოთ,
@@ -117,23 +137,188 @@ Console-ში ვხედავ შეცდომას:
 რა შეიძლება იყოს პრობლემა?"</code></pre>
       <p>
         ეს ტექნიკა ზუსტად იმეორებს იმას, რასაც ადამიანი კოლეგაც გკითხავდა — რაც უფრო კონკრეტულია
-        კონტექსტი, მით უფრო ზუსტია დახმარება.
+        კონტექსტი, მით უფრო ზუსტია დახმარება. აგენტური ხელსაწყოები კი კიდევ ერთ ნაბიჯს გადადგამენ:
+        მათ შეუძლიათ თავად გაუშვან კოდი, ნახონ რეალური შეცდომა, და გამოსცადონ პასუხი, სანამ
+        საბოლოო შედეგს მოგცემენ — მაგრამ საბოლოო პასუხისმგებლობა კოდის სისწორეზე ისევ დეველოპერზეა.
       </p>
 
       <h2>5. Layout გენერაცია და Responsive დიზაინი</h2>
       <p>
-        AI კარგად ეხმარება responsive layout-ების სწრაფ დაგეგმვაშიც — მაგ. „მოგვცე Flexbox/Grid
-        სტრუქტურა, რომელიც მობილურზე ერთ სვეტად იჯგუფება, დესკტოპზე კი 3 სვეტად". მაინც აუცილებელია
-        შედეგის ხელით შემოწმება რეალურ მოწყობილობებზე ან DevTools-ის Device Toolbar-ში (გავეცნობით
-        შემდეგ გაკვეთილებში).
+        AI კარგად ეხმარება responsive layout-ების სწრაფ დაგეგმვაშიც — მაგ. „შემიდგინე Flexbox/Grid
+        სტრუქტურა, რომელიც მობილურზე ერთ სვეტად დაჯგუფდება, დესკტოპზე კი 3 სვეტად". მაინც აუცილებელია
+        შედეგის ხელით შემოწმება რეალურ მოწყობილობებზე ან DevTools-ის Device Toolbar-ში. ხშირად,
+        ამ ტიპის მოთხოვნაზე, AI შემოგთავაზებთ სწორედ CSS Grid-ს. გავეცნოთ მას დეტალურად.
       </p>
+
+      <h2>6. CSS Grid — სრული ორგანზომილებიანი განლაგების სისტემა</h2>
+      <p>
+        მე-6 გაკვეთილში ვისწავლეთ Flexbox — <strong>ერთგანზომილებიანი</strong> სისტემა (ერთი
+        მიმართულებით, ან რიგი, ან სვეტი). <strong>CSS Grid</strong> კი მართავს ორივეს
+        <strong>ერთდროულად</strong> — რიგებსაც და სვეტებსაც — რაც მას იდეალურს ხდის მთელი
+        გვერდის ან რთული სექციის სტრუქტურისთვის.
+      </p>
+
+      <h3>როდის ვირჩევთ Grid-ს და როდის — Flexbox-ს</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">სიტუაცია</th>
+            <th style="text-align: left; padding: 8px;">არჩევანი</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">მთელი გვერდის სტრუქტურა (header/sidebar/main/footer)</td>
+            <td style="padding: 8px;"><strong>Grid</strong> — ორივე ღერძი ერთდროულად</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">ნავიგაციის ბმულების რიგი, ღილაკების ჯგუფი</td>
+            <td style="padding: 8px;"><strong>Flexbox</strong> — ერთი მიმართულება, content-ის ზომაზეა დამოკიდებული</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">ბარათების გალერეა, ცხრილისებრი განლაგება</td>
+            <td style="padding: 8px;"><strong>Grid</strong> — თანაბარი სვეტები/რიგები, ზუსტი კონტროლი</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;">ერთი კომპონენტის შიდა ელემენტების ცენტრირება</td>
+            <td style="padding: 8px;"><strong>Flexbox</strong> — მარტივი, სწრაფი</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>საუკეთესო პრაქტიკა:</strong> ეს ორი სისტემა ერთმანეთს არ გამორიცხავს — რეალურ
+        პროექტებში თითქმის ყოველთვის ერთად გამოიყენება: <strong>Grid მთელი გვერდის/სექციის
+        „მაკრო" სტრუქტურისთვის, Flexbox — ცალკეული კომპონენტის შიდა, „მიკრო" განლაგებისთვის.</strong>
+      </p>
+
+      <h3>საბაზისო სინტაქსი</h3>
+      <pre><code>.container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr; <span class="cmt">/* 3 სვეტი: 1:2:1 პროპორციით */</span>
+  grid-template-rows: auto 1fr auto;   <span class="cmt">/* 3 რიგი: content-ის მიხედვით, დარჩენილი, content-ის მიხედვით */</span>
+  gap: 16px;                            <span class="cmt">/* მანძილი, ისევე როგორც Flexbox-ში */</span>
+}</code></pre>
+      <p>
+        <code>fr</code> ერთეული (fraction) წარმოადგენს „ხელმისაწვდომი სივრცის წილს" — მსგავსია
+        <code>flex-grow</code>-ის, მაგრამ ორივე ღერძისთვის მუშაობს.
+      </p>
+
+      <h3>repeat() და minmax() — განმეორებადი სტრუქტურები</h3>
+      <pre><code>.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); <span class="cmt">/* იგივეა, რაც "1fr 1fr 1fr" */</span>
+  gap: 16px;
+}</code></pre>
+      <pre><code><span class="cmt">/* ცნობილი "ერთხაზიანი რესპონსიული grid" — media query-ების გარეშე! */</span>
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+<span class="cmt">/* auto-fit — ავტომატურად ითვლის, რამდენი სვეტი ეტევა
+   minmax(220px, 1fr) — თითოეული სვეტი მინიმუმ 220px, მაქსიმუმ თანაბარი წილი
+   შედეგი: ეკრანის სიგანის მიხედვით სვეტების რაოდენობა თავად იცვლება */</span></code></pre>
+      <p>
+        ეს ერთი ხაზი ხშირად სრულად ანაცვლებს რამდენიმე <code>@media</code> query-ს (მე-8
+        გაკვეთილიდან ნაცნობს), რომლებიც სხვადასხვა breakpoint-ზე სვეტების რაოდენობას
+        ცვლიდნენ ხელით.
+      </p>
+
+      <h3>grid-template-areas — სახელდებული „ზონები"</h3>
+      <p>
+        ერთ-ერთი ყველაზე წაკითხვადი გზა გვერდის სტრუქტურის აღსაწერად — ვხატავთ ლეიაუტს
+        პირდაპირ CSS-ში, ვიზუალურად:
+      </p>
+      <pre><code>.page {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main"
+    "sidebar footer";
+  min-height: 100vh;
+  gap: 16px;
+}
+
+.header { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.footer  { grid-area: footer; }</code></pre>
+      <p>
+        <code>grid-template-areas</code>-ის ტექსტური „რუკა" პირდაპირ აჩვენებს, სად მდებარეობს
+        თითოეული სექცია — გუნდურ პროექტში ეს მნიშვნელოვნად ამარტივებს კოდის წაკითხვას, CSS-ის
+        ცოდნის გარეშეც კი ინტუიციურია.
+      </p>
+
+      <h3>ცალკეული item-ის განთავსება — grid-column / grid-row / span</h3>
+      <pre><code>.featured-card {
+  grid-column: span 2; <span class="cmt">/* ეს item იკავებს 2 სვეტს, ერთის ნაცვლად */</span>
+  grid-row: span 2;     <span class="cmt">/* და 2 რიგს — "დიდი" ბარათი გალერეაში */</span>
+}</code></pre>
+
+      <h3>Subgrid — ჩადგმული grid-ების გასწორება (Baseline Widely Available, 2026)</h3>
+      <p>
+        <strong>Subgrid</strong> წყვეტს ხშირ პრობლემას — ბარათების გალერეაში, სადაც თითოეულ
+        card-ს აქვს სათაური, ტექსტი და ღილაკი, გინდა, რომ ყველა card-ის სათაურები/ღილაკები
+        ერთ ხაზზე იყოს გასწორებული, თუნდაც ტექსტის სიგრძე განსხვავებული იყოს. 2026 წლის მარტიდან
+        Subgrid <strong>Baseline Widely Available</strong> სტატუსშია — ანუ სრულად საიმედოა
+        production-ში, ყველა თანამედროვე ბრაუზერში:
+      </p>
+      <pre><code>.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-rows: auto 1fr auto; <span class="cmt">/* სათაური / ტექსტი / ღილაკი — სამი "ზონა" */</span>
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid; <span class="cmt">/* card "სესხულობს" მშობლის row-ტრეკებს */</span>
+}
+<span class="cmt">/* შედეგი: ყველა card-ის სათაური/ტექსტი/ღილაკი ერთ ხაზზეა გასწორებული,
+   მიუხედავად თითოეულის content-ის სხვადასხვა სიგრძისა */</span></code></pre>
+      <p>
+        <strong>პროგრესული გაუმჯობესება:</strong> თუ გინდა მაქსიმალური თავსებადობა ძალიან ძველ
+        ბრაუზერებთანაც, <code>@supports</code>-ის გამოყენებით subgrid მხოლოდ მისი მხარდაჭერის
+        შემთხვევაში ჩაირთვება — დანარჩენ ბრაუზერებში ჩვეულებრივი, „საკმარისად კარგი" grid დარჩება:
+      </p>
+      <pre><code>@supports (grid-template-rows: subgrid) {
+  .card {
+    grid-template-rows: subgrid;
+  }
+}</code></pre>
+
+      <h3>Grid-ის საუკეთესო პრაქტიკები — შეჯამება</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>გამოიყენე <strong>Grid</strong> გვერდის/სექციის საერთო სტრუქტურისთვის, <strong>Flexbox</strong> — კომპონენტის შიდა განლაგებისთვის. კომბინაცია (Grid container, რომლის items-ებიც flex container-ებია) ძალიან გავრცელებული პატერნია.</li>
+        <li><code>grid-template-areas</code> გამოიყენე რთული, მრავალსექციიანი გვერდის სტრუქტურისთვის — წაკითხვადობა მნიშვნელოვნად უმჯობესდება.</li>
+        <li><code>repeat(auto-fit, minmax(...))</code> გამოიყენე „card grid"-ებისთვის — ხშირად საერთოდ არ დაგჭირდება <code>@media</code> query რესპონსიულობისთვის.</li>
+        
+      </ul>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic — Prompt Engineering გზამკვლევი</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Tools_and_setup" target="_blank" rel="noopener">MDN — Web development tools & setup</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout" target="_blank" rel="noopener">MDN — CSS Grid Layout</a></li>
+          <li><a href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank" rel="noopener">CSS-Tricks — A Complete Guide to Grid</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid" target="_blank" rel="noopener">MDN — Subgrid</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რატომ არის მნიშვნელოვანი AI-ს მიერ გენერირებული კოდის გადამოწმება, თუნდაც ის „მუშაობდეს" ერთი შეხედვით?</li>
+          <li>რა განსხვავებაა chat-ზე დაფუძნებულ ასისტენტსა და აგენტურ ხელსაწყოს შორის?</li>
+          <li>რა განსხვავებაა CSS Grid-სა და Flexbox-ს შორის — რომელია ერთგანზომილებიანი და რომელი — ორგანზომილებიანი?</li>
+          <li>რას აკეთებს <code>repeat(auto-fit, minmax(220px, 1fr))</code> და რატომ ანაცვლებს ის ხშირად <code>@media</code> query-ებს?</li>
+          <li>რა უპირატესობა აქვს <code>grid-template-areas</code>-ს ჩვეულებრივ <code>grid-column</code>/<code>grid-row</code> მიდგომასთან შედარებით?</li>
+          <li>რა პრობლემას წყვეტს Subgrid, და როგორ ვუზრუნველყოფთ მის უსაფრთხო გამოყენებას ძველ ბრაუზერებთანაც?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -141,9 +326,12 @@ Console-ში ვხედავ შეცდომას:
         <ol style="padding-left: 20px;">
           <li>სთხოვე AI ასისტენტს (ChatGPT ან Claude) დაგიწეროს მარტივი „profile card" კომპონენტი — შემდეგ ხელით შეამოწმე, სემანტიკურია თუ არა HTML.</li>
           <li>აიღე ერთი შენი ძველი CSS ფაილი (ან ამ კურსის ერთ-ერთი ფაილიდან ნაწყვეტი) და სთხოვე AI-ს ახსნას, რას აკეთებს ის ხაზ-ხაზ.</li>
-          <li>განზრახ დაწერე ერთ input-ს არასწორი JS და სთხოვე AI-ს, დაგეხმაროს problem-ის დიაგნოსტირებაში — შემდეგ თავად შეასწორე.</li>
-          <li>სთხოვე AI-ს, აღწერილობის მიხედვით (2-3 წინადადებით) შემოგთავაზოს layout სტრუქტურა, შემდეგ თავად დაწერე HTML/CSS ამ იდეის მიხედვით.</li>
-          <li><em>(რთული)</em> შეადარე ორი პრომპტის შედეგი — ერთი ბუნდოვანი და ერთი კონკრეტული — და ჩამწერე, კონკრეტულად რა განსხვავება იყო შედეგის ხარისხში.</li>
+          <li>განზრახ დაუშვი შეცდომა და სთხოვე AI-ს, დაგეხმაროს problem-ის დიაგნოსტირებაში — შემდეგ თავად შეასწორე.</li>
+          <li>ააწყვე გვერდის საბაზისო სტრუქტურა (header/sidebar/main/footer) <code>grid-template-areas</code>-ის გამოყენებით.</li>
+          <li>შექმენი „card grid" 6+ ბარათით, <code>repeat(auto-fit, minmax(220px, 1fr))</code>-ის გამოყენებით — შეამოწმე DevTools-ის Device Toolbar-ში, რომ სვეტების რაოდენობა ავტომატურად იცვლება, media query-ების გარეშე.</li>
+          <li>იმავე card grid-ში, ერთ ბარათს მიანიჭე <code>grid-column: span 2</code> და დააკვირდი, როგორ „გადაინაცვლებს" დანარჩენი ბარათები.</li>
+          <li><em>(რთული)</em> ააწყვე card grid, სადაც თითოეულ card-ს აქვს სათაური/ტექსტი/ღილაკი, და Subgrid-ის გამოყენებით გაასწორე ეს სამი „ზონა" ყველა card-ში — დაამატე <code>@supports</code> fallback-იც.</li>
+          <li><em>(რთული)</em> სთხოვე AI ასისტენტს Grid-ის გამოყენებით ააწყოს ერთი კონკრეტული layout (აღწერე ის 2-3 წინადადებით), შემდეგ შეადარე მისი გადაწყვეტა შენსავე ხელით დაწერილს — ჩამწერე, რა განსხვავებაა.</li>
         </ol>
       </div>
 
