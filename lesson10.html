@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 10 — JS სინტაქსი, NPM, ცვლადები და მონაცემთა ტიპები</title>
-  <meta name="description" content="JavaScript-ის სინტაქსი, NPM გარემოს საფუძვლები, ცვლადების გამოცხადება let/const/var-ით და მონაცემთა ტიპები." />
+  <title>გაკვეთილი 10 — JS სინტაქსი, NPM/pnpm/Bun, ცვლადები, მონაცემთა ტიპები</title>
+  <meta name="description" content="JavaScript-ის სინტაქსი და strict mode, პაკეტების მენეჯერების 2026 წლის ლანდშაფტი (npm/pnpm/Bun/Yarn), let/const/var, და მონაცემთა ტიპები (BigInt/Symbol-ის ჩათვლით)." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 10/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        JS სინტაქსი, NPM გარემო, ცვლადები და მონაცემთა ტიპები
+        JS სინტაქსი, NPM/pnpm/Bun, ცვლადები, მონაცემთა ტიპები
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        აქამდე ვხატავდით სტატიკურ გვერდებს. ახლა ვამატებთ იმ ფენას, რომელიც გვერდს „ცოცხალს" ხდის —
-        JavaScript-ს. დავიწყოთ ენის ბაზისური სინტაქსით და მონაცემების შენახვის ხერხებით.
+        აქამდე ვქმნიდით სტატიკურ გვერდებს, სადაც ინფორმაცია უბრალოდ განთავსებული იყო და მომხმარბელს არ შეეძლოთ რაიმე ქმედების გახორციელება. დღეს დავიწყებთ 
+        JavaScript-ის შესწავლას, იგი პროგრამირების ენაა, რომელიც, სწორედ დინამიურიობის შესამატებლად გვჭირდება. დავიწყოთ ენის ბაზისური სინტაქსით, თანამედროვე პაკეტების მენეჯერების
+        ლანდშაფტით და მონაცემების შენახვის ხერხებით.
       </p>
       <div class="lesson-progress" data-lesson="10">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -61,17 +62,56 @@
         სავალდებულო (JS-ს აქვს ავტომატური „Automatic Semicolon Insertion"), მაგრამ კარგი პრაქტიკაა
         მისი ხელით ჩაწერა, გაუთვალისწინებელი შეცდომების თავიდან ასაცილებლად.
       </p>
+      <p>
+        თუ ახალ ხაზს იწყებთ კვადრატული [ ან მრგვალი ( ფრჩხილით, JS მას არ აღიქვამს ახალ ბრძანებად — მას ჰგონია, რომ წინა ხაზზე არსებულ ფუნქციას იძახებთ ან მასივს მიმართავთ.
+      </p>
+      <pre><code>
+<span class="cmt">const a = 1 
+      </span>
+<span class="cmt">[1, 2, 3].forEach(n => console.log(n))  </span>
+    </code></pre>
+     
       <pre><code><span class="cmt">// ერთხაზიანი კომენტარი</span>
 console.log("გამარჯობა, JavaScript!"); <span class="cmt">// გამოაქვს ტექსტი DevTools Console-ში</span>
 
 <span class="cmt">/* მრავალხაზიანი
    კომენტარი */</span></code></pre>
 
-      <h2>2. NPM — JavaScript-ის პაკეტების მენეჯერი</h2>
+      <h3>Strict Mode — "use strict"</h3>
       <p>
-        <strong>NPM</strong> (Node Package Manager) არის ინსტრუმენტი, რომელიც საშუალებას გვაძლევს
-        დავამატოთ ჩვენს პროექტში სხვების მიერ დაწერილი, მრავალჯერ გამოსაცდელი კოდის პაკეტები (მაგ.
-        React, Axios). ის მოდის <strong>Node.js</strong>-თან ერთად.
+        <code>"use strict"</code> ფაილის/ფუნქციის თავში ჩართავს JavaScript-ის „მკაცრ" რეჟიმს —
+        ის კრძალავს რამდენიმე ძველ, საშიშ პატერნს (მაგ. ცვლადის შემთხვევით გლობალურად გამოცხადებას,
+        <code>var</code>-ის გამოცხადების გარეშე გამოყენებას) და აჩენს შეცდომებს იქ, სადაც ძველად
+        JS „ჩუმად" აგრძელებდა მუშაობას:
+      </p>
+      <pre><code><span class="str">"use strict"</span>;
+
+age = 25; <span class="cmt">// ❌ ReferenceError strict mode-ში (age არასდროს გამოცხადებულა let/const/var-ით)</span></code></pre>
+      <p>
+        <strong>კარგი ამბავი:</strong> ES6 მოდულებში (<code>&lt;script type="module"&gt;</code>,
+        გავეცნობით მე-14 გაკვეთილიდან) და <code>class</code>-ის შიგნით (მე-20 გაკვეთილი) strict mode
+        <strong>ავტომატურად ჩართულია</strong> — ხელით წერა აღარ სჭირდება. თანამედროვე პროექტების
+        უმეტესობა (React-ის ჩათვლით) სწორედ მოდულების საშუალებით მუშაობს, ამიტომ ეს პრაქტიკულად
+        „უფასოდ" გვაქვს.
+      </p>
+
+      <h3>JavaScript — ცოცხალი, ყოველწლიურად განახლებადი ენა</h3>
+      <p>
+        JavaScript-ის ოფიციალური სპეციფიკაცია (ECMAScript, შემოკლებით <strong>ES</strong>) TC39
+        კომიტეტის მიერ <strong>ყოველწლიურად</strong> განახლდება. მაგალითად, ES2024-მა დაამატა
+        <code>Object.groupBy()</code> (მასივის ელემენტების დაჯგუფება), ხოლო ES2025-მა —
+        Iterator Helpers და Set-ის მათემატიკური ოპერაციები (<code>union</code>,
+        <code>intersection</code>). ამ კურსში თანდათან შევხვდებით ბევრ მათგანს — ჯერჯერობით
+        მთავარია დავიმახსოვროთ, რომ JS არ არის „გაყინული" ენა, და ახალი ფუნქციები ყოველწლიურად
+        ემატება.
+      </p>
+
+      <h2>2. პაკეტების მენეჯერები — npm, pnpm, Bun, Yarn (2026 წლის ლანდშაფტი)</h2>
+      <p>
+        <strong>NPM</strong> (Node Package Manager) არის ყველაზე გავრცელებული ინსტრუმენტი,
+        რომელიც საშუალებას გვაძლევს დავამატოთ ჩვენს პროექტში სხვების მიერ დაწერილი, მრავალჯერ
+        გამოსაცდელი კოდის პაკეტები (მაგ. React, Axios). NPM მოჰყვება <strong>Node.js</strong>-ს
+        და ნებისმიერ დროს მუშაობს — ამიტომ კურსში მას ვიყენებთ ნაგულისხმევად.
       </p>
       <pre><code><span class="cmt"># პროექტის ინიციალიზაცია — ქმნის package.json ფაილს</span>
 npm init -y
@@ -80,25 +120,111 @@ npm init -y
 npm install axios
 
 <span class="cmt"># პაკეტის დაყენება მხოლოდ დეველოპმენტისთვის (მაგ. ტესტირების ინსტრუმენტი)</span>
-npm install --save-dev vitest</code></pre>
+npm install --save-dev vitest
+
+<span class="cmt"># პაკეტის ერთჯერადი გაშვება, დაყენების გარეშე</span>
+npx create-vite@latest</code></pre>
       <p>
-        <code>package.json</code> ფაილი აღრიცხავს პროექტის ყველა დამოკიდებულებას (dependency) —
-        სხვას შეუძლია ერთი ბრძანებით (<code>npm install</code>) დააყენოს ისინი ყველა ერთდროულად.
+        <code>package.json</code> ფაილი აღრიცხავს პროექტის ყველა დამოკიდებულებას (dependency) — როდესაც პროექტს სხვას უზიარებთ ან GitHub-ზე ტვირთავთ, არ არის საჭირო ათასობით ფაილისგან შემდგარი node_modules საქაღალდის (გადმოწერილი პაკეტების) გაგზავნა.
+        სხვას შეუძლია ერთი ბრძანებით (<code>npm install</code>) დააყენოს ისინი.
       </p>
+
+      <h3>package-lock.json — ზუსტი ვერსიების „ფოტოსურათი"</h3>
+      <p>
+        <code>npm install</code>-ის შემდეგ ავტომატურად იქმნება <code>package-lock.json</code> —
+        ის აფიქსირებს ყოველი დამოკიდებულების (და მისი დამოკიდებულებების) ზუსტ ვერსიას იმ
+        მომენტისთვის. <strong>ეს ფაილი ყოველთვის უნდა მოხვდეს Git-ში</strong> (არა
+        <code>.gitignore</code>-ში) — ის უზრუნველყოფს, რომ გუნდის ყველა წევრს, და production
+        სერვერსაც, ზუსტად იგივე ვერსიები დაუყენდეს, შემთხვევითი „ჩემთან მუშაობს, შენთან — არა"
+        სიტუაციების თავიდან ასაცილებლად.
+      </p>
+
+      <h3>Semantic Versioning (semver) — ^ და ~ რას ნიშნავს</h3>
+      <p>
+        <code>package.json</code>-ში ვერსიები იწერება <code>MAJOR.MINOR.PATCH</code> ფორმატით
+        (მაგ. <code>4.18.2</code>) — თითოეული რიცხვის ცვლილებას განსხვავებული მნიშვნელობა აქვს:
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">ნაწილი</th>
+            <th style="text-align: left; padding: 8px;">იზრდება, როცა...</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><strong>MAJOR</strong> (4.x.x)</td><td style="padding: 8px;">დანერგილია incompatible ცვლილება (breaking change)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><strong>MINOR</strong> (x.18.x)</td><td style="padding: 8px;">დამატებულია ახალი ფუნქციონალი, უკუთავსებადობის დარღვევის გარეშე</td></tr>
+          <tr><td style="padding: 8px;"><strong>PATCH</strong> (x.x.2)</td><td style="padding: 8px;">გასწორებულია bug, API უცვლელია</td></tr>
+        </tbody>
+      </table>
+      <pre><code><span class="cmt">// package.json-ში ხშირად ნახავ ასეთ სიმბოლოებს ვერსიის წინ:</span>
+"axios": "^1.7.2"   <span class="cmt">// ^ — დაშვებულია MINOR/PATCH განახლება (1.x.x, არა 2.0.0)</span>
+"lodash": "~4.17.21" <span class="cmt">// ~ — დაშვებულია მხოლოდ PATCH განახლება (4.17.x)</span>
+"react": "18.2.0"    <span class="cmt">// ზუსტი — არანაირი ავტომატური განახლება</span></code></pre>
+
+      <h3>2026 წლის პაკეტების მენეჯერების ლანდშაფტი</h3>
+      <p>
+        NPM-ის გარდა, დღეს აქტიურად გამოიყენება კიდევ სამი ალტერნატივა — თითოეულს თავისი
+        უპირატესობა აქვს:
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">ინსტრუმენტი</th>
+            <th style="text-align: left; padding: 8px;">მთავარი უპირატესობა</th>
+            <th style="text-align: left; padding: 8px;">როდის ვირჩევთ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><strong>npm</strong></td>
+            <td style="padding: 8px;">ყველგან მუშაობს, Node.js-თან ჩაშენებული</td>
+            <td style="padding: 8px;">უსაფრთხო ნაგულისხმევი არჩევანი, სასწავლო პროექტები</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><strong>pnpm</strong></td>
+            <td style="padding: 8px;">დისკის ეკონომია, მკაცრი დამოკიდებულებების იზოლაცია ("phantom dependency"-ების პრევენცია)</td>
+            <td style="padding: 8px;">გუნდური/დიდი პროექტები, monorepo-ები — 2026-ში ხშირად ნაგულისხმევი არჩევანია ახალი პროექტებისთვის</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><strong>Bun</strong></td>
+            <td style="padding: 8px;">ყველაზე სწრაფი ინსტალაცია; ასევე სრული runtime (შეუძლია Node.js-ის ჩანაცვლება)</td>
+            <td style="padding: 8px;">ინდივიდუალური პროექტები, სადაც სისწრაფე პრიორიტეტულია</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;"><strong>Yarn</strong> (Berry/PnP)</td>
+            <td style="padding: 8px;">დახვეწილი workspace-ების მართვა, "Plug'n'Play" (node_modules-ის გარეშე)</td>
+            <td style="padding: 8px;">გუნდები, რომლებიც უკვე Yarn-ის ეკოსისტემაზეა აწყობილი</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>ამ კურსისთვის:</strong> ვიყენებთ <code>npm</code>-ს, რადგან ის ყოველთვის,
+        ყველგან მუშაობს დამატებითი ინსტალაციის გარეშე — მაგრამ მნიშვნელოვანია იცოდე, რომ სხვა
+        ვარიანტებიც არსებობს, და პროფესიულ პროექტში, სავარაუდოდ, ამათგან ერთს შეხვდები.
+      </p>
+
+      <h3>npm audit — უსაფრთხოების შემოწმება</h3>
+      <p>
+        2025-2026 წლებში გახშირდა „supply chain" შეტევები (მავნე კოდის ჩანერგვა პოპულარულ NPM
+        პაკეტებში). კარგი პრაქტიკაა პერიოდულად გაუშვა:
+      </p>
+      <pre><code>npm audit          <span class="cmt"># ცნობილი დაუცველობების სკანირება დამოკიდებულებებში</span>
+npm audit fix       <span class="cmt"># ავტომატური გასწორება (სადაც შესაძლებელია)</span></code></pre>
 
       <h2>3. ცვლადები: let, const, var</h2>
       <p>
         ცვლადი არის „კონტეინერი" მონაცემისთვის. JavaScript-ს აქვს სამი გზა ცვლადის გამოსაცხადებლად:
       </p>
       <pre><code><span class="attr">let</span> age = 25;        <span class="cmt">// მნიშვნელობის შეცვლა შესაძლებელია</span>
-age = 26;             <span class="cmt">// ✅ მუშაობს</span>
+age = 26;             <span class="cmt">// მუშაობს</span>
 
 <span class="attr">const</span> name = "ანა";   <span class="cmt">// მნიშვნელობა უცვლელია, ხელახლა მინიჭება არ შეიძლება</span>
-name = "მარი";         <span class="cmt">// ❌ Error: Assignment to constant variable</span>
+name = "მარი";         <span class="cmt">// Error: Assignment to constant variable</span>
 
 <span class="attr">var</span> city = "თბილისი"; <span class="cmt">// ძველი სინტაქსი (ES5-მდე), დღეს იშვიათად გამოიყენება</span></code></pre>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li><strong>const</strong> — ნაგულისხმევი არჩევანი. გამოიყენე, თუ ცვლადს ხელახლა არ მიანიჭებ.</li>
+        <li><strong>const</strong> — ნაგულისხმევი არჩევანი. გამოიყენე, თუ ცვლადი მუდმივია და მნიშვნელობის შეცვლა არასოდეს დაგჭირდება.</li>
         <li><strong>let</strong> — გამოიყენე, თუ იცი, რომ მნიშვნელობა შეიცვლება (მაგ. მთვლელი ციკლში).</li>
         <li><strong>var</strong> — მოძველებულია; მისი „scope" ქცევა (function-level, არა block-level) ხშირად შეცდომების წყაროა. თანამედროვე კოდში პრაქტიკულად აღარ გამოიყენება.</li>
       </ul>
@@ -108,8 +234,11 @@ name = "მარი";         <span class="cmt">// ❌ Error: Assignment to con
       </p>
 
       <h2>4. მონაცემთა ტიპები (Data Types)</h2>
-      <p>JavaScript-ს აქვს რამდენიმე საბაზისო (primitive) ტიპი და ორი კომპლექსური (reference) ტიპი:</p>
-      <pre><code><span class="cmt">// Primitive ტიპები</span>
+      <p>
+        JavaScript-ს აქვს <strong>7 primitive ტიპი</strong> და ერთი კომპლექსური (reference) კატეგორია —
+        Object (რომელშიც შედის მასივიც და ფუნქციაც):
+      </p>
+      <pre><code><span class="cmt">// ხუთი ყველაზე ხშირად ხმარებული primitive ტიპი</span>
 <span class="attr">let</span> studentAge = 22;              <span class="cmt">// Number</span>
 <span class="attr">let</span> studentName = "გიორგი";       <span class="cmt">// String</span>
 <span class="attr">let</span> isEnrolled = true;            <span class="cmt">// Boolean</span>
@@ -126,18 +255,56 @@ console.log(typeof isEnrolled);   <span class="cmt">// "boolean"</span>
 console.log(typeof hobbies);      <span class="cmt">// "object" (მასივიც ობიექტია!)</span></code></pre>
       <p>
         <strong>undefined</strong> vs <strong>null</strong> ხშირად აბნევს დამწყებებს: <code>undefined</code>
-        ავტომატურად ენიჭება ცვლადს, რომელსაც ჯერ მნიშვნელობა არ მიუციათ, ხოლო <code>null</code>
+        ავტომატურად ენიჭება ცვლადს, რომლისთვისაც ჯერ მნიშვნელობა არ მიუციათ, ხოლო <code>null</code>
         დეველოპერი შეგნებულად წერს, რომ აღნიშნოს „აქ განზრახ არაფერია".
       </p>
+
+      <h3>ორი ნაკლებად ცნობილი primitive: BigInt და Symbol</h3>
+      <pre><code><span class="cmt">// BigInt — ძალიან დიდი მთელი რიცხვებისთვის (Number-ის ზღვარს იქით)</span>
+<span class="attr">const</span> hugeNumber = 9007199254740993n; <span class="cmt">// "n" სუფიქსი ამცნობს BigInt-ს</span>
+console.log(typeof hugeNumber); <span class="cmt">// "bigint"</span>
+
+<span class="cmt">// Symbol — ყოველთვის უნიკალური მნიშვნელობა (იშვიათად გამოიყენება, ძირითადად ბიბლიოთეკებში)</span>
+<span class="attr">const</span> uniqueKey = Symbol("description");
+console.log(typeof uniqueKey); <span class="cmt">// "symbol"</span></code></pre>
+      <p>
+        <strong>Number-ის „ხაფანგი":</strong> JavaScript-ის რიცხვები float-ის სახით ინახება,
+        რაც ხანდახან მოულოდნელ შედეგს იძლევა — ეს ცნობილი, ხშირად ციტირებული მაგალითია:
+      </p>
+      <pre><code>console.log(0.1 + 0.2); <span class="cmt">// 0.30000000000000004 — არა ზუსტად 0.3!</span>
+console.log(0.1 + 0.2 === 0.3); <span class="cmt">// false</span>
+
+<span class="cmt">// ეს ხდება ყველა ენაში, სადაც IEEE 754 float-ი გამოიყენება — არა მხოლოდ JS-ში.
+// ფულადი გამოთვლებისთვის საუკეთესო პრაქტიკაა მთელ რიცხვებში (თეთრებში) მუშაობა,
+// ან სპეციალიზებული ბიბლიოთეკის გამოყენება.</span>
+
+console.log(Number.MAX_SAFE_INTEGER); <span class="cmt">// 9007199254740991 — ამის იქით BigInt გჭირდება</span></code></pre>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/first-steps" target="_blank" rel="noopener">JavaScript.info — First steps</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types" target="_blank" rel="noopener">MDN — Grammar and types</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode" target="_blank" rel="noopener">MDN — Strict mode</a></li>
           <li><a href="https://docs.npmjs.com/about-npm" target="_blank" rel="noopener">NPM — About npm (ოფიციალური დოკუმენტაცია)</a></li>
+          <li><a href="https://semver.org/" target="_blank" rel="noopener">Semantic Versioning — ოფიციალური სპეციფიკაცია</a></li>
+          <li><a href="https://pnpm.io/motivation" target="_blank" rel="noopener">pnpm — Motivation (რატომ pnpm)</a></li>
+          <li><a href="https://bun.sh/docs" target="_blank" rel="noopener">Bun — ოფიციალური დოკუმენტაცია</a></li>
           <li><a href="https://javascript.info/variables" target="_blank" rel="noopener">JavaScript.info — Variables</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures" target="_blank" rel="noopener">MDN — JavaScript data types and data structures</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას აკეთებს <code>"use strict"</code> და სად ჩაირთვება ის ავტომატურად, ხელით წერის გარეშე?</li>
+          <li>რას აღრიცხავს <code>package-lock.json</code> და რატომ უნდა მოხვდეს ის Git-ში?</li>
+          <li>რას ნიშნავს <code>^1.7.2</code> და რით განსხვავდება ის <code>~1.7.2</code>-გან?</li>
+          <li>რა უპირატესობა აქვს pnpm-ს npm-თან შედარებით — რას ნიშნავს "phantom dependency"?</li>
+          <li>რა განსხვავებაა <code>undefined</code>-სა და <code>null</code>-ს შორის?</li>
+          <li>რატომ იძლევა <code>0.1 + 0.2</code> JavaScript-ში <code>0.30000000000000004</code>-ს, ზუსტად <code>0.3</code>-ის ნაცვლად?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -147,6 +314,8 @@ console.log(typeof hobbies);      <span class="cmt">// "object" (მასივ
           <li>გამოაცხადე 5 ცვლადი — თითოეული სხვადასხვა primitive ტიპით (number, string, boolean, undefined, null) — და დაბეჭდე თითოეულის <code>typeof</code> Console-ში.</li>
           <li>სცადე <code>const</code>-ით გამოცხადებული ცვლადის ხელახლა მინიჭება და დააკვირდი Console-ში გამოსულ შეცდომას.</li>
           <li>დააინსტალირე Node.js (თუ ჯერ არ გაქვს), გაუშვი <code>npm init -y</code> ცარიელ საქაღალდეში და შეისწავლე შედეგად მიღებული <code>package.json</code>.</li>
+          <li>დააინსტალირე ერთი პაკეტი (მაგ. <code>npm install axios</code>) და შეადარე <code>package.json</code>-სა და <code>package-lock.json</code>-ის შემცველობა — იპოვე, სად ჩანს ზუსტი ვერსია.</li>
+          <li>Console-ში გაუშვი <code>console.log(0.1 + 0.2)</code> და <code>console.log(0.1 + 0.2 === 0.3)</code> — დაწერე, რატომ ხდება ეს.</li>
           <li><em>(რთული)</em> დაწერე პატარა სკრიპტი, რომელიც აცხადებს სტუდენტის ინფორმაციას (სახელი, ასაკი, ჩარიცხულია თუ არა) ცალკეულ ცვლადებში და კონსოლში ბეჭდავს წინადადებას ამ ცვლადების გამოყენებით (template literal-ის — <code>`${}`</code> — გამოყენებით).</li>
         </ol>
       </div>
@@ -162,7 +331,7 @@ console.log(typeof hobbies);      <span class="cmt">// "object" (მასივ
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
