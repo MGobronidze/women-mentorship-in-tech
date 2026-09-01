@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 11 — შედარება, ლოგიკური ოპერატორები და Coercion</title>
-  <meta name="description" content="JavaScript-ის შედარებისა და ლოგიკური ოპერატორები, if/else, switch, ternary და მონაცემთა ტიპების იძულებითი კონვერტაცია (coercion)." />
+  <title>გაკვეთილი 11 — შედარება, პირობები, ლუპები (for/while), Type Coercion</title>
+  <meta name="description" content="შედარების ოპერატორები, Object.is, nullish coalescing (??), optional chaining, if/else, switch, ternary, ციკლები (for/while/do-while) და Type Coercion." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 11/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        შედარება, ლოგიკური ოპერატორები და Coercion
+        შედარება, პირობები, ლუპები (for/while) და Type Coercion
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        პროგრამირება დიდწილად არის გადაწყვეტილებების მიღება: „თუ ეს მართალია, გააკეთე ეს, თუ არადა —
-        სხვა". ამ გაკვეთილში ვისწავლით, როგორ ვწერთ ამ პირობებს JavaScript-ში.
+        პროგრამები არსებობს იმისთვის, რომ გადაწყვეტილებები მიიღონ და განმეორებადი მოქმედებები
+        შეასრულონ. ამ გაკვეთილში ვსწავლობთ, როგორ ვადარებთ მნიშვნელობებს, როგორ ვმართავთ
+        პროგრამის დინებას პირობების მიხედვით, და როგორ ვიმეორებთ მოქმედებას ციკლებით.
       </p>
       <div class="lesson-progress" data-lesson="11">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -51,121 +52,281 @@
     <article class="lesson-article">
 
       <h2>1. შედარების ოპერატორები</h2>
-      <pre><code><span class="attr">let</span> a = 5, b = "5";
+      <pre><code><span class="cmt">// უტოლობის/თანასწორობის ოპერატორები</span>
+5 > 3      <span class="cmt">// true — მეტია</span>
+5 < 3      <span class="cmt">// false — ნაკლებია</span>
+5 >= 5     <span class="cmt">// true — მეტი ან ტოლი</span>
+5 <= 4     <span class="cmt">// false — ნაკლები ან ტოლი</span>
 
-a == b     <span class="cmt">// true  — ტოლობა ტიპის კონვერტაციით (loose equality)</span>
-a === b    <span class="cmt">// false — ტოლობა ტიპის შემოწმებითაც (strict equality)</span>
-
-a != b     <span class="cmt">// false — არატოლობა, ტიპის კონვერტაციით</span>
-a !== b    <span class="cmt">// true  — მკაცრი არატოლობა</span>
-
-5 > 3      <span class="cmt">// true</span>
-5 >= 5     <span class="cmt">// true</span>
-3 < 5      <span class="cmt">// true</span></code></pre>
+<span class="cmt">// თანასწორობა: == (loose) vs === (strict)</span>
+5 == "5"   <span class="cmt">// true  — ტიპს არ ამოწმებს, მხოლოდ მნიშვნელობას (coercion ხდება)</span>
+5 === "5"  <span class="cmt">// false — ამოწმებს ტიპსაც და მნიშვნელობასაც</span>
+5 !== "5"  <span class="cmt">// true  — strict "არ არის ტოლი"</span></code></pre>
       <p>
-        <strong>საუკეთესო პრაქტიკა:</strong> ყოველთვის გამოიყენე <code>===</code> და <code>!==</code>
-        (მკაცრი შედარება) და არა <code>==</code>/<code>!=</code>. ეს გამორიცხავს JavaScript-ის
-        ავტომატური ტიპის კონვერტაციისგან გამოწვეულ მოულოდნელ ბაგებს.
+        <strong>მნიშვნელოვანი წესი:</strong> თანამედროვე JavaScript-ში თითქმის ყოველთვის ვიყენებთ
+        <code>===</code> და <code>!==</code>-ს, <code>==</code>/<code>!=</code>-ის ნაცვლად — ეს
+        გვიცავს მოულოდნელი, „ჩუმად" მომხდარი ტიპის კონვერტაციისგან.
       </p>
 
-      <h2>2. ლოგიკური ოპერატორები</h2>
-      <pre><code><span class="attr">let</span> age = 20;
-<span class="attr">let</span> hasTicket = true;
-
-age >= 18 <span class="tag">&&</span> hasTicket   <span class="cmt">// AND — ორივე პირობა უნდა იყოს true</span>
-age < 18 <span class="tag">||</span> !hasTicket    <span class="cmt">// OR — საკმარისია ერთ-ერთი იყოს true</span>
-<span class="tag">!</span>hasTicket               <span class="cmt">// NOT — ცვლის true/false-ს საწინააღმდეგოთი</span></code></pre>
-
-      <h2>3. if / else — პირობითი კონსტრუქცია</h2>
-      <pre><code><span class="attr">let</span> temperature = 3;
-
-<span class="tag">if</span> (temperature > 25) {
-  console.log("ცხელა — ჩაიცვი მსუბუქი ტანსაცმელი");
-} <span class="tag">else if</span> (temperature > 10) {
-  console.log("ზომიერია — ჯემპერი საკმარისია");
-} <span class="tag">else</span> {
-  console.log("ცივა — გჭირდება ქურთუკი");
-}
-<span class="cmt">// output: "ცივა — გჭირდება ქურთუკი"</span></code></pre>
-
-      <h2>4. switch — მრავალვარიანტიანი არჩევანი</h2>
+      <h3>Object.is() — როცა === არ არის საკმარისად ზუსტი</h3>
       <p>
-        როცა ერთ ცვლადს ვადარებთ ბევრ კონკრეტულ მნიშვნელობას, <code>switch</code> ხშირად უფრო
-        წაკითხვადია, ვიდრე გრძელი <code>if/else if</code> ჯაჭვი. <code>break</code> აუცილებელია, თორემ
-        შესრულება „ჩამოვარდება" შემდეგ <code>case</code>-ზეც (fall-through).
+        <code>===</code>-საც ჰყავს ორი ცნობილი „უცნაური" შემთხვევა: <code>NaN === NaN</code>
+        არის <code>false</code> (თუმცა ინტუიციურად უნდა იყოს true), ხოლო <code>-0 === 0</code>
+        არის <code>true</code> (თუმცა ტექნიკურად განსხვავებული მნიშვნელობებია). ES6-ის
+        <code>Object.is()</code> ამ ორ გამონაკლისს ასწორებს:
+      </p>
+      <pre><code>NaN === NaN        <span class="cmt">// false — მოულოდნელი!</span>
+Object.is(NaN, NaN) <span class="cmt">// true — Object.is უფრო "მათემატიკურად ზუსტია"</span>
+
+-0 === 0            <span class="cmt">// true</span>
+Object.is(-0, 0)     <span class="cmt">// false</span></code></pre>
+      <p>
+        პრაქტიკაში <code>Object.is()</code> იშვიათად გჭირდება — ჩვეულებრივი შედარებისთვის
+        <code>===</code> სავსებით საკმარისია. მაგრამ ღირს იცოდე, რომ ის არსებობს, თუ როდისმე
+        <code>NaN</code>-ის ან <code>-0</code>-ის ზუსტი შემოწმება დაგჭირდება.
+      </p>
+
+      <h2>2. if / else — პირობითი ოპერატორი</h2>
+      <pre><code><span class="attr">let</span> age = 20;
+
+<span class="attr">if</span> (age >= 18) {
+  console.log("სრულწლოვანია");
+} <span class="attr">else if</span> (age >= 13) {
+  console.log("მოზარდია");
+} <span class="attr">else</span> {
+  console.log("ბავშვია");
+}</code></pre>
+      <p>
+        <code>if</code>-ის ფრჩხილებში მოთავსებული გამოსახულება ყოველთვის გარდაიქმნება
+        <code>true</code>/<code>false</code>-ად (ე.წ. <strong>truthy/falsy</strong> შემოწმება).
+        Falsy მნიშვნელობებია: <code>false</code>, <code>0</code>, <code>""</code> (ცარიელი სტრიქონი),
+        <code>null</code>, <code>undefined</code>, <code>NaN</code>. ყველა დანარჩენი — truthy-ია.
+      </p>
+
+      <h3>Nullish Coalescing (??) — თანამედროვე ალტერნატივა ||-ისთვის</h3>
+      <p>
+        ძველად, ნაგულისხმევი მნიშვნელობის მისაცემად ხშირად <code>||</code>-ს იყენებდნენ — მაგრამ
+        მას ჰქონდა პრობლემა: <code>0</code>, <code>""</code> და <code>false</code> ყველა
+        falsy-ია, ამიტომ <code>||</code> მათაც „ცვლიდა" ნაგულისხმევით, თუნდაც ისინი ვალიდური,
+        განზრახ მითითებული მნიშვნელობები ყოფილიყო:
+      </p>
+      <pre><code><span class="attr">let</span> discount = 0; <span class="cmt">// მომხმარებელმა შეგნებულად აირჩია 0% ფასდაკლება</span>
+
+<span class="cmt">// ძველი გზა — || — შეცდომას იძლევა</span>
+<span class="attr">let</span> finalDiscount1 = discount || 10; <span class="cmt">// 10 — ❌ არასწორია! 0 იყო "ვალიდური" მნიშვნელობა</span>
+
+<span class="cmt">// თანამედროვე გზა — ?? — მხოლოდ null/undefined-ს ცვლის</span>
+<span class="attr">let</span> finalDiscount2 = discount ?? 10; <span class="cmt">// 0 — ✅ სწორია, discount ხომ განსაზღვრულია</span>
+
+<span class="attr">let</span> username;
+<span class="attr">let</span> displayName = username ?? "სტუმარი"; <span class="cmt">// "სტუმარი" — username მართლაც undefined-ია</span></code></pre>
+      <p>
+        <strong>წესი:</strong> გამოიყენე <code>??</code>, როცა გინდა ნაგულისხმევი მხოლოდ
+        <code>null</code>/<code>undefined</code>-ის შემთხვევაში (ანუ „მნიშვნელობა საერთოდ არ
+        არსებობს"), და <code>||</code> — მხოლოდ მაშინ, როცა შეგნებულად გინდა ყველა falsy
+        მნიშვნელობის ჩანაცვლება.
+      </p>
+
+      <h3>Optional Chaining (?.) — უსაფრთხო წვდომა ჩადგმულ ობიექტებში</h3>
+      <p>
+        როცა ობიექტის ღრმად ჩადგმულ თვისებას ვკითხულობთ, ერთ-ერთი შუალედური საფეხური შეიძლება
+        არ არსებობდეს — ჩვეულებრივი dot notation ამ დროს Error-ს გამოიწვევს. <code>?.</code>
+        „ჩუმად" წყვეტს ჯაჭვს და აბრუნებს <code>undefined</code>-ს, Error-ის ნაცვლად:
+      </p>
+      <pre><code><span class="attr">const</span> user = { name: "ანა" }; <span class="cmt">// user.address საერთოდ არ არსებობს</span>
+
+console.log(user.address.city);   <span class="cmt">// ❌ TypeError: Cannot read properties of undefined</span>
+console.log(user.address?.city);  <span class="cmt">// ✅ undefined — უსაფრთხოდ "ჩერდება" და აბრუნებს undefined-ს</span>
+
+<span class="cmt">// ხშირად ერთად გამოიყენება ?? -სთან, სრული "უსაფრთხო წვდომა + ნაგულისხმევის" პატერნისთვის</span>
+<span class="attr">const</span> city = user.address?.city ?? "მითითებული არ არის";</code></pre>
+
+      <h2>3. switch case</h2>
+      <p>
+        როცა ერთი ცვლადის ბევრ კონკრეტულ მნიშვნელობასთან გვჭირდება შედარება, <code>switch</code>
+        ხშირად წაკითხვადია <code>if/else if</code> ჯაჭვზე მეტად:
       </p>
       <pre><code><span class="attr">let</span> day = "სამშაბათი";
 
-<span class="tag">switch</span> (day) {
-  <span class="tag">case</span> "ორშაბათი":
+<span class="attr">switch</span> (day) {
+  <span class="attr">case</span> "ორშაბათი":
     console.log("კვირის დასაწყისი");
-    <span class="tag">break</span>;
-  <span class="tag">case</span> "სამშაბათი":
-  <span class="tag">case</span> "ოთხშაბათი":
-    console.log("კვირის შუა ნაწილი");
-    <span class="tag">break</span>;
-  <span class="tag">default</span>:
+    break;
+  <span class="attr">case</span> "სამშაბათი":
+  <span class="attr">case</span> "ოთხშაბათი":
+    console.log("კვირის შუა");
+    break;
+  <span class="attr">default</span>:
     console.log("სხვა დღე");
+}</code></pre>
+      <p>
+        <code>break</code> აუცილებელია — მისი გამოტოვება იწვევს „fall-through"-ს (შესრულება
+        გრძელდება შემდეგ <code>case</code>-შიც). ორი <code>case</code>-ის ერთად ჩაწერა (ისე, როგორც
+        ზემოთ) გამოსადეგია, როცა რამდენიმე მნიშვნელობას ერთი და იგივე შედეგი უნდა.
+      </p>
+
+      <h2>4. Ternary ოპერატორი</h2>
+      <p>
+        Ternary არის მოკლე ჩანაწერი მარტივი <code>if/else</code>-ისთვის — ერთ ხაზზე, გამოსახულების
+        სახით (ანუ, მას შეიძლება პირდაპირ მივანიჭოთ ცვლადს):
+      </p>
+      <pre><code><span class="cmt">// condition ? ჭეშმარიტ_შემთხვევაში : მცდარ_შემთხვევაში</span>
+<span class="attr">let</span> age = 20;
+<span class="attr">let</span> status = age >= 18 ? "სრულწლოვანი" : "არასრულწლოვანი";
+console.log(status); <span class="cmt">// "სრულწლოვანი"</span></code></pre>
+      <p>
+        <strong>წაკითხვადობის წესი:</strong> ternary კარგია <em>ერთი, მარტივი</em> პირობისთვის.
+        ჩადგმული ternary-ები (<code>a ? b : c ? d : e</code>) სწრაფად ხდება ძნელად წასაკითხავი —
+        ასეთ შემთხვევაში, ჩვეულებრივი <code>if/else if</code> ან <code>switch</code> სჯობს.
+      </p>
+
+      <h2>5. ლუპები — for და while</h2>
+      <p>
+        ციკლი (loop) საშუალებას გვაძლევს, ერთი და იგივე კოდის ბლოკი მრავალჯერ შევასრულოთ,
+        ხელით გამეორების გარეშე. JavaScript-ს აქვს რამდენიმე ტიპის ციკლი — დავიწყოთ ორი
+        ყველაზე ფუნდამენტურით.
+      </p>
+
+      <h3>for — როცა წინასწარ ვიცით გამეორებების რაოდენობა</h3>
+      <p>
+        <code>for</code> ციკლი შედგება სამი ნაწილისგან, წერტილ-მძიმეებით გამოყოფილი:
+        <strong>საწყისი მნიშვნელობა</strong>, <strong>პირობა</strong> (სანამ ეს true-ა, ციკლი
+        გრძელდება) და <strong>ნაბიჯი</strong> (რა ხდება ყოველი გამეორების ბოლოს):
+      </p>
+      <pre><code><span class="attr">for</span> (<span class="attr">let</span> i = 0; i < 5; i++) {
+  console.log(i); <span class="cmt">// 0, 1, 2, 3, 4</span>
 }
-<span class="cmt">// output: "კვირის შუა ნაწილი"</span></code></pre>
-
-      <h2>5. Ternary ოპერატორი — მოკლე if/else</h2>
+<span class="cmt">// i = 0        — საწყისი მნიშვნელობა (სრულდება მხოლოდ ერთხელ)
+// i < 5        — პირობა (მოწმდება ყოველი გამეორების დაწყებამდე)
+// i++          — ნაბიჯი (სრულდება ყოველი გამეორების ბოლოს)</span></code></pre>
       <p>
-        Ternary საშუალებას გვაძლევს ერთ ხაზზე ჩავწეროთ მარტივი პირობა. ფორმა:
-        <code>პირობა ? თუ_true : თუ_false</code>.
+        <code>for</code> საუკეთესოა, როცა წინასწარ ვიცით, რამდენჯერ გვინდა გამეორება — მაგ.
+        მასივის ინდექსებზე გავლა (<code>i < array.length</code>), ან კონკრეტული რაოდენობის
+        გამეორება.
       </p>
-      <pre><code><span class="attr">let</span> age = 20;
-<span class="attr">const</span> status = age >= 18 ? "სრულწლოვანი" : "არასრულწლოვანი";
-console.log(status); <span class="cmt">// "სრულწლოვანი"</span>
 
-<span class="cmt">// ხშირად გამოიყენება JSX-ში (React-ში ვნახავთ) პირობითი რენდერისთვის</span></code></pre>
-
-      <h2>6. Coercion — ტიპების იძულებითი კონვერტაცია</h2>
+      <h3>while — როცა გამეორებების რაოდენობა წინასწარ უცნობია</h3>
       <p>
-        JavaScript ავტომატურად „აკონვერტირებს" მონაცემის ტიპს, როცა ეს საჭიროა ოპერაციის
-        შესასრულებლად — ამას <strong>coercion</strong> ეწოდება. სამი ძირითადი ტიპია:
+        <code>while</code> ციკლი განმეორდება მანამ, სანამ პირობა <code>true</code>-ა — გამოსადეგია,
+        როცა ზუსტად არ ვიცით, რამდენჯერ დაგვჭირდება გამეორება (მაგ. სანამ მომხმარებელი სწორ
+        პასუხს არ შემოიტანს):
       </p>
-      <pre><code><span class="cmt">// String coercion — რიცხვი ტექსტად</span>
-"5" + 3        <span class="cmt">// "53" — + ოპერატორი, თუ ერთ-ერთი მხარე String-ია, აწებავს ტექსტებს</span>
-String(123)    <span class="cmt">// "123" — ცხადი (explicit) კონვერტაცია</span>
+      <pre><code><span class="attr">let</span> countdown = 3;
 
-<span class="cmt">// Numeric coercion — ტექსტი რიცხვად</span>
-"5" - 3        <span class="cmt">// 2 — მინუსი, ამრავლება, გაყოფა ყოველთვის რიცხვად აქცევს</span>
-Number("42")   <span class="cmt">// 42 — ცხადი კონვერტაცია</span>
-Number("abc")  <span class="cmt">// NaN — "Not a Number"</span>
-
-<span class="cmt">// Boolean coercion — ნებისმიერი მნიშვნელობა true/false-ად</span>
-Boolean(0)     <span class="cmt">// false</span>
-Boolean("")    <span class="cmt">// false</span>
-Boolean(null)  <span class="cmt">// false</span>
-Boolean("0")   <span class="cmt">// true  — არა-ცარიელი სტრიქონი ყოველთვის true-ა!</span>
-Boolean(1)     <span class="cmt">// true</span></code></pre>
+<span class="attr">while</span> (countdown > 0) {
+  console.log(countdown);
+  countdown--; <span class="cmt">// აუცილებელია! წინააღმდეგ შემთხვევაში — უსასრულო ციკლი</span>
+}
+console.log("Გაშვება!");</code></pre>
       <p>
-        მნიშვნელობებს, რომლებიც <code>Boolean()</code>-ში <code>false</code>-ად იქცევა, ეწოდება
-        <strong>falsy</strong> მნიშვნელობები: <code>0</code>, <code>""</code>, <code>null</code>,
-        <code>undefined</code>, <code>NaN</code>, <code>false</code>. ყველა დანარჩენი — <strong>truthy</strong>-ა.
-        სწორედ ამიტომ არის <code>===</code> (მკაცრი შედარება) ასეთი მნიშვნელოვანი — ის თავიდან
-        გვაცილებს coercion-ით გამოწვეულ მოულოდნელობებს.
+        <strong>საშიშროება:</strong> თუ დაგავიწყდა პირობის „შემცირება" (ან პირობა არასდროს
+        ხდება false), ციკლი <strong>არასდროს გაჩერდება</strong> და ბრაუზერი „გაიყინება" —
+        ეს ერთ-ერთი ყველაზე ხშირი დამწყები დეველოპერის შეცდომაა.
+      </p>
+
+      <h3>do...while — ციკლი, რომელიც სულ ცოტა ერთხელ სრულდება</h3>
+      <p>
+        <code>do...while</code> ჯერ ასრულებს კოდის ბლოკს, და <em>შემდეგ</em> ამოწმებს პირობას —
+        ეს ნიშნავს, რომ ბლოკი <strong>ყოველთვის</strong> სულ ცოტა ერთხელ სრულდება, თუნდაც
+        პირობა თავიდანვე false იყოს:
+      </p>
+      <pre><code><span class="attr">let</span> attempts = 0;
+
+<span class="attr">do</span> {
+  console.log("მცდელობა #" + (attempts + 1));
+  attempts++;
+} <span class="attr">while</span> (attempts < 3);
+<span class="cmt">// გამოსცემს: "მცდელობა #1", "მცდელობა #2", "მცდელობა #3"</span></code></pre>
+
+      <h3>break და continue</h3>
+      <pre><code><span class="cmt">// break — მთლიანად წყვეტს ციკლს</span>
+<span class="attr">for</span> (<span class="attr">let</span> i = 0; i < 10; i++) {
+  <span class="attr">if</span> (i === 5) <span class="attr">break</span>; <span class="cmt">// ციკლი ჩერდება, როცა i === 5</span>
+  console.log(i); <span class="cmt">// 0, 1, 2, 3, 4</span>
+}
+
+<span class="cmt">// continue — გამოტოვებს მიმდინარე გამეორებას, აგრძელებს შემდეგით</span>
+<span class="attr">for</span> (<span class="attr">let</span> i = 0; i < 5; i++) {
+  <span class="attr">if</span> (i === 2) <span class="attr">continue</span>; <span class="cmt">// 2-ს გამოტოვებს</span>
+  console.log(i); <span class="cmt">// 0, 1, 3, 4</span>
+}</code></pre>
+
+      <h3>საუკეთესო პრაქტიკა — როდის for/while, როდის — array მეთოდები</h3>
+      <p>
+        მომდევნო გაკვეთილში ვისწავლით <code>map()</code>, <code>filter()</code> და სხვა
+        მასივის მეთოდებს, რომლებიც ხშირად უფრო წაკითხვადია, ვიდრე ხელით დაწერილი
+        <code>for</code> ციკლი. თანამედროვე JavaScript-ში ზოგადი წესია:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>მასივის <strong>გარდაქმნისთვის</strong> (ახალი მასივის შესაქმნელად) — სჯობს <code>map()</code>/<code>filter()</code>.</li>
+        <li><strong>ადრეული გამოსვლისთვის</strong> (მაგ. მოძებნა და დაუყოვნებლივ გაჩერება), <strong>წარმადობაზე კრიტიკულ</strong> კოდში, ან როცა გამეორებების რაოდენობა <em>წინასწარ უცნობია</em> — <code>for</code>/<code>while</code> სულ ისევ საუკეთესო არჩევანია.</li>
+        <li><code>while</code> განსაკუთრებით გამოსადეგია non-array სცენარებში — მაგ. „სანამ API-დან შემდეგი გვერდი მოდის" ან „სანამ მომხმარებელი ვალიდურ input-ს არ შემოიტანს".</li>
+      </ul>
+
+      <h2>6. Type Coercion</h2>
+      <p>
+        Coercion არის ავტომატური ტიპის კონვერტაცია, რომელსაც JavaScript ატარებს „ჩუმად", როცა
+        სხვადასხვა ტიპის მნიშვნელობებს ერთმანეთს ვადარებთ ან ვაერთიანებთ ოპერატორებით.
+      </p>
+      <pre><code><span class="cmt">// String coercion — + ოპერატორი string-თან ერთად აქცევს ყველაფერს string-ად</span>
+"5" + 3      <span class="cmt">// "53" (string) — 3 გარდაიქმნა "3"-ად</span>
+"ასაკი: " + 25  <span class="cmt">// "ასაკი: 25"</span>
+
+<span class="cmt">// Numeric coercion — სხვა არითმეტიკული ოპერატორები (-, *, /) string-ს რიცხვად აქცევს</span>
+"5" - 3      <span class="cmt">// 2 (number)</span>
+"10" * "2"   <span class="cmt">// 20 (number)</span>
+"abc" - 1    <span class="cmt">// NaN — "abc" ვერ გარდაიქმნა რიცხვად</span>
+
+<span class="cmt">// Boolean coercion — if/&&/||-ში ავტომატურად</span>
+<span class="attr">if</span> ("გამარჯობა") { console.log("truthy!"); }  <span class="cmt">// შესრულდება — არაცარიელი სტრიქონი truthy-ია</span>
+<span class="attr">if</span> (0) { console.log("არ შესრულდება"); }     <span class="cmt">// 0 — falsy</span>
+Boolean("")   <span class="cmt">// false</span>
+Boolean("0")  <span class="cmt">// true — ეს არის სტრიქონი "0", არა რიცხვი 0!</span></code></pre>
+      <p>
+        <strong>საუკეთესო პრაქტიკა:</strong> Coercion-ის გაგება მნიშვნელოვანია შეცდომების
+        ამოსაცნობად, მაგრამ საკუთარ კოდში აჯობებს მისი შეგნებული, აშკარა გამოყენება (მაგ.
+        <code>Number(str)</code>, <code>String(num)</code>) — არა იმედის მინდობა „ჩუმ" კონვერტაციაზე.
       </p>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/ifelse" target="_blank" rel="noopener">JavaScript.info — Conditional branching</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is" target="_blank" rel="noopener">MDN — Object.is()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing" target="_blank" rel="noopener">MDN — Nullish coalescing operator (??)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining" target="_blank" rel="noopener">MDN — Optional chaining (?.)</a></li>
           <li><a href="https://javascript.info/switch" target="_blank" rel="noopener">JavaScript.info — The "switch" statement</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator" target="_blank" rel="noopener">MDN — Conditional (ternary) operator</a></li>
+          <li><a href="https://javascript.info/while-for" target="_blank" rel="noopener">JavaScript.info — Loops: while and for</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/do...while" target="_blank" rel="noopener">MDN — do...while</a></li>
           <li><a href="https://javascript.info/type-conversions" target="_blank" rel="noopener">JavaScript.info — Type conversions</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რომელ ორ „უცნაურ" შემთხვევას წყვეტს <code>Object.is()</code>, რომელსაც <code>===</code> ვერ უმკლავდება?</li>
+          <li>რა განსხვავებაა <code>??</code>-სა და <code>||</code>-ს შორის — რატომ არის <code>??</code> უფრო „უსაფრთხო" ნაგულისხმევი მნიშვნელობებისთვის?</li>
+          <li>რას აკეთებს <code>?.</code> და რა შეცდომისგან გვიცავს ის?</li>
+          <li>რა განსხვავებაა <code>for</code>-სა და <code>while</code>-ს შორის — როდის რომელს ავირჩევდი?</li>
+          <li>რატომ სრულდება <code>do...while</code> ბლოკი ყოველთვის სულ ცოტა ერთხელ, ჩვეულებრივი <code>while</code>-ისგან განსხვავებით?</li>
+          <li>რას აკეთებს <code>break</code> და რას — <code>continue</code>, და რით განსხვავდებიან ისინი ერთმანეთისგან?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>დაწერე <code>if/else if/else</code> კონსტრუქცია, რომელიც შეაფასებს ქულას (0–100) და დაბეჭდავს „A" / „B" / „C" / „D" / „E" / „F" </li>
-          <li>იგივე ლოგიკა გადათარგმნე <code>switch</code>-ის გამოყენებით (მაგ. თვის ნომრით სეზონის დასადგენად).</li>
-          <li>დაწერე ternary გამონათქვამი, რომელიც ერთ ხაზზე ამოწმებს, არის თუ არა რიცხვი ლუწი.</li>
-          <li>Console-ში გამოსცადე 5 coercion-ის მაგალითი (მაგ. <code>"10" + 5</code>, <code>"10" - 5</code>, <code>Boolean("")</code>) და ჩამწერე მოსალოდნელი და რეალური შედეგები.</li>
-          <li><em>(რთული)</em> დაწერე ლოგიკური გამონათქვამი <code>&&</code> და <code>||</code>-ის კომბინაციით, რომელიც ამოწმებს, არის თუ არა მომხმარებელი „სავალდებულო ასაკის და ტიკეტის" პირობის შესაბამისი, და ახსენი, რატომ დააბრუნა JS-მ ზუსტად ის მნიშვნელობა, რაც დააბრუნა (მოძებნე „short-circuit evaluation" ტერმინი).</li>
+          <li>დაწერე <code>if/else if/else</code> ბლოკი, რომელიც შეაფასებს გამოცდის ქულას (0-100) და დაბეჭდავს ასოით შეფასებას (A/B/C/D/F).</li>
+          <li>იგივე ლოგიკა გადაწერე <code>switch</code>-ის გამოყენებით (მაგ. ქულის დიაპაზონების ნაცვლად — კვირის დღეების მაგალითზე).</li>
+          <li>დაწერე ternary ოპერატორი, რომელიც ცვლადს ანიჭებს "ლუწი" ან "კენტი" — რიცხვის მიხედვით.</li>
+          <li>დაწერე ობიექტი (მაგ. <code>user</code>), რომელსაც არ აქვს ერთ-ერთი ჩადგმული თვისება, და <code>?.</code>-ისა და <code>??</code>-ის კომბინაციით უსაფრთხოდ წაიკითხე ის, ნაგულისხმევი მნიშვნელობით.</li>
+          <li><code>for</code> ციკლის გამოყენებით დაბეჭდე რიცხვები 1-დან 10-მდე, <code>continue</code>-ის გამოყენებით ლუწი რიცხვების გამოტოვებით.</li>
+          <li>დაწერე <code>while</code> ციკლი, რომელიც აგროვებს შემთხვევით რიცხვებს (<code>Math.random()</code>), სანამ ჯამი 50-ს არ გადააჭარბებს — გამოიყენე <code>break</code> საჭიროების შემთხვევაში.</li>
+          <li>დაწერე <code>do...while</code> ციკლი, რომელიც სულ ცოტა ერთხელ ითხოვს „პაროლს" (თუნდაც ჰარდქოდირებულ ცვლადში) და იმეორებს, სანამ სწორი არ იქნება.</li>
+          <li>Console-ში გამოსცადე 5 სხვადასხვა coercion მაგალითი (<code>"5" + 5</code>, <code>"5" - 5</code> და სხვ.) და დანიშნე, რომელი შედეგი გაგაკვირვა.</li>
+          <li><em>(რთული)</em> დაწერე კოდი, რომელიც <code>discount = 0</code>-ისთვის შედარებას აკეთებს <code>||</code>-ითა და <code>??</code>-ით — დაბეჭდე ორივე შედეგი და ახსენი, რატომ განსხვავდება ისინი.</li>
         </ol>
       </div>
 
@@ -180,7 +341,7 @@ Boolean(1)     <span class="cmt">// true</span></code></pre>
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span></div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
