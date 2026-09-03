@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 12 — მასივები, ობიექტები, Dot vs Bracket, ციკლები</title>
-  <meta name="description" content="JavaScript მასივები და ობიექტები, Dot vs Bracket notation, ციკლების ტიპები და მასივის მეთოდები." />
+  <title>გაკვეთილი 12 — მასივები, ობიექტები, თანამედროვე მეთოდები, საკონტროლო პროექტი</title>
+  <meta name="description" content="JavaScript მასივები და ობიექტები, Dot vs Bracket notation, თანამედროვე immutable მეთოდები (toSorted/at/Object.groupBy/structuredClone), და საკონტროლო პროექტი 1-12 შეხვედრების მასალით." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -35,13 +35,14 @@
       <div class="lesson-crumbs">
         <a href="index.html">მთავარი</a> / <a href="index.html#syllabus">JavaScript მოდული</a> / გაკვეთილი 12
       </div>
-      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 12/24</span>
+      <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 12/24 — საკონტროლო შეხვედრა</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        მასივები, ობიექტები, Dot vs Bracket, ციკლები
+        მასივები, ობიექტები, თანამედროვე მეთოდები, საკონტროლო პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         რეალურ აპლიკაციებში მონაცემები იშვიათად არსებობს ცალკეულ ცვლადებად — ისინი ჯგუფდება
-        მასივებში და ობიექტებში. ვისწავლოთ, როგორ ვინახავთ, ვიღებთ და ვიმეორებთ მათზე მოქმედებებს.
+        მასივებში და ობიექტებში. ვისწავლოთ, როგორ ვინახავთ, ვიღებთ და ვამუშავებთ მათ — და
+        გაკვეთილის ბოლოს, ერთად ავაწყოთ რეალური, პირველი 12 შეხვედრის მასალაზე დაფუძნებული პროექტი.
       </p>
       <div class="lesson-progress" data-lesson="12">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -52,7 +53,7 @@
 
       <h2>1. მასივები (Arrays)</h2>
       <p>
-        მასივი ინახავს დალაგებულ სიას, ინდექსით წვდომადს (ინდექსი იწყება <code>0</code>-დან).
+        მასივი ინახავს დალაგებულ სიას,რომელიც ინდექსით წვდომადია (ინდექსირება იწყება <code>0</code>-დან).
       </p>
       <pre><code><span class="attr">const</span> fruits = ["ვაშლი", "მსხალი", "ბანანი"];
 
@@ -68,6 +69,18 @@ fruits.pop();                <span class="cmt">// ბოლო ელემე�
         ცვლადის ხელახლა მინიჭებას კრძალავს (<code>fruits = [...]</code> არ იმუშავებდა).
       </p>
 
+      <h3>Array.at() — ბოლო ელემენტის მარტივი წვდომა</h3>
+      <p>
+        ძველად ბოლო ელემენტის მისაღებად <code>fruits[fruits.length - 1]</code> გვჭირდებოდა —
+        ცოტა რთული, ადვილად შეცდომის მომტანი. <code>.at()</code> (ES2022, დღეს ყველგან
+        მხარდაჭერილი) იღებს <strong>უარყოფით ინდექსსაც</strong>, ბოლოდან იწყებს ათვლას:
+      </p>
+      <pre><code><span class="attr">const</span> nums = [10, 20, 30, 40];
+
+nums[nums.length - 1]; <span class="cmt">// 40 — ძველი გზა</span>
+nums.at(-1);            <span class="cmt">// 40 — თანამედროვე, წაკითხვადი გზა</span>
+nums.at(-2);             <span class="cmt">// 30 — ბოლოდან მეორე</span></code></pre>
+
       <h2>2. ობიექტები (Objects)</h2>
       <p>
         ობიექტი ინახავს მონაცემებს <strong>key: value</strong> წყვილებად — გამოსადეგია, როცა
@@ -79,6 +92,37 @@ fruits.pop();                <span class="cmt">// ბოლო ელემე�
   isEnrolled: true,
   hobbies: ["კითხვა", "ცურვა"],  <span class="cmt">// ობიექტს შეიძლება ჰქონდეს მასივიც შიგნით</span>
 };</code></pre>
+
+      <h3>Object.keys() / values() / entries() — ობიექტის „გახსნა"</h3>
+      <p>
+        ეს სამი მეთოდი ობიექტს გარდაქმნის მასივად — რაც საშუალებას გვაძლევს, გამოვიყენოთ
+        მასივის ყველა ის მეთოდი (<code>map</code>, <code>filter</code> და სხვ.), რომელსაც
+        ქვემოთ ვისწავლით:
+      </p>
+      <pre><code>Object.keys(student);    <span class="cmt">// ["name", "age", "isEnrolled", "hobbies"]</span>
+Object.values(student);   <span class="cmt">// ["გიორგი", 22, true, ["კითხვა", "ცურვა"]]</span>
+Object.entries(student);  <span class="cmt">// [["name", "გიორგი"], ["age", 22], ...] — key/value წყვილების მასივი</span>
+
+<span class="cmt">// პრაქტიკული გამოყენება: for...of + entries() ერთდროულად key-ისა და value-ის მისაღებად</span>
+<span class="attr">for</span> (<span class="attr">const</span> [key, value] <span class="attr">of</span> Object.entries(student)) {
+  console.log(`${key}: ${value}`);
+}</code></pre>
+
+      <h3>Object.hasOwn() და structuredClone()</h3>
+      <pre><code><span class="cmt">// Object.hasOwn() — თანამედროვე, უსაფრთხო გზა შემოწმებისთვის, აქვს თუ არა ობიექტს კონკრეტული key</span>
+Object.hasOwn(student, "age");   <span class="cmt">// true</span>
+Object.hasOwn(student, "email"); <span class="cmt">// false</span>
+
+<span class="cmt">// structuredClone() — ობიექტის/მასივის სრული, "ღრმა" ასლი (deep copy)</span>
+<span class="attr">const</span> studentCopy = structuredClone(student);
+studentCopy.name = "ანა"; <span class="cmt">// ორიგინალ student-ს არ ეხება — ეს ნამდვილი, დამოუკიდებელი ასლია</span></code></pre>
+      <p>
+        <strong>რატომ არის structuredClone() მნიშვნელოვანი:</strong> ჩვეულებრივი მინიჭება
+        (<code>const copy = student</code>) მხოლოდ <em>მისამართს</em> აკოპირებს — ორივე ცვლადი
+        ერთსა და იმავე ობიექტს „უყურებს", და ერთის შეცვლა მეორესაც ცვლის. <code>structuredClone()</code>
+        ქმნის სრულიად დამოუკიდებელ, ახალ ასლს — ეს დღეს სტანდარტული, ჩაშენებული გზაა (ძველად
+        ამისთვის გარე ბიბლიოთეკები, მაგ. Lodash, გვჭირდებოდა).
+      </p>
 
       <h2>3. Dot vs Bracket Notation</h2>
       <p>ობიექტის თვისების წაკითხვის ორი გზა არსებობს:</p>
@@ -95,13 +139,13 @@ console.log(student["is enrolled?"]); <span class="cmt">// bracket საჭი�
         დინამიურია (ცვლადშია) ან შეიცავს space-ს/სპეც. სიმბოლოებს.
       </p>
 
-      <h2>4. ციკლები (Loops)</h2>
-      <pre><code><span class="cmt">// for — კლასიკური, სრული კონტროლით</span>
-<span class="attr">for</span> (<span class="attr">let</span> i = 0; i < fruits.length; i++) {
-  console.log(fruits[i]);
-}
-
-<span class="cmt">// for...of — მასივის ელემენტებზე გადასვლისთვის (მარტივი, თანამედროვე)</span>
+      <h2>4. ციკლები მასივებზე და ობიექტებზე</h2>
+      <p>
+        წინა გაკვეთილში საფუძვლიანად ვისწავლეთ <code>for</code> და <code>while</code> — აქ
+        ვნახოთ, კონკრეტულად როგორ გამოვიყენოთ ისინი (და ორი მათი „ნათესავი") მასივებსა და
+        ობიექტებზე:
+      </p>
+      <pre><code><span class="cmt">// for...of — მასივის ელემენტებზე გადასვლისთვის (მარტივი, თანამედროვე)</span>
 <span class="attr">for</span> (<span class="attr">const</span> fruit <span class="attr">of</span> fruits) {
   console.log(fruit);
 }
@@ -109,13 +153,6 @@ console.log(student["is enrolled?"]); <span class="cmt">// bracket საჭი�
 <span class="cmt">// for...in — ობიექტის key-ებზე გადასვლისთვის</span>
 <span class="attr">for</span> (<span class="attr">const</span> key <span class="attr">in</span> student) {
   console.log(key, "=", student[key]); <span class="cmt">// bracket აუცილებელია, key ცვლადშია</span>
-}
-
-<span class="cmt">// while — მუშაობს, სანამ პირობა ჭეშმარიტია</span>
-<span class="attr">let</span> countdown = 3;
-<span class="attr">while</span> (countdown > 0) {
-  console.log(countdown);
-  countdown--;
 }</code></pre>
       <p>
         დღეს, მასივებზე გადასასვლელად, ხშირად <code>for...of</code>-ს ან მასივის მეთოდებს ვამჯობინებთ
@@ -141,8 +178,117 @@ numbers.forEach(n => console.log(n));
 <span class="cmt">// find — აბრუნებს პირველ ელემენტს, რომელიც პირობას აკმაყოფილებს</span>
 <span class="attr">const</span> firstEven = numbers.find(n => n % 2 === 0); <span class="cmt">// 2</span>
 
-<span class="cmt">// reduce — "აკეცავს" მასივს ერთ მნიშვნელობამდე (მაგ. ჯამი)</span>
+<span class="cmt">// reduce — ს დაჰყავს მასივს ერთ მნიშვნელობაზე (მაგ. ჯამი)</span>
 <span class="attr">const</span> sum = numbers.reduce((total, n) => total + n, 0); <span class="cmt">// 15</span></code></pre>
+
+      <h3>Immutable მეთოდები — toSorted, toReversed, toSpliced, with (ES2023)</h3>
+      <p>
+        კლასიკური <code>sort()</code>, <code>reverse()</code> და <code>splice()</code> ცვლიან
+        <strong>ორიგინალ</strong> მასივს ადგილზევე (mutate) — ეს ხშირად მოულოდნელი bug-ების
+        წყაროა, განსაკუთრებით მაშინ, როცა იმავე მასივს სხვაგანაც იყენებ. 2023 წლიდან, დღეს
+        ყველა თანამედროვე ბრაუზერში მხარდაჭერილი, არსებობს „უსაფრთხო", <strong>immutable</strong>
+        ალტერნატივები — ისინი აბრუნებენ <em>ახალ</em> მასივს, ორიგინალს კი ხელუხლებელს ტოვებენ:
+      </p>
+      <pre><code><span class="attr">const</span> original = [3, 1, 4, 1, 5];
+
+<span class="cmt">// ძველი, mutating მეთოდი — პირდაპირ ცვლის original-ს!</span>
+original.sort(); <span class="cmt">// original ახლა არის [1, 1, 3, 4, 5] — შეუქცევადად შეიცვალა</span>
+
+<span class="attr">const</span> original2 = [3, 1, 4, 1, 5];
+<span class="cmt">// ახალი, "უსაფრთხო" მეთოდი — ორიგინალს არ ეხება</span>
+<span class="attr">const</span> sorted = original2.toSorted();    <span class="cmt">// [1, 1, 3, 4, 5] — ახალი მასივი</span>
+console.log(original2);                       <span class="cmt">// [3, 1, 4, 1, 5] — უცვლელია!</span>
+
+<span class="attr">const</span> reversed = original2.toReversed(); <span class="cmt">// ახალი, შებრუნებული ასლი</span>
+<span class="attr">const</span> updated = original2.with(0, 99);    <span class="cmt">// ახალი ასლი, სადაც ინდექს 0-ს აქვს 99</span></code></pre>
+
+      <h3>Object.groupBy() — ჯგუფური დაჯგუფება (ES2024)</h3>
+      <p>
+        ხშირი ამოცანაა მასივის ელემენტების კატეგორიების მიხედვით დაჯგუფება. ES2024-მდე ეს
+        <code>reduce()</code>-ით იწერებოდა (რამდენიმე ხაზად) — <code>Object.groupBy()</code>
+        ამას ერთ ხაზამდე ამცირებს:
+      </p>
+      <pre><code><span class="attr">const</span> products = [
+  { name: "წიგნი", category: "განათლება" },
+  { name: "რვეული", category: "განათლება" },
+  { name: "ყურსასმენი", category: "ტექნიკა" },
+];
+
+<span class="attr">const</span> grouped = Object.groupBy(products, (p) => p.category);
+<span class="cmt">// {
+//   განათლება: [{name: "წიგნი", ...}, {name: "რვეული", ...}],
+//   ტექნიკა: [{name: "ყურსასმენი", ...}]
+// }</span></code></pre>
+
+      <h2>6. საკონტროლო პროექტი — 1-12 შეხვედრების მასალის გამოყენებით</h2>
+      <p>
+        დროა, ყველაფერი ერთად გამოვსცადოთ. ეს პროექტი შეგნებულად იყენებს <strong>მხოლოდ</strong>
+        იმას, რაც უკვე ვისწავლეთ (HTML/CSS მოდულები სრულად, JS — სინტაქსი, ცვლადები, პირობები,
+        ციკლები, მასივები/ობიექტები) — <strong>ჯერ არ ვიყენებთ</strong> DOM მანიპულაციას (მე-15
+        გაკვეთილი), event-ებს (მე-16) ან საკუთარ ფუნქციებს (მე-13).
+        გავარკვიოთ, რამდენის აწყობა შეგვიძლია მხოლოდ ამ ცოდნით, სანამ შემდეგ საფეხურზე გადავალთ.
+      </p>
+
+      <h3>დავალება: „მინი პორტფოლიოს გვერდი + მონაცემთა ფენა"</h3>
+      <p>პროექტი შედგება ორი ნაწილისგან:</p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>ნაწილი A — HTML/CSS:</strong> სრული, სტატიკური პორტფოლიოს გვერდი (1-8 გაკვეთილების ცოდნა).</li>
+        <li><strong>ნაწილი B — JS მონაცემთა ფენა:</strong> პროექტების მასივი ობიექტების სახით, დამუშავებული Console-ში (9-12 გაკვეთილების ცოდნა).</li>
+      </ul>
+
+      <h4 style="font-size: 15px; font-weight: 700; margin: 20px 0 8px;">ნაწილი A — HTML/CSS მოთხოვნები (checklist)</h4>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>&lt;header&gt;</code> — sticky ნავიგაცია, Flexbox-ით (<code>justify-content: space-between</code>)</li>
+        <li><code>&lt;main&gt;</code> — მინიმუმ 3 <code>&lt;section&gt;</code>: შესახებ, პროექტები, კონტაქტი</li>
+        <li>პროექტების სექცია — CSS Grid-ით, <code>repeat(auto-fit, minmax(240px, 1fr))</code></li>
+        <li>უნარების სია — <code>&lt;ul&gt;</code>, სემანტიკურად სწორად</li>
+        <li>კონტაქტის ფორმა — <code>&lt;form&gt;</code>, <code>&lt;label&gt;</code>/<code>&lt;input&gt;</code> წყვილები, ვალიდაცია (<code>required</code>, <code>type="email"</code>)</li>
+        <li>რესპონსიული — Mobile-First, <code>@media</code> query მინიმუმ ერთი breakpoint-ისთვის</li>
+        <li><code>&lt;footer&gt;</code> — საკონტაქტო ინფორმაცია</li>
+        <li>ტიპოგრაფია — Google Fonts ან web-fonts.ge, <code>rem</code>-ის გამოყენებით</li>
+      </ul>
+
+      <h4 style="font-size: 15px; font-weight: 700; margin: 20px 0 8px;">ნაწილი B — JS მონაცემთა ფენა</h4>
+      <p>
+        ცალკე <code>data.js</code> ფაილში, ააწყვე შენი პროექტების „მონაცემთა ბაზა" და დაამუშავე
+        ის უკვე ნასწავლი ხერხებით — ჯერჯერობით მხოლოდ Console-ში, გვერდზე რენდერს
+        (<code>document.createElement</code>) მე-15 გაკვეთილში ვისწავლით:
+      </p>
+      <pre><code><span class="attr">const</span> projects = [
+  { title: "To-Do აპლიკაცია", year: 2025, tags: ["JS", "CSS"], featured: true },
+  { title: "პორტფოლიოს საიტი", year: 2026, tags: ["HTML", "CSS"], featured: true },
+  { title: "ამინდის ვიჯეტი", year: 2025, tags: ["JS", "API"], featured: false },
+  { title: "ბლოგის დიზაინი", year: 2024, tags: ["CSS", "Figma"], featured: false },
+];
+
+<span class="cmt">// 1. filter — მხოლოდ გამორჩეული (featured) პროექტები</span>
+<span class="attr">const</span> featuredProjects = projects.filter(p => p.featured);
+
+<span class="cmt">// 2. map — თითოეული პროექტისთვის ფორმატირებული სტრიქონის შექმნა</span>
+<span class="attr">const</span> summaries = projects.map(p => `${p.title} (${p.year})`);
+
+<span class="cmt">// 3. reduce — რამდენი განსხვავებული tag გამოიყენება სულ (რაოდენობა)</span>
+<span class="attr">const</span> tagCount = projects.reduce((total, p) => total + p.tags.length, 0);
+
+<span class="cmt">// 4. Object.groupBy — პროექტების დაჯგუფება წლის მიხედვით</span>
+<span class="attr">const</span> byYear = Object.groupBy(projects, (p) => p.year);
+
+<span class="cmt">// 5. for...of + Object.entries — ყველაფრის ორგანიზებულად დაბეჭდვა Console-ში</span>
+<span class="attr">for</span> (<span class="attr">const</span> project <span class="attr">of</span> projects) {
+  <span class="attr">const</span> tagList = project.tags.join(", ");
+  <span class="attr">const</span> status = project.featured ? "⭐ გამორჩეული" : "ჩვეულებრივი";
+  console.log(`${project.title} — ${project.year} — [${tagList}] — ${status}`);
+}
+
+console.log("გამორჩეული პროექტები:", featuredProjects.length);
+console.log("წლების მიხედვით დაჯგუფებული:", byYear);</code></pre>
+      <p>
+        <strong>მომდევნო ეტაპი (მე-13-დან მე-16-მდე):</strong> როგორც კი ვისწავლით ფუნქციებს,
+        DOM-ს და event-ებს, ეს ზუსტად იგივე მონაცემები (<code>projects</code> მასივი) და ზუსტად
+        იგივე ლოგიკა (<code>filter</code>/<code>map</code>) გამოყენებული იქნება, რომ ეს ინფორმაცია
+        <strong>რეალურად, ვიზუალურად</strong> გამოისახოს გვერდზე, Console-ის ნაცვლად — ანუ ის,
+        რასაც დღეს ვწერთ, პირდაპირ „გადაიზრდება" შემდეგი კვირების პროექტში.
+      </p>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
@@ -150,8 +296,23 @@ numbers.forEach(n => console.log(n));
           <li><a href="https://javascript.info/array" target="_blank" rel="noopener">JavaScript.info — Arrays</a></li>
           <li><a href="https://javascript.info/object" target="_blank" rel="noopener">JavaScript.info — Objects</a></li>
           <li><a href="https://javascript.info/array-methods" target="_blank" rel="noopener">JavaScript.info — Array methods</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" target="_blank" rel="noopener">MDN — Array reference</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at" target="_blank" rel="noopener">MDN — Array.prototype.at()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted" target="_blank" rel="noopener">MDN — Array.prototype.toSorted()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy" target="_blank" rel="noopener">MDN — Object.groupBy()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/structuredClone" target="_blank" rel="noopener">MDN — structuredClone()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwn" target="_blank" rel="noopener">MDN — Object.hasOwn()</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას აკეთებს <code>.at(-1)</code> და რით სჯობს ის <code>arr[arr.length - 1]</code>-ს?</li>
+          <li>რას აბრუნებს <code>Object.entries()</code> და როგორ ვიყენებთ მას <code>for...of</code>-თან ერთად?</li>
+          <li>რატომ არის <code>structuredClone()</code> „უსაფრთხო", ჩვეულებრივ <code>const copy = obj</code>-თან შედარებით?</li>
+          <li>რა განსხვავებაა <code>sort()</code>-სა და <code>toSorted()</code>-ს შორის — რომელი ცვლის ორიგინალ მასივს?</li>
+          <li>რას აკეთებს <code>Object.groupBy()</code> და რას ანაცვლებდა ის ES2024-მდე?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -159,9 +320,13 @@ numbers.forEach(n => console.log(n));
         <ol style="padding-left: 20px;">
           <li>შექმენი მასივი 5 ქალაქის სახელით და <code>for...of</code>-ის გამოყენებით დაბეჭდე თითოეული Console-ში.</li>
           <li>შექმენი ობიექტი, რომელიც აღწერს წიგნს (title, author, year, isAvailable) — წაიკითხე ორივე notation-ით (dot და bracket).</li>
+          <li>იმავე ობიექტზე გამოსცადე <code>Object.keys()</code>, <code>Object.values()</code> და <code>Object.entries()</code> — დააკვირდი, რას აბრუნებს თითოეული.</li>
           <li>შექმენი მასივი რიცხვებით და <code>filter()</code>-ის გამოყენებით გამოყავი მხოლოდ 10-ზე მეტი რიცხვები.</li>
           <li>იგივე მასივზე გამოიყენე <code>map()</code>, რომ ყველა რიცხვი 3-ჯერ გაზარდო, და <code>reduce()</code>, რომ დაითვალო ჯამი.</li>
+          <li>შექმენი მასივი, გამოსცადე <code>toSorted()</code> და <code>sort()</code> ორივე — დაბეჭდე ორიგინალი მასივი ორივეს შემდეგ და შეადარე განსხვავება.</li>
+          <li>შექმენი მასივი 6+ „პროდუქტის" ობიექტით (name, category) და <code>Object.groupBy()</code>-ის გამოყენებით დააჯგუფე კატეგორიების მიხედვით.</li>
           <li><em>(რთული)</em> შექმენი მასივი 5 „სტუდენტის" ობიექტით (თითოეულს აქვს <code>name</code> და <code>grade</code>), <code>filter()</code>-ის გამოყენებით გამოყავი მხოლოდ ისინი, ვისი <code>grade</code>-იც 90-ზე მეტია, შემდეგ <code>map()</code>-ის გამოყენებით შექმენი ახალი მასივი მხოლოდ სახელებით.</li>
+          <li><em>(საკონტროლო პროექტი)</em> ააწყვე „მინი პორტფოლიოს გვერდი + მონაცემთა ფენა" — HTML/CSS ნაწილი ზემოთ მოცემული checklist-ის მიხედვით, და <code>data.js</code> მინიმუმ 4 პროექტით, დამუშავებული <code>filter</code>/<code>map</code>/<code>reduce</code>/<code>Object.groupBy</code>-ით, ორგანიზებულად დაბეჭდილი Console-ში.</li>
         </ol>
       </div>
 
@@ -176,7 +341,7 @@ numbers.forEach(n => console.log(n));
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span></div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

@@ -33,7 +33,7 @@ const LESSONS = [
   { n: 9, mod: "js", title: "AI ხელსაწყოები/აგენტები 2026 და CSS Grid" },
   { n: 10, mod: "js", title: "JS სინტაქსი, npm/pnpm/Bun, ცვლადები, Data Types" },
   { n: 11, mod: "js", title: "შედარება, პირობები, ლუპები (for/while), Coercion" },
-  { n: 12, mod: "js", title: "მასივები, ობიექტები, Dot vs Bracket, ციკლები" },
+  { n: 12, mod: "js", title: "მასივები, ობიექტები, თანამედროვე მეთოდები, პროექტი" },
   { n: 13, mod: "js", title: "ფუნქციები: Declaration, Expression, Arrow, Scope, Closure" },
   { n: 14, mod: "js", title: "ES6: Rest/Spread, დესტრუქტურირება, მოდულური JS (import/export)" },
   { n: 15, mod: "js", title: "DOM, Defer/Async, ელემენტების შექმნა, Query Selectors" },
