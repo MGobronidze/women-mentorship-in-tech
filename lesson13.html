@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 13 — ფუნქციები: Declaration, Expression, Arrow, Scope, Closure</title>
-  <meta name="description" content="JavaScript ფუნქციების გამოცხადების გზები, Function/Block Scope, Lexical Scope, Scope chain და Closure." />
+  <title>გაკვეთილი 13 — ფუნქციები სრულად, Scope, Closure, საკონტროლო პროექტი</title>
+  <meta name="description" content="Function Declaration/Expression/Arrow, default პარამეტრები, IIFE, this-ის სხვაობა, Scope, Closure და memoization, და პორტფოლიოს პროექტის ფუნქციებზე დაფუძნებული refactoring." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 13/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        ფუნქციები: Declaration, Expression, Arrow, Scope, Closure
+        ფუნქციები სრულად, Scope, Closure, საკონტროლო პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         ფუნქცია არის კოდის ხელახლა გამოსაყენებელი ბლოკი. ეს გაკვეთილი — ერთ-ერთი ყველაზე
         მნიშვნელოვანია მთელ კურსში, რადგან ფუნქციები და scope-ი JavaScript-ის „ჩონჩხს" წარმოადგენს.
+        ბოლოს კი, ამ ცოდნით, დავხვეწავთ წინა შეხვედრაზე დაწყებულ პორტფოლიოს პროექტს.
       </p>
       <div class="lesson-progress" data-lesson="13">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -62,6 +63,26 @@ console.log(greet("ანა")); <span class="cmt">// "გამარჯობ�
         შემდგომ გაკვეთილში): მისი გამოძახება შესაძლებელია ფაილში მისი გამოცხადებამდეც კი.
       </p>
 
+      <h3>Default პარამეტრები — ნაგულისხმევი მნიშვნელობები</h3>
+      <p>
+        თუ ფუნქციის გამოძახებისას არგუმენტი არ გადაეცემა (ან <code>undefined</code>-ია),
+        <strong>default parameter</strong> ავტომატურად „ჩაანაცვლებს" მას წინასწარ განსაზღვრული
+        მნიშვნელობით — ეს გვათავისუფლებს ხელით შემოწმებისგან (<code>if (name === undefined)</code>):
+      </p>
+      <pre><code><span class="attr">function</span> greet(name = "სტუმარო") {
+  <span class="attr">return</span> `გამარჯობა, ${name}!`;
+}
+
+console.log(greet());        <span class="cmt">// "გამარჯობა, სტუმარო!" — არგუმენტი არ გადაეცა</span>
+console.log(greet("ანა"));   <span class="cmt">// "გამარჯობა, ანა!" — გადაცემული მნიშვნელობა იმარჯვებს</span>
+console.log(greet(undefined)); <span class="cmt">// "გამარჯობა, სტუმარო!" — undefined ითვლება "არგადაცემულად"</span></code></pre>
+      <p>
+        Default პარამეტრი შეიძლება იყოს გამოსახულებაც, თუნდაც სხვა პარამეტრზე დამოკიდებული:
+      </p>
+      <pre><code><span class="attr">function</span> createUser(name, role = "მომხმარებელი", id = Date.now()) {
+  <span class="attr">return</span> { name, role, id };
+}</code></pre>
+
       <h2>2. Function Expression</h2>
       <p>ფუნქცია ინახება ცვლადში — ინახება, როგორც ჩვეულებრივი მნიშვნელობა:</p>
       <pre><code><span class="attr">const</span> greet = <span class="attr">function</span>(name) {
@@ -70,8 +91,41 @@ console.log(greet("ანა")); <span class="cmt">// "გამარჯობ�
 
 console.log(greet("მარი"));</code></pre>
       <p>
-        Function Expression <strong>არ</strong> ხდება hoisted იმავე გზით — მისი გამოძახება
+        Function Expression-ის <strong>არ არის</strong> hoisted — მისი გამოძახება
         გამოცხადებამდე Error-ს გამოიწვევს.
+      </p>
+
+      <h3>Named Function Expression — სახელი debugging-ისთვის</h3>
+      <p>
+        Function Expression-ს შესაძლებელია ჰქონდეს სახელიც — ეს სახელი ხელმისაწვდომია
+        <strong>მხოლოდ ფუნქციის საკუთარ სხეულში</strong> (რეკურსიისთვის) და ჩანს DevTools-ის
+        stack trace-ში, დებაგირებისას გაცილებით გასაგები რომ იყოს:
+      </p>
+      <pre><code><span class="attr">const</span> factorial = <span class="attr">function</span> calcFactorial(n) {
+  <span class="attr">if</span> (n <= 1) <span class="attr">return</span> 1;
+  <span class="attr">return</span> n * calcFactorial(n - 1); <span class="cmt">// საკუthარი სახელით საკუთარ თავს იძახებს</span>
+};
+
+console.log(factorial(5)); <span class="cmt">// 120</span>
+<span class="cmt">// calcFactorial(n) გარედან არ არსებობს — მხოლოდ ფუნქციის შიგნით ჩანს</span></code></pre>
+
+      <h3>IIFE — Immediately Invoked Function Expression</h3>
+      <p>
+        IIFE არის ფუნქცია, რომელიც განისაზღვრება <strong>და</strong> მაშინვე გამოიძახება, ერთ
+        ნაბიჯად — ძირითადად გამოიყენებოდა ცვლადების „იზოლირებისთვის" (რათა მათ გლობალური scope არ "დაებინძურებინათ"), სანამ ES6 მოდულები (მე-14 გაკვეთილი) იარსებებდა:
+      </p>
+      <pre><code>(<span class="attr">function</span>() {
+  <span class="attr">const</span> secret = "ეს ცვლადი მხოლოდ აქ არსებობს";
+  console.log("IIFE გაეშვა!");
+})(); <span class="cmt">// ბოლო () მაშინვე უშვებს ფუნქციას</span>
+
+console.log(<span class="attr">typeof</span> secret); <span class="cmt">// "undefined" — secret გარეთ საერთოდ არ ჩანს</span></code></pre>
+      <p>
+        <strong>თანამედროვე კონტექსტი:</strong> დღეს IIFE-ის ბევრი ისტორიული გამოყენება
+        ჩანაცვლებულია ES6 მოდულებით (<code>&lt;script type="module"&gt;</code>) და block scope-ით
+        (<code>let</code>/<code>const</code>) — თითოეულ მოდულს უკვე აქვს საკუთარი, იზოლირებული
+        scope, IIFE-ის გარეშეც. მაინც ღირს მისი ცოდნა — ხშირად ჯერ კიდევ გვხვდება ძველ
+        ბიბლიოთეკებში და ზოგიერთ bundler-ის გენერირებულ კოდში.
       </p>
 
       <h2>3. Arrow Function</h2>
@@ -89,10 +143,38 @@ console.log(greet("მარი"));</code></pre>
 <span class="cmt">// პარამეტრის გარეშე / რამდენიმე პარამეტრით</span>
 <span class="attr">const</span> sayHi = () => console.log("გამარჯობა!");
 <span class="attr">const</span> add = (a, b) => a + b;</code></pre>
+
+      <h3>this — კონკრეტული განსხვავება, მაგალითით</h3>
       <p>
-        Arrow function-ს, ჩვეულებრივი ფუნქციისგან განსხვავებით, არ აქვს საკუთარი <code>this</code> —
-        ის „ისესხებს" მშობელი scope-ის <code>this</code>-ს. ამ დეტალს მოგვიანებით (React-ის
-        მოდულში) დავინახავთ პრაქტიკაში.
+        <p>this JavaScript-ში არის სპეციალური საკვანძო სიტყვა (keyword), რომელიც მიუთითებს იმ ობიექტზე, რომლის კონტექსტშიც ამჟამად სრულდება კოდი. მარტივად რომ ვთქვათ: this პასუხობს კითხვას — „ვინ იძახებს ამ ფუნქციას?“</p>
+        Arrow function-ს, ჩვეულებრივი ფუნქციისგან განსხვავებით, <strong>არ აქვს საკუთარი
+        <code>this</code></strong> — ის „ისესხებს" მშობელი (lexical) scope-ის <code>this</code>-ს.
+        მაგალითად:
+      </p>
+      <pre><code><span class="attr">const</span> card = {
+  title: "ჩემი ბარათი",
+
+  <span class="cmt">// ჩვეულებრივი ფუნქცია — this ეხება იმას, ვინც ფუნქციას "იძახებს" (card ობიექტს)</span>
+  showRegular: <span class="attr">function</span>() {
+    console.log(<span class="attr">this</span>.title); <span class="cmt">// "ჩემი ბარათი" — this === card</span>
+  },
+
+  <span class="cmt">// Arrow function — this "სესხულობს" გარე (გლობალურ) scope-ს, არა card-ს!</span>
+  showArrow: () => {
+    console.log(<span class="attr">this</span>.title); <span class="cmt">// undefined — this აქ არ არის card</span>
+  },
+};
+
+card.showRegular(); <span class="cmt">// "ჩემი ბარათი"</span>
+card.showArrow();    <span class="cmt">// undefined</span></code></pre>
+      <p>ჩვეულებრივი ფუნქციისთვის this-ის მნიშვნელობა განისაზღვრება გამოძახების მომენტში. როდესაც წერ card.showRegular(), ფუნქციის მარცხნივ წერია card. ეს ნიშნავს, რომ ფუნქცია უშუალოდ card ობიექტმა გამოაძახა. ფუნქციის შიგნით this ხდება card ობიექტი, ამიტომ this.title აბრუნებს "ჩემი ბარათი".</p>
+      <p>Arrow function-ს საერთოდ არ აქვს საკუთარი this. ის არ დაგიდევს, თუ ვინ იძახებს მას (card. წერია წინ თუ სხვა რამ). ის this-ს იღებს იმ გარემოდან (Scope), სადაც ეს ობიექტი შეიქმნა. card ობიექტის ჩანაწერი { ... } არ ქმნის ახალ Scope-ს (Scope-ს ქმნის მხოლოდ ფუნქციები). შესაბამისად, showArrow-ს გარშემო არსებული გარემო არის გლობალური არეალი (window ბრაუზერში). Arrow function-მა this „ისესხა“ გლობალური არეალიდან, სადაც title ცვლადი საერთოდ არ არსებობს (ანუ window.title არის undefined). ამიტომ დაიბეჭდა undefined.</p>
+      <p>
+        <strong>პრაქტიკული წესი:</strong> ობიექტის <strong>მეთოდებისთვის</strong> (როცა
+        <code>this</code>-ს იმ ობიექტზე ამოწმებ) გამოიყენე ჩვეულებრივი <code>function</code>.
+        Arrow function საუკეთესოა callback-ებისთვის (მაგ. <code>array.map(item => ...)</code>),
+        სადაც სწორედ გვინდა, რომ <code>this</code> „მემკვიდრეობით" მიეღოს გარე კონტექსტიდან —
+        ამ დეტალს React-ის მოდულში პრაქტიკაში დავინახავთ.
       </p>
 
       <h2>4. Function Scope და Block Scope</h2>
@@ -134,8 +216,7 @@ console.log(y); <span class="cmt">// ❌ ReferenceError: y is not defined</span>
 
       <h2>6. Closure — ჩაკეტვები</h2>
       <p>
-        Closure არის ფუნქცია, რომელიც „ახსოვს" თავისი შექმნის დროინდელ scope-ს — თუნდაც გარე
-        ფუნქცია უკვე დასრულებული იყოს შესრულების თვალსაზრისით:
+        Closure (ჩაკეტვა) მარტივი სიტყვებით არის ფუნქციის „პირადი მეხსიერება“. როდესაც ფუნქცია ქმნის შიდა ფუნქციას და მას გარეთ აბრუნებს, ეს შიდა ფუნქცია თან მიაქვს და იმახსოვრებს იმ ცვლადებს, რომლებიც მის გარშემო იყვნენ შექმნის მომენტში.
       </p>
       <pre><code><span class="attr">function</span> makeCounter() {
   <span class="attr">let</span> count = 0; <span class="cmt">// ეს ცვლადი "ჩაიკეტება" დაბრუნებულ ფუნქციასთან ერთად</span>
@@ -156,24 +237,153 @@ console.log(counter()); <span class="cmt">// 3</span></code></pre>
         კონტექსტის შესანარჩუნებლად და React-ის hooks-ის (მოგვიანებით ვნახავთ) მუშაობის საფუძვლადაც.
       </p>
 
+      <h3>პრაქტიკული გამოყენება — Memoization (closure-ზე დაფუძნებული cache)</h3>
+      <p>
+        <strong>Memoization</strong> არის ოპტიმიზაციის ტექნიკა — ფუნქცია „იმახსოვრებს" უკვე
+        გამოთვლილ შედეგებს, რომ იმავე არგუმენტით ხელახლა გამოძახებისას არ გაიმეოროს ძვირადღირებული
+        გამოთვლა. ეს closure-ის ერთ-ერთი ყველაზე პრაქტიკული, რეალურ პროექტებში ნახული გამოყენებაა:
+      </p>
+      <pre><code><span class="attr">function</span> memoize(fn) {
+  <span class="attr">const</span> cache = {}; <span class="cmt">// closure-ით "დაცული" cache — გარედან პირდაპირი წვდომა არ არსებობს</span>
+
+  <span class="attr">return function</span>(n) {
+    <span class="attr">if</span> (n <span class="attr">in</span> cache) {
+      console.log(`(cache-იდან: ${n})`);
+      <span class="attr">return</span> cache[n];
+    }
+    console.log(`(გამოითვლება: ${n})`);
+    <span class="attr">const</span> result = fn(n);
+    cache[n] = result;
+    <span class="attr">return</span> result;
+  };
+}
+
+<span class="attr">function</span> slowSquare(n) {
+  <span class="attr">for</span> (<span class="attr">let</span> i = 0; i < 500000000; i++) {} <span class="cmt">// განზრახ "ნელი" გამოთვლა</span>
+  <span class="attr">return</span> n * n;
+}
+
+<span class="attr">const</span> fastSquare = memoize(slowSquare);
+fastSquare(5); <span class="cmt">// "(გამოითვლება: 5)" — ნელი, პირველად</span>
+fastSquare(5); <span class="cmt">// "(cache-იდან: 5)" — მყისიერი, მეხსიერებიდან</span></code></pre>
+
+      <h2>7. საკონტროლო პროექტი — ფუნქციები პორტფოლიოს პროექტში</h2>
+      <p>
+        წინა შეხვედრაზე (მე-12 გაკვეთილი) ავაწყვეთ პორტფოლიოს გვერდი და <code>data.js</code> —
+        სადაც <code>filter</code>/<code>map</code>/<code>reduce</code> პირდაპირ, თანმიმდევრულად
+        ვწერდით. ახლა, ფუნქციების ცოდნით, ეს ლოგიკა გადავაქციოთ სუფთა, სახელიან, ხელახლა
+        გამოსაყენებელ ფუნქციებად — ზუსტად ისე, როგორც რეალურ პროექტებში ხდება.
+      </p>
+
+      <h3>„მანამდე" — თანმიმდევრული, ერთჯერადი კოდი (მე-12 გაკვეთილიდან)</h3>
+      <pre><code><span class="cmt">// ეს კოდი მუშაობს, მაგრამ ხელახლა გამოყენებადი არ არის — ლოგიკა "ჩარჩენილია" ერთ ადგილას</span>
+<span class="attr">const</span> featuredProjects = projects.filter((p) => p.featured);
+<span class="attr">const</span> summaries = projects.map((p) => `${p.title} (${p.year})`);</code></pre>
+
+      <h3>„შემდეგ" — სახელიანი ფუნქციები (Declaration/Expression/Arrow — შესაბამისად არჩეული)</h3>
+      <pre><code><span class="cmt">// Function Declaration — მთავარი, სახელიანი "API" ფუნქციები project-utils.js-ში</span>
+<span class="attr">function</span> getFeaturedProjects(projectList = projects) {
+  <span class="attr">return</span> projectList.filter((p) => p.featured);
+}
+
+<span class="attr">function</span> getProjectsByTag(projectList, tag) {
+  <span class="attr">return</span> projectList.filter((p) => p.tags.includes(tag));
+}
+
+<span class="cmt">// Arrow function — მოკლე, ერთხაზიანი "დამხმარე" ფუნქციები</span>
+<span class="attr">const</span> formatProjectSummary = (project) => `${project.title} (${project.year})`;
+<span class="attr">const</span> countTags = (projectList) =>
+  projectList.reduce((total, p) => total + p.tags.length, 0);
+
+<span class="cmt">// Function Expression — Object.groupBy-ზე "შეფუთული" სახელიანი ვერსია</span>
+<span class="attr">const</span> groupByYear = <span class="attr">function</span> groupProjectsByYear(projectList) {
+  <span class="attr">return</span> Object.groupBy(projectList, (p) => p.year);
+};</code></pre>
+
+      <h3>Closure-ზე დაფუძნებული ახალი ფუნქცია — "ნახვების" თვალთვალი</h3>
+      <p>
+        დავამატოთ ერთი ახალი, closure-ზე დაფუძნებული ფუნქცია — <code>createViewTracker()</code> —
+        რომელიც "იმახსოვრებს", რომელი პროექტები „დათვალიერდა" (ლოგირდა), <code>makeCounter</code>-ის
+        იმავე პატერნით, მაგრამ პროექტისთვის რეალურად გამოსადეგი ვერსიით:
+      </p>
+      <pre><code><span class="attr">function</span> createViewTracker() {
+  <span class="attr">const</span> viewedTitles = []; <span class="cmt">// closure-ით "დაცული" კერძო მდგომარეობა</span>
+
+  <span class="attr">return</span> {
+    markViewed(title) {
+      <span class="attr">if</span> (!viewedTitles.includes(title)) {
+        viewedTitles.push(title);
+      }
+      console.log(`ნანახია: ${title} (სულ: ${viewedTitles.length})`);
+    },
+    getViewedCount() {
+      <span class="attr">return</span> viewedTitles.length;
+    },
+  };
+}
+
+<span class="attr">const</span> tracker = createViewTracker();
+tracker.markViewed("To-Do აპლიკაცია");
+tracker.markViewed("პორტფოლიოს საიტი");
+tracker.markViewed("To-Do აპლიკაცია"); <span class="cmt">// უკვე ნანახია — არ დაემატება ხელახლა</span>
+console.log("სულ განხილული პროექტი:", tracker.getViewedCount()); <span class="cmt">// 2</span></code></pre>
+
+      <h3>საბოლოოდ — data.js-ის „მთავარი" ნაწილი ახლა მარტივი და წაკითხვადია</h3>
+      <pre><code><span class="cmt">// ყველა დეტალი "დამალულია" კარგად-სახელიან ფუნქციებში — მთავარი ბლოკი წაკითხვადია, თითქოს წინადადებას კითხულობდე</span>
+console.log("გამორჩეული:", getFeaturedProjects().map(formatProjectSummary));
+console.log("CSS-ტეგიანი:", getProjectsByTag(projects, "CSS").map(formatProjectSummary));
+console.log("სულ tag-ი:", countTags(projects));
+console.log("წლების მიხედვით:", groupByYear(projects));
+
+<span class="attr">for</span> (<span class="attr">const</span> project <span class="attr">of</span> getFeaturedProjects()) {
+  tracker.markViewed(project.title);
+}</code></pre>
+      <p>
+        <strong>რატომ არის ეს refactoring ღირებული:</strong> ფუნქციები (1) მალავენ დეტალებს
+        („როგორ" გამოითვლება), ჩანს მხოლოდ „რას" აკეთებენ; (2) ხელახლა
+        გამოსაყენებელია — <code>getFeaturedProjects()</code> შეგვიძლია გამოვიძახოთ ნებისმიერ
+        ადგილას; (3) ცალკე ტესტვადია. მომდევნო კვირებში, DOM-ისა (მე-15) და event-ების (მე-16)
+        სწავლის შემდეგ, ეს ზუსტად ეს ფუნქციები გამოვიძახოთ ღილაკზე დაწკაპუნებისას, რომ შედეგი
+        Console-ის ნაცვლად პირდაპირ გვერდზე გამოვსახოთ — არქიტექტურა უკვე მზადაა ამისთვის.
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/function-basics" target="_blank" rel="noopener">JavaScript.info — Functions</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters" target="_blank" rel="noopener">MDN — Default parameters</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/IIFE" target="_blank" rel="noopener">MDN — IIFE (Glossary)</a></li>
           <li><a href="https://javascript.info/arrow-functions-basics" target="_blank" rel="noopener">JavaScript.info — Arrow functions, the basics</a></li>
+          <li><a href="https://javascript.info/arrow-functions" target="_blank" rel="noopener">JavaScript.info — Arrow functions revisited (this)</a></li>
           <li><a href="https://javascript.info/closure" target="_blank" rel="noopener">JavaScript.info — Variable scope, closure</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">MDN — Closures</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას აკეთებს default პარამეტრი და როდის „ირთვება" ის — მხოლოდ არგუმენტის არარსებობისას, თუ ცარიელი სტრიქონისთვისაც?</li>
+          <li>რატომ ჩანს named function expression-ის სახელი მხოლოდ ფუნქციის საკუთარ შიგნით?</li>
+          <li>რატომ არის IIFE დღეს ნაკლებად საჭირო, ვიდრე ES6-მდე იყო?</li>
+          <li>კონკრეტულად რით განსხვავდება <code>this</code> ჩვეულებრივ ფუნქციასა და arrow function-ში?</li>
+          <li>რას აკეთებს memoization და რატომ არის ის closure-ის კარგი პრაქტიკული მაგალითი?</li>
+          <li>რატომ არის ფუნქციებად „დაშლილი" კოდი უფრო ხელახლა-გამოსაყენებელი, ვიდრე თანმიმდევრული, ერთჯერადი კოდი?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
           <li>დაწერე ერთი და იგივე ფუნქცია სამივე ფორმით — Declaration, Expression და Arrow — რომელიც ორ რიცხვს ამრავლებს.</li>
+          <li>დაწერე ფუნქცია default პარამეტრით (მაგ. ფასდაკლების პროცენტი, ნაგულისხმევად 0) და გამოსცადე ის არგუმენტით და მის გარეშე.</li>
+          <li>დაწერე IIFE, რომელიც ერთხელ, გვერდის ჩატვირთვისას, Console-ში ბეჭდავს მისალმებას.</li>
+          <li>დაწერე ობიექტი მეთოდით, რომელიც იყენებს <code>this</code>-ს — ჯერ ჩვეულებრივი ფუნქციით, შემდეგ იგივე arrow function-ით — შეადარე Console-ის შედეგები.</li>
           <li>დაწერე კოდი, სადაც <code>var</code>-ითა და <code>let</code>-ით გამოცხადებულ ცვლადებს ადარებ block scope-ში — დააკვირდი განსხვავებას Console-ში.</li>
           <li>დაწერე ორი ჩადგმული ფუნქცია (outer/inner), სადაც inner ფუნქცია იყენებს outer-ის ცვლადს — ეს დაასაბუთებს scope chain-ს.</li>
           <li>დაწერე <code>makeCounter</code>-ის მსგავსი closure ფუნქცია, მაგრამ ისეთი, რომელიც საწყისი მნიშვნელობის (ორმაგდება) ნაცვლად აკლებს რიცხვს.</li>
           <li><em>(რთული)</em> დაწერე closure-ზე დაფუძნებული „ბანკის ანგარიშის" სიმულაცია — ფუნქცია, რომელიც აბრუნებს ორ ფუნქციას (<code>deposit</code> და <code>getBalance</code>), სადაც balance ცვლადი მთლიანად „დაცულია" გარედან პირდაპირი წვდომისგან.</li>
+          <li><em>(საკონტროლო პროექტი)</em> გახსენი მე-12 გაკვეთილის პორტფოლიოს პროექტის <code>data.js</code> და გადაწერე ის ფუნქციებად ზემოთ ნაჩვენები პატერნით — შექმენი <code>getFeaturedProjects()</code>, <code>getProjectsByTag()</code>, <code>formatProjectSummary()</code>, <code>groupProjectsByYear()</code> და <code>createViewTracker()</code> — და დარწმუნდი, რომ Console-ის საბოლოო გამოსახულება იგივეა, რაც აქამდე იყო, მაგრამ კოდი ახლა გაცილებით უფრო წაკითხვადი და ორგანიზებულია.</li>
         </ol>
       </div>
 
@@ -188,7 +398,7 @@ console.log(counter()); <span class="cmt">// 3</span></code></pre>
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span></div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

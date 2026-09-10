@@ -1,14 +1,14 @@
-/* ==========================================================================
-   data.js — data layer 
-   front-end-course, lesson 12 — control project
+// /* ==========================================================================
+//    data.js — data layer 
+//    front-end-course, lesson 12 — control project
 
-   Note: This file intentionally does not interact with the DOM (querySelector, createElement)
-   and does not use custom functions — only what was learned in lessons 1-12:
-   variables, arrays, objects, conditions, loops and array methods. Results are logged to the Console (F12 → Console).
+//    Note: This file intentionally does not interact with the DOM (querySelector, createElement)
+//    and does not use custom functions — only what was learned in lessons 1-12:
+//    variables, arrays, objects, conditions, loops and array methods. Results are logged to the Console (F12 → Console).
 
-   Dom rendering will be covered in lesson 15 — then we will use the same data
-   and logic to display it directly on the page.
-   ========================================================================== */
+//    Dom rendering will be covered in lesson 15 — then we will use the same data
+//    and logic to display it directly on the page.
+//    ========================================================================== */
 
 /* ---------- 1. Projects data — array of project objects ---------- */
 const projects = [
@@ -68,7 +68,7 @@ console.log(byYear);
 console.log("\nTotal Projects:");
 for (const project of projects) {
   const tagList = project.tags.join(", ");
-  const status = project.featured ? "⭐ გამორჩეული" : "ჩვეულებრივი";
+  const status = project.featured ? " გამორჩეული" : "ჩვეულებრივი";
   console.log(`${project.title} — ${project.year} — [${tagList}] — ${status}`);
 }
 
@@ -83,3 +83,53 @@ const newestFirst = projects.toSorted((a, b) => b.year - a.year);
 console.log("\nProjects sorted by year (newest first):");
 console.log(newestFirst.map((p) => `${p.year} — ${p.title}`));
 console.log("(original projects array is unchanged — toSorted() returns a new array)");
+
+// Function Declaration — მთავარი, სახელიანი "API" ფუნქციები project-utils.js-ში
+function getFeaturedProjects(projectList = projects) {
+  return projectList.filter((p) => p.featured);
+}
+
+function getProjectsByTag(projectList, tag) {
+  return projectList.filter((p) => p.tags.includes(tag));
+}
+
+// Arrow function — მოკლე, ერთხაზიანი "დამხმარე" ფუნქციები
+const formatProjectSummary = (project) => `${project.title} (${project.year})`;
+const countTags = (projectList) =>
+  projectList.reduce((total, p) => total + p.tags.length, 0);
+
+// Function Expression — Object.groupBy-ზე "შეფუთული" სახელიანი ვერსია
+const groupByYear = function groupProjectsByYear(projectList) {
+  return Object.groupBy(projectList, (p) => p.year);
+};
+
+function createViewTracker() {
+  const viewedTitles = []; // closure-ით "დაცული" კერძო მდგომარეობა
+
+  return {
+    markViewed(title) {
+      if (!viewedTitles.includes(title)) {
+        viewedTitles.push(title);
+      }
+      console.log(`ნანახია: ${title} (სულ: ${viewedTitles.length})`);
+    },
+    getViewedCount() {
+      return viewedTitles.length;
+    },
+  };
+}
+
+const tracker = createViewTracker();
+tracker.markViewed("To-Do აპლიკაცია");
+tracker.markViewed("პორტფოლიოს საიტი");
+tracker.markViewed("To-Do აპლიკაცია"); 
+console.log("სულ განხილული პროექტი:", tracker.getViewedCount()); // 2
+
+console.log("გამორჩეული:", getFeaturedProjects().map(formatProjectSummary));
+console.log("CSS-ტეგიანი:", getProjectsByTag(projects, "CSS").map(formatProjectSummary));
+console.log("სულ tag-ი:", countTags(projects));
+console.log("წლების მიხედვით:", groupByYear(projects));
+
+for (const project of getFeaturedProjects()) {
+  tracker.markViewed(project.title);
+}
