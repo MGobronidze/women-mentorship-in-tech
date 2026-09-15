@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 14 — ES6+: Destructuring, Rest/Spread, მოდულური JS</title>
-  <meta name="description" content="Rest parameter, Spread operator, მასივისა და ობიექტის destructuring, და მოდულური JavaScript import/export-ით." />
+  <title>გაკვეთილი 14 — ES6+</title>
+  <meta name="description" content="Rest/Spread სიღრმისეულად, Destructuring (ჩადგმული, swap ტრიკი), მოდულური JavaScript (import/export, dynamic import), და პორტფოლიოს პროექტის მოდულებად დაშლა." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 14/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        ES6+: Destructuring, Rest/Spread, მოდულური JS
+        ES6+ 
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        ეს გაკვეთილი გვასწავლის თანამედროვე JavaScript-ის (და React-ის) ყველაზე ხშირად ნახულ
-        სინტაქსურ ხერხებს — რომლებსაც კურსის React ნაწილში პრაქტიკულად ყოველ ფაილში შევხვდებით.
+        ეს გაკვეთილი გვასწავლის თანამედროვე JavaScript-ის (და React-ის) ყველაზე ხშირად გამოყენებულ
+        სინტაქსურ ხერხებს — და ბოლოს, ამ ცოდნით, საბოლოოდ დავშლით პორტფოლიოს პროექტს
+        სუფთა, პროფესიონალურ მოდულებად.
       </p>
       <div class="lesson-progress" data-lesson="14">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -52,7 +53,7 @@
 
       <h2>1. Rest Parameter</h2>
       <p>
-        <code>...</code> ფუნქციის პარამეტრებში „აგროვებს" დარჩენილ არგუმენტებს ერთ მასივში:
+        <code>...</code>ოპერატორი ფუნქციის პაარამეტრებს ერთ მასივად აგროვებს:
       </p>
       <pre><code><span class="attr">function</span> sum(...numbers) {
   <span class="attr">return</span> numbers.reduce((total, n) => total + n, 0);
@@ -66,10 +67,14 @@ sum(1, 2, 3, 4);  <span class="cmt">// 10 — ნებისმიერი რ
   console.log(first, second, others);
 }
 introduce("ა", "ბ", "გ", "დ"); <span class="cmt">// "ა" "ბ" ["გ", "დ"]</span></code></pre>
+      <p>
+        Rest-ის კიდევ ერთი გამოყენება — <strong>destructuring</strong>-ში (მე-3 სექციაში
+        დეტალურად ვნახავთ), სადაც ის „აგროვებს" დარჩენილ ელემენტებს/თვისებებს.
+      </p>
 
       <h2>2. Spread Operator</h2>
       <p>
-        იგივე <code>...</code> სინტაქსი, საწინააღმდეგო მიმართულებით — „შლის" მასივს ან ობიექტს
+        იგივე <code>...</code> სინტაქსი, შებრუნებული დანიშნულება — „შლის" მასივს ან ობიექტს
         ცალკეულ ელემენტებად:
       </p>
       <pre><code><span class="cmt">// მასივების გაერთიანება/კოპირება</span>
@@ -84,14 +89,41 @@ introduce("ა", "ბ", "გ", "დ"); <span class="cmt">// "ა" "ბ" ["გ", 
 <span class="attr">const</span> nums = [4, 9, 16];
 Math.max(...nums); <span class="cmt">// 16</span></code></pre>
       <p>
-        Spread ობიექტებთან ერთად React-ში ყველგან გამოიყენება — state-ის „უცვლელი" (immutable)
-        განახლებისთვის, ორიგინალი ობიექტის შეცვლის ნაცვლად ახლის შესაქმნელად.
+        React-ში spread ხშირად გამოიყენება ობიექტის ან მასივის განახლებისთვის ისე, რომ ძველი მონაცემი პირდაპირ არ შევცვალოთ.
+      </p>
+
+      <h3>Spread + Set — მასივის დუბლიკატების მოცილება</h3>
+      <p>
+        <code>Set</code> არის ჩაშენებული სტრუქტურა, რომელიც მხოლოდ <strong>უნიკალურ</strong>
+        მნიშვნელობებს ინახავს — spread-თან კომბინაციაში იგი ხშირად გამოიყენება დუბლიკატების სწრაფად მოსაცილებლად:
+      </p>
+      <pre><code><span class="attr">const</span> tags = ["JS", "CSS", "JS", "HTML", "CSS"];
+
+<span class="attr">const</span> uniqueTags = [...<span class="attr">new</span> Set(tags)];
+console.log(uniqueTags); <span class="cmt">// ["JS", "CSS", "HTML"] — დუბლიკატების გარეშე, თანმიმდევრობა შენარჩუნებულია</span></code></pre>
+
+      <h3>მნიშვნელოვანი შენიშვნა — Spread აკეთებს მხოლოდ Shallow კოპირებას</h3>
+      <p>
+        Spread ქმნის ახალ მასივს/ობიექტს, მაგრამ მხოლოდ <strong>ერთ დონეზე</strong> — თუ
+        ობიექტის შიგნით არის ჩადგმული ობიექტი/მასივი, ის კვლავ <em>იმავე</em> მისამართს
+        „უყურებს", ორიგინალთან ერთად:
+      </p>
+      <pre><code><span class="attr">const</span> project = { title: "საიტი", meta: { year: 2025 } };
+<span class="attr">const</span> copy = { ...project };
+
+copy.title = "ახალი სახელი";   <span class="cmt">// ✅ ორიგინალს არ ეხება — ეს ზედა დონეზეა</span>
+copy.meta.year = 2026;          <span class="cmt">// ⚠️ ორიგინალსაც ცვლის! meta ორივეში იგივე ობიექტია</span>
+
+console.log(project.meta.year); <span class="cmt">// 2026 — მოულოდნელად შეიცვალა!</span></code></pre>
+      <p>
+        ღრმად ჩადგმული ობიექტების ნამდვილი, დამოუკიდებელი ასლისთვის (deep copy) — გამოიყენე
+        <code>structuredClone()</code> (მე-12 გაკვეთილიდან ნაცნობი), არა უბრალო spread.
       </p>
 
       <h2>3. მასივის და ობიექტის Destructuring</h2>
       <p>
         Destructuring საშუალებას გვაძლევს, მასივის ან ობიექტის მნიშვნელობები პირდაპირ ცალკეულ
-        ცვლადებში „ამოვხსნათ" — ხელახლა ინდექსით ან key-ით მიმართვის გარეშე.
+        ცვლადებში შევინახოთ (ინდექსით ან key-ით მიმართვის გარეშე).
       </p>
       <pre><code><span class="cmt">// მასივის destructuring — პოზიციის მიხედვით</span>
 <span class="attr">const</span> coordinates = [42.31, 43.36];
@@ -106,12 +138,43 @@ console.log(name, age); <span class="cmt">// "ანა" 22</span>
 <span class="cmt">// გადარქმევა და ნაგულისხმევი მნიშვნელობა</span>
 <span class="attr">const</span> { name: studentName, country = "საქართველო" } = student;
 console.log(studentName, country); <span class="cmt">// "ანა" "საქართველო" (country არ არსებობდა, ნაგულისხმევი გამოიყენა)</span></code></pre>
+
+      <h3>Rest დესტრუქტურირებაში — „დანარჩენის" აღება</h3>
+      <pre><code><span class="attr">const</span> { name: n, ...restInfo } = student;
+console.log(n);        <span class="cmt">// "ანა"</span>
+console.log(restInfo);  <span class="cmt">// { age: 22, city: "თბილისი" } — ყველაფერი, name-ის გარდა</span>
+
+<span class="attr">const</span> [first, ...rest] = [1, 2, 3, 4];
+console.log(first, rest); <span class="cmt">// 1 [2, 3, 4]</span></code></pre>
+
+      <h3>ჩადგმული (Nested) Destructuring</h3>
+      <p>ობიექტის/მასივის სტრუქტურა შეიძლება „გამეორდეს" destructuring-შიც, ნებისმიერ სიღრმეზე:</p>
+      <pre><code><span class="attr">const</span> project = {
+  title: "პორტფოლიოს საიტი",
+  meta: { year: 2026, tags: ["HTML", "CSS"] },
+};
+
+<span class="attr">const</span> {
+  title,
+  meta: { year, tags: [firstTag] }, <span class="cmt">// ჩადგმული ობიექტიდან, ჩადგმული მასივის პირველი ელემენტი</span>
+} = project;
+
+console.log(title, year, firstTag); <span class="cmt">// "პორტფოლიოს საიტი" 2026 "HTML"</span></code></pre>
+
+      <h3>ცვლადების გაცვლა (Swap) — Destructuring-ის კლასიკური ტრიკი</h3>
+      <pre><code><span class="attr">let</span> a = 1;
+<span class="attr">let</span> b = 2;
+
+[a, b] = [b, a]; <span class="cmt">// დროებითი ცვლადის გარეშე!</span>
+console.log(a, b); <span class="cmt">// 2 1</span></code></pre>
+
+      <h3>Destructuring ფუნქციის პარამეტრებში</h3>
       <p>
         Destructuring განსაკუთრებით ხშირად გამოიყენება ფუნქციის პარამეტრებში — React-ის კომპონენტში
         <code>props</code>-ის მისაღებად ეს არის სტანდარტული პრაქტიკა:
       </p>
-      <pre><code><span class="cmt">// ობიექტის destructuring პირდაპირ პარამეტრებში</span>
-<span class="attr">function</span> printStudent({ name, age }) {
+      <pre><code><span class="cmt">// ობიექტის destructuring პირდაპირ პარამეტრებში, default მნიშვნელობასთან ერთად</span>
+<span class="attr">function</span> printStudent({ name, age = "უცნობია" }) {
   console.log(`${name}, ${age} წლის`);
 }
 printStudent(student);</code></pre>
@@ -127,7 +190,7 @@ printStudent(student);</code></pre>
 }
 <span class="attr">export const</span> PI = 3.14159;
 
-<span class="attr">export default function</span> multiply(a, b) { <span class="cmt">// default export — ერთი ფაილში მხოლოდ ერთი</span>
+<span class="attr">export default function</span> multiply(a, b) { <span class="cmt">// default export — ერთ ფაილში მხოლოდ ერთი</span>
   <span class="attr">return</span> a * b;
 }</code></pre>
       <pre><code><span class="cmt">// app.js — იმპორტი</span>
@@ -143,6 +206,113 @@ console.log(PI);              <span class="cmt">// 3.14159</span></code></pre>
         ეს არის ზუსტად ის სისტემა, რომელსაც React-ის კომპონენტების ორგანიზებისას გამოვიყენებთ.
       </p>
 
+      <h3>&lt;script type="module"&gt; — HTML-ში მოდულის გამოყენება</h3>
+      <pre><code>&lt;<span class="tag">script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"app.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+      <p>
+        <code>type="module"</code> აუცილებელია, რომ ბრაუზერმა <code>import</code>/<code>export</code>
+        სინტაქსი ამოიცნოს. 
+      </p>
+
+      <h3>Dynamic import() — მოდულის „მოთხოვნისამებრ" ჩატვირთვა</h3>
+      <p>
+        ჩვეულებრივი <code>import</code> ფაილის თავში იწერება და ყოველთვის, მაშინვე იტვირთება.
+        <strong>Dynamic <code>import()</code></strong> (ფუნქციის მსგავსი სინტაქსით) საშუალებას
+        გვაძლევს, მოდული ჩავტვირთოთ მხოლოდ მაშინ, როცა ის რეალურად დაგვჭირდება — ეს
+        არის საფუძველი React-ისა და Vite-ის „code splitting"-ის (მოგვიანებით ვნახავთ), რაც
+        საწყისი გვერდის ჩატვირთვის სისწრაფეს მნიშვნელოვნად აუმჯობესებს დიდ აპლიკაციებში:
+      </p>
+      <pre><code><span class="attr">async function</span> loadChart() {
+  <span class="attr">const</span> { renderChart } = <span class="attr">await</span> import("./chart.js"); <span class="cmt">// მხოლოდ საჭიროების შემთხვევაში ჩაიტვირთება</span>
+  renderChart();
+}
+
+document.querySelector("#show-chart-btn").addEventListener("click", loadChart);
+<span class="cmt">// chart.js საერთოდ არ ჩაიტვირთება, სანამ მომხმარებელი ღილაკზე არ დააჭერს</span></code></pre>
+
+      <h2>5. საკონტროლო პროექტი — პორტფოლიოს დაშლა მოდულებად</h2>
+      <p>
+        წინა ორ შეხვედრაზე (მე-12, მე-13) ავაწყვეთ პორტფოლიოს გვერდი, გამოვყავით მონაცემები
+        და ფუნქციები — მაგრამ ყველაფერი ჯერ კიდევ ერთ, დიდ <code>data.js</code> ფაილშია. ახლა,
+        მოდულების ცოდნით, ეს პროექტი საბოლოოდ სამ, სუფთა, ერთმანეთისგან დამოუკიდებელ ფაილად
+        დავშალოთ — ზუსტად ისე, როგორც რეალურ პროექტებში ხდება.
+      </p>
+
+      <h3>ახალი ფაილური სტრუქტურა</h3>
+      <pre><code>lesson12-portfolio/
+├── index.html          <span class="cmt">&lt;!-- &lt;script type="module" src="app.js"&gt; --&gt;</span>
+├── style.css
+├── data.js               <span class="cmt">// მხოლოდ მონაცემები — projects მასივი, export-ით</span>
+├── project-utils.js       <span class="cmt">// მხოლოდ ფუნქციები — import მონაცემებზე დამოკიდებული არ არის</span>
+└── app.js                 <span class="cmt">// "შემკრები" —  უშვებს ლოგიკას</span></code></pre>
+
+      <pre><code><span class="cmt">// data.js — მხოლოდ მონაცემები</span>
+<span class="attr">export const</span> projects = [
+  { title: "To-Do აპლიკაცია", year: 2025, tags: ["JS", "CSS"], featured: true },
+  { title: "პორტფოლიოს საიტი", year: 2026, tags: ["HTML", "CSS"], featured: true },
+  { title: "ამინდის ვიჯეტი", year: 2025, tags: ["JS", "API"], featured: false },
+  { title: "ბლოგის დიზაინი", year: 2024, tags: ["CSS", "Figma"], featured: false },
+];</code></pre>
+
+      <pre><code><span class="cmt">// project-utils.js — ფუნქციები, destructuring/rest/spread-ის გამოყენებით</span>
+
+<span class="attr">export function</span> getFeaturedProjects(projectList) {
+  <span class="attr">return</span> projectList.filter((p) => p.featured);
+}
+
+<span class="cmt">// Rest parameter — ნებისმიერი რაოდენობის tag-ის მიხედვით ფილტრი</span>
+<span class="attr">export function</span> getProjectsByAnyTag(projectList, ...searchTags) {
+  <span class="attr">return</span> projectList.filter((p) =>
+    p.tags.some((tag) => searchTags.includes(tag))
+  );
+}
+
+<span class="cmt">// Destructuring პირდაპირ პარამეტრში</span>
+<span class="attr">export const</span> formatProjectSummary = ({ title, year }) => `${title} (${year})`;
+
+<span class="cmt">// Spread + Set — ყველა უნიკალური tag, ყველა პროექტიდან ერთად</span>
+<span class="attr">export function</span> getAllUniqueTags(projectList) {
+  <span class="attr">const</span> allTags = projectList.flatMap((p) => p.tags); <span class="cmt">// ყველა tag, ერთ "ბრტყელ" მასივში</span>
+  <span class="attr">return</span> [...<span class="attr">new</span> Set(allTags)];
+}
+
+<span class="cmt">// Spread — ახალი პროექტის დამატება, ორიგინალის შეცვლის გარეშე (immutable)</span>
+<span class="attr">export function</span> addProject(projectList, newProject) {
+  <span class="attr">return</span> [...projectList, newProject];
+}</code></pre>
+
+      <pre><code><span class="cmt">// app.js — "შემკრები", ყველაფერს აერთიანებს</span>
+<span class="attr">import</span> { projects } <span class="attr">from</span> "./data.js";
+<span class="attr">import</span> {
+  getFeaturedProjects,
+  getProjectsByAnyTag,
+  formatProjectSummary,
+  getAllUniqueTags,
+  addProject,
+} <span class="attr">from</span> "./project-utils.js";
+
+console.log("გამორჩეული:", getFeaturedProjects(projects).map(formatProjectSummary));
+console.log("JS/API ტეგიანი:", getProjectsByAnyTag(projects, "JS", "API").map(formatProjectSummary));
+console.log("ყველა უნიკალური tag:", getAllUniqueTags(projects));
+
+<span class="attr">const</span> updatedProjects = addProject(projects, {
+  title: "ახალი პროექტი", year: 2026, tags: ["React"], featured: <span class="attr">false</span>,
+});
+console.log("ორიგინალის სიგრძე:", projects.length);         <span class="cmt">// 4 — უცვლელია!</span>
+console.log("განახლებულის სიგრძე:", updatedProjects.length); <span class="cmt">// 5</span></code></pre>
+      <p>
+        <strong>index.html</strong>-ში საჭიროა მხოლოდ ერთი ცვლილება — <code>&lt;script&gt;</code>
+        ტეგს დაემატოს <code>type="module"</code> და <code>src</code> გადავიდეს <code>app.js</code>-ზე:
+      </p>
+      <pre><code>&lt;<span class="tag">script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"app.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+      <p>
+        <strong>რატომ არის ეს სტრუქტურა უკეთესი:</strong> თითოეულ ფაილს ერთი, მკაფიო
+        პასუხისმგებლობა აქვს — <code>data.js</code> არაფერს „აკეთებს", მხოლოდ ინახავს;
+        <code>project-utils.js</code> არაფერს „იცის" კონკრეტულად ჩვენს მონაცემებზე, უბრალოდ
+        იღებს ნებისმიერ სიას პარამეტრად; <code>app.js</code> კი მხოლოდ „აკავშირებს" ყველაფერს.
+        ეს არის ზუსტად ის არქიტექტურული აზროვნება, რომელსაც React-ის მოდულში (კომპონენტების,
+        hooks-ისა და utils-ის გამიჯვნისას) გამოვიყენებთ.
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
@@ -150,17 +320,34 @@ console.log(PI);              <span class="cmt">// 3.14159</span></code></pre>
           <li><a href="https://javascript.info/destructuring-assignment" target="_blank" rel="noopener">JavaScript.info — Destructuring assignment</a></li>
           <li><a href="https://javascript.info/import-export" target="_blank" rel="noopener">JavaScript.info — Export and import</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank" rel="noopener">MDN — JavaScript modules</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import" target="_blank" rel="noopener">MDN — Dynamic import()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set" target="_blank" rel="noopener">MDN — Set reference</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რატომ არის <code>[...new Set(arr)]</code> გავრცელებული პატერნი, და რას აკეთებს ის ნაბიჯ-ნაბიჯ?</li>
+          <li>რატომ იცვლება ორიგინალი ობიექტიც, თუ spread-ით შექმნილი ასლის ჩადგმულ თვისებას ვცვლით?</li>
+          <li>დაწერე მაგალითი, სადაც ჩადგმულ ობიექტს destructuring-ით კითხულობ ერთდროულად ორ დონეზე.</li>
+          <li>რას აკეთებს <code>[a, b] = [b, a]</code> — რატომ არ სჭირდება დროებითი ცვლადი?</li>
+          <li>რა განსხვავებაა ჩვეულებრივ <code>import</code>-სა და dynamic <code>import()</code>-ს შორის — როდის გამოვიყენებდით მეორეს?</li>
+          <li>რატომ არის <code>data.js</code>/<code>project-utils.js</code>/<code>app.js</code>-ად დაყოფა უკეთესი, ვიდრე ყველაფრის ერთ ფაილში ქონა?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
           <li>დაწერე ფუნქცია rest parameter-ით, რომელიც ნებისმიერი რაოდენობის სტრიქონს ერთმანეთს „აწებებს" space-ით.</li>
-          <li>ორი მასივი გააერთიანე ერთში spread ოპერატორის გამოყენებით, დუბლიკატების გარეშე (მინიშნება: <code>Set</code>-ის დახმარებით).</li>
+          <li>ორი მასივი გააერთიანე ერთში spread ოპერატორის გამოყენებით, <code>Set</code>-ის დახმარებით დუბლიკატების გარეშე.</li>
+          <li>დაწერე კოდი, რომელიც აჩვენებს spread-ის „shallow copy" პრობლემას — ჩადგმული ობიექტის შეცვლით, რომელიც ორიგინალსაც ცვლის.</li>
           <li>შექმენი ობიექტი 4 თვისებით და destructuring-ის გამოყენებით ამოიღე 2 კონკრეტული ცვლადი, დანარჩენები კი — rest-ის მეშვეობით ერთ ობიექტში (<code>{ a, b, ...rest }</code>).</li>
+          <li>დაწერე ჩადგმული ობიექტი (მინიმუმ 2 დონე) და ერთ destructuring გამოსახულებაში ამოიღე ცვლადი ორივე დონიდან.</li>
+          <li>გამოსცადე ცვლადების გაცვლა (<code>[a, b] = [b, a]</code>) და Console-ში დაადასტურე, რომ იმუშავა.</li>
           <li>დაწერე ფუნქცია, რომელიც პარამეტრად იღებს ობიექტს პირდაპირ destructuring-ით (მაგ. <code>{ title, price }</code>) და აბრუნებს ფორმატირებულ სტრიქონს.</li>
-          <li><em>(რთული)</em> შექმენი ორი ფაილი — <code>utils.js</code> (2-3 named export ფუნქციით) და <code>main.js</code> (რომელიც მათ იმპორტავს და იყენებს) — გახსენი Live Server-ით და <code>&lt;script type="module"&gt;</code>-ის გამოყენებით შეამოწმე მუშაობს თუ არა.</li>
+          <li><em>(საკონტროლო პროექტი)</em> გახსენი მე-12/13 გაკვეთილის პორტფოლიოს პროექტი და დაშალე ის სამ ფაილად — <code>data.js</code> (named export <code>projects</code>-ით), <code>project-utils.js</code> (named export ფუნქციებით, დესტრუქტურირების/rest/spread-ის გამოყენებით) და <code>app.js</code> (ორივეს იმპორტავს). განაახლე <code>index.html</code>-ის <code>&lt;script&gt;</code> ტეგი <code>type="module"</code>-ით და Live Server-ით შეამოწმე, რომ Console-ის შედეგი იგივეა, რაც აქამდე.</li>
         </ol>
       </div>
 
@@ -175,7 +362,7 @@ console.log(PI);              <span class="cmt">// 3.14159</span></code></pre>
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 15 — DOM, ელემენტების შექმნა, Query Selectors</title>
-  <meta name="description" content="Document Object Model, defer/async ატრიბუტები, ელემენტების შექმნა და ატრიბუტების მინიჭება JS-დან, query selector-ები." />
+  <title>გაკვეთილი 15 — DOM სრულად, Performance, საკონტროლო პროექტი</title>
+  <meta name="description" content="Document Object Model, defer/async, Query Selectors, ელემენტების შექმნა, DocumentFragment/insertAdjacentHTML საკოდის ეფექტურობისთვის, და პორტფოლიოს პროექტის რეალურად DOM-ზე რენდერი." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,13 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 15/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        DOM, ელემენტების შექმნა და Query Selectors
+        DOM სრულად, Performance, საკონტროლო პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         აქამდე JavaScript-ს ვწერდით „ცალკე" — ახლა ვაკავშირებთ მას რეალურ გვერდთან. DOM არის ის
-        ხიდი, რომლითაც JavaScript ხედავს და ცვლის HTML-ს რეალურ დროში.
+        ხიდი, რომლითაც JavaScript ხედავს და ცვლის HTML-ს რეალურ დროში. და, ბოლოს, ამ ცოდნით,
+        პორტფოლიოს პროექტის მონაცემები საბოლოოდ <strong>რეალურად გამოვსახავთ</strong> გვერდზე —
+        Console-ის ნაცვლად.
       </p>
       <div class="lesson-progress" data-lesson="15">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -87,6 +89,11 @@
         DOM-თან მუშაობა (რაც ხშირად ასეა) — ეს უზრუნველყოფს, რომ ყველა HTML ელემენტი უკვე
         არსებობდეს, სანამ JS მათ „მოძებნის".
       </p>
+      <p>
+        <strong>შეხსენება მე-14 გაკვეთილიდან:</strong> <code>&lt;script type="module"&gt;</code>
+        ავტომატურად იქცევა <code>defer</code>-ის მსგავსად — ცალკე <code>defer</code> ატრიბუტის
+        დამატება მოდულებზე საჭირო აღარ არის.
+      </p>
 
       <h2>3. Query Selectors — ელემენტების პოვნა</h2>
       <pre><code><span class="cmt">// ID-ით — აბრუნებს ერთ ელემენტს</span>
@@ -111,6 +118,20 @@
         <code>querySelectorAll</code> აბრუნებს <strong>NodeList</strong>-ს, არა ჩვეულებრივ მასივს —
         მას აქვს <code>forEach</code>, მაგრამ არა <code>map</code>/<code>filter</code> პირდაპირ.
         საჭიროების შემთხვევაში, მასივად გარდაქმნა: <code>Array.from(nodeList)</code>.
+      </p>
+
+      <h3>closest() და matches() — „ზემოთ ძებნა" და პირობითი შემოწმება</h3>
+      <pre><code><span class="cmt">// closest() — ეძებს უახლოეს წინაპარს (ან თავად ელემენტს), რომელიც სელექტორს ემთხვევა</span>
+<span class="attr">const</span> card = someInnerElement.closest(".project-card"); <span class="cmt">// "ზემოთ ავდივართ" ხემდე, სანამ ვერ ვიპოვით</span>
+
+<span class="cmt">// matches() — ამოწმებს, ემთხვევა თუ არა ელემენტი კონკრეტულ სელექტორს</span>
+<span class="attr">if</span> (element.matches(".featured")) {
+  console.log("ეს გამორჩეული ელემენტია");
+}</code></pre>
+      <p>
+        <code>closest()</code> განსაკუთრებით გამოსადეგი გახდება მე-16 გაკვეთილში, event
+        delegation-ის დროს — როცა event ხდება შვილ ელემენტზე, მაგრამ გვინდა ვიცოდეთ, რომელ
+        „მშობელ" card-ს ეკუთვნის ის.
       </p>
 
       <h2>4. ელემენტების შექმნა და ატრიბუტების მინიჭება</h2>
@@ -141,6 +162,41 @@ newCard.remove();</code></pre>
         ტექსტს აპარსავს HTML-ად, რაც შეიძლება საშიში იყოს (Cross-Site Scripting).
       </p>
 
+      <h3>insertAdjacentHTML() — თანამედროვე, სწრაფი ალტერნატივა</h3>
+      <p>
+        <code>innerHTML += "..."</code> (მასივში ელემენტის „დამატებისას") ყოველ ჯერზე
+        ხელახლა პარსავს <strong>მთელ</strong> შემცველობას — ეს ნელია, დიდ სიებზე. <code>insertAdjacentHTML()</code>
+        პარსავს <strong>მხოლოდ ახალ</strong> ნაწილს, ოთხი ზუსტი პოზიციიდან ერთ-ერთში:
+      </p>
+      <pre><code><span class="attr">const</span> list = document.querySelector("#project-list");
+
+list.insertAdjacentHTML("beforeend", `&lt;<span class="tag">li</span>&gt;ახალი პროექტი&lt;/<span class="tag">li</span>&gt;`);
+<span class="cmt">// "beforebegin" | "afterbegin" | "beforeend" | "afterend" — ოთხივე შესაძლო პოზიცია</span></code></pre>
+
+      <h3>DocumentFragment — ბევრი ელემენტის ეფექტური ჩასმა</h3>
+      <p>
+        როცა ერთდროულად <strong>ბევრი</strong> ელემენტის დამატება გვჭირდება (მაგ. მასივის
+        თითოეული ელემენტისთვის ცალკე card), თითოეულის ცალ-ცალკე <code>appendChild</code>-ით
+        დამატება ყოველ ჯერზე იწვევს ბრაუზერის „ხელახლა დათვლას" (reflow) — ნელია დიდ სიებზე.
+        <strong>DocumentFragment</strong> არის „უხილავი კონტეინერი" — ყველა ელემენტს ჯერ მასში
+        ვაგროვებთ, და ბოლოს, <strong>ერთი</strong> ოპერაციით ვამატებთ რეალურ DOM-ში:
+      </p>
+      <pre><code><span class="attr">const</span> container = document.querySelector("#project-list");
+<span class="attr">const</span> fragment = document.createDocumentFragment(); <span class="cmt">// "უხილავი" კონტეინერი, ჯერ არ არის DOM-ში</span>
+
+<span class="attr">for</span> (<span class="attr">const</span> project <span class="attr">of</span> projects) {
+  <span class="attr">const</span> li = document.createElement("li");
+  li.textContent = project.title;
+  fragment.appendChild(li); <span class="cmt">// ემატება "უხილავ" fragment-ს — DOM ჯერ არ იცვლება</span>
+}
+
+container.appendChild(fragment); <span class="cmt">// ერთი ოპერაცია — ბრაუზერი მხოლოდ ერთხელ "ითვლის" ხელახლა</span></code></pre>
+      <p>
+        <strong>წესი:</strong> 1-2 ელემენტისთვის ეს განსხვავება შეუმჩნეველია — მაგრამ 10+, და
+        განსაკუთრებით ასეულობით ელემენტისთვის, DocumentFragment-ის გამოყენება საგრძნობლად
+        აჩქარებს გვერდის რენდერს.
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
@@ -148,7 +204,92 @@ newCard.remove();</code></pre>
           <li><a href="https://javascript.info/searching-elements-dom" target="_blank" rel="noopener">JavaScript.info — Searching: getElement*, querySelector*</a></li>
           <li><a href="https://javascript.info/modifying-document" target="_blank" rel="noopener">JavaScript.info — Modifying the document</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-defer" target="_blank" rel="noopener">MDN — &lt;script&gt; defer/async</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML" target="_blank" rel="noopener">MDN — insertAdjacentHTML()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment" target="_blank" rel="noopener">MDN — DocumentFragment</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/closest" target="_blank" rel="noopener">MDN — Element.closest()</a></li>
         </ul>
+      </div>
+
+      <h2>5. საკონტროლო პროექტი — პორტფოლიო DOM-ზე, ბოლოს-და-ბოლოს!</h2>
+      <p>
+        მე-12 გაკვეთილიდან პროექტების მონაცემები მხოლოდ Console-ში იბეჭდებოდა, ხოლო card-ები
+        <code>index.html</code>-ში ხელით, სტატიკურად იყო ჩაწერილი. ახლა, DOM-ის ცოდნით, ეს ორი
+        ცალკეული ნაწილი საბოლოოდ „შევაერთოთ" — HTML-დან წავშალოთ ხელით ჩაწერილი card-ები, და
+        JS-მა ისინი <code>projects</code> მასივიდან <strong>დინამიურად</strong> გამოსახოს.
+      </p>
+
+      <h3>ნაბიჯი 1 — HTML: სტატიკური card-ების ჩანაცვლება ერთი, ცარიელი კონტეინერით</h3>
+      <pre><code><span class="cmt">&lt;!-- ძველი: 4 card ხელით ჩაწერილი --&gt;
+&lt;div class="project-grid"&gt;
+  &lt;article class="project-card"&gt;...&lt;/article&gt;
+  &lt;article class="project-card"&gt;...&lt;/article&gt;
+  ... --&gt;</span>
+
+<span class="cmt">&lt;!-- ახალი: ერთი ცარიელი კონტეინერი, id-ით, რომ JS-მა იპოვოს --&gt;</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"project-grid"</span> <span class="attr">id</span>=<span class="str">"project-grid"</span>&gt;&lt;/<span class="tag">div</span>&gt;</code></pre>
+
+      <h3>ნაბიჯი 2 — app.js: render ფუნქცია, DocumentFragment-ით</h3>
+      <pre><code><span class="attr">import</span> { projects } <span class="attr">from</span> "./data.js";
+<span class="attr">import</span> { getFeaturedProjects } <span class="attr">from</span> "./project-utils.js";
+
+<span class="attr">function</span> createProjectCard(project) {
+  <span class="attr">const</span> { title, year, tags, featured } = project; <span class="cmt">// destructuring, მე-14 გაკვეთილიდან</span>
+
+  <span class="attr">const</span> card = document.createElement("article");
+  card.className = "project-card";
+  <span class="attr">if</span> (featured) card.setAttribute("data-featured", "true");
+
+  <span class="attr">const</span> tagsHTML = tags.map((tag) => `&lt;span&gt;${tag}&lt;/span&gt;`).join("");
+  <span class="attr">const</span> badgeHTML = featured ? `&lt;span class="featured-badge"&gt;⭐ გამორჩეული&lt;/span&gt;` : "";
+
+  <span class="cmt">// insertAdjacentHTML — სწრაფი, ერთჯერადი ჩასმა ერთი card-ის შიგნით</span>
+  card.insertAdjacentHTML("beforeend", `
+    &lt;div class="project-top"&gt;
+      &lt;div&gt;${badgeHTML}&lt;h3&gt;${title}&lt;/h3&gt;&lt;/div&gt;
+      &lt;span class="project-year"&gt;${year}&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="project-tags"&gt;${tagsHTML}&lt;/div&gt;
+  `);
+
+  <span class="attr">return</span> card;
+}
+
+<span class="attr">function</span> renderProjects(projectList) {
+  <span class="attr">const</span> container = document.querySelector("#project-grid");
+  <span class="attr">const</span> fragment = document.createDocumentFragment(); <span class="cmt">// batch — ერთი reflow, ბევრი card-ის მაგივრად</span>
+
+  <span class="attr">for</span> (<span class="attr">const</span> project <span class="attr">of</span> projectList) {
+    fragment.appendChild(createProjectCard(project));
+  }
+
+  container.innerHTML = ""; <span class="cmt">// ჯერ ვასუფთავებთ (თუ ძველი კონტენტი იყო)</span>
+  container.appendChild(fragment); <span class="cmt">// ერთი ოპერაცია — ყველა card ერთდროულად ემატება</span>
+}
+
+renderProjects(projects); <span class="cmt">// საწყისად — ყველა პროექტი</span></code></pre>
+      <p>
+        <strong>შედეგი:</strong> გვერდზე ახლა რეალურად ჩანს 4 card, <em>მონაცემებიდან</em>
+        გენერირებული — არა ხელით HTML-ში ჩაწერილი. თუ <code>projects</code> მასივს ახალ
+        ობიექტს დავამატებთ (spread-ით, მე-14 გაკვეთილის <code>addProject()</code>-ის მსგავსად)
+        და <code>renderProjects()</code>-ს ხელახლა გამოვიძახებთ — ახალი card ავტომატურად
+        გამოჩნდება, ხელით HTML-ის შეხების გარეშე.
+      </p>
+      <p>
+        <strong>რჩება ერთადერთი „ხარვეზი":</strong> ღილაკებზე დაწკაპუნება (მაგ. „მხოლოდ
+        გამორჩეულების ჩვენება" ფილტრი) ჯერ არაფერს არ აკეთებს — ეს არის ზუსტად ის, რასაც
+        მომდევნო გაკვეთილში, <strong>Events</strong>-ის სწავლისას, დავამატებთ.
+      </p>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას ნიშნავს, რომ DOM არის „ხის" (tree) სტრუქტურა?</li>
+          <li>რატომ არის <code>defer</code> უსაფრთხო არჩევანი DOM-თან მომუშავე სკრიპტისთვის?</li>
+          <li>რას აკეთებს <code>closest()</code> და როდის დაგვჭირდება ის მომდევნო გაკვეთილში?</li>
+          <li>რატომ არის <code>insertAdjacentHTML()</code> ხშირად უფრო სწრაფი, ვიდრე <code>innerHTML += "..."</code>?</li>
+          <li>რას აკეთებს <code>DocumentFragment</code> და რატომ არის ის სასარგებლო, როცა ბევრი ელემენტის დამატება გვჭირდება ერთდროულად?</li>
+          <li>რატომ წავშალეთ HTML-დან ხელით ჩაწერილი project card-ები საკონტროლო პროექტში?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -158,7 +299,10 @@ newCard.remove();</code></pre>
           <li>გამოიყენე <code>querySelectorAll</code> რამდენიმე ელემენტზე და <code>forEach</code>-ის გამოყენებით შეუცვალე ყველას ერთი და იმავე კლასი.</li>
           <li>შექმენი 3 ახალი <code>&lt;li&gt;</code> ელემენტი JS-დან (<code>createElement</code>) და ჩასვი არსებულ <code>&lt;ul&gt;</code>-ში.</li>
           <li>დაუმატე ერთ ელემენტს ატრიბუტი <code>data-status="active"</code> JS-დან და შემდეგ <code>querySelector</code>-ის გამოყენებით იპოვე ის ატრიბუტის მნიშვნელობის მიხედვით (<code>[data-status="active"]</code>).</li>
+          <li>გადაწერე ერთი <code>innerHTML += "..."</code> მაგალითი <code>insertAdjacentHTML("beforeend", ...)</code>-ის გამოყენებით.</li>
+          <li>შექმენი 20 <code>&lt;li&gt;</code> ელემენტი ციკლში — ჯერ ცალ-ცალკე <code>appendChild</code>-ით, შემდეგ <code>DocumentFragment</code>-ის გამოყენებით — შეადარე კოდის სტრუქტურა.</li>
           <li><em>(რთული)</em> სცადე ერთი და იმავე ცვლილება გააკეთო <code>&lt;script&gt;</code> ტეგის ჩვეულებრივი, <code>defer</code> და <code>&lt;body&gt;</code>-ის ბოლოში მოთავსების ვარიანტებით — შეამოწმე DevTools Console-ში, ჩნდება თუ არა შეცდომა, თუ სკრიპტი DOM-ის ჩატვირთვამდე ცდილობს ელემენტის პოვნას.</li>
+          <li><em>(საკონტროლო პროექტი)</em> გახსენი მე-12/13/14 გაკვეთილის პორტფოლიოს პროექტი: (1) წაშალე HTML-დან ხელით ჩაწერილი project card-ები, დატოვე ერთი ცარიელი <code>#project-grid</code> კონტეინერი; (2) დაწერე <code>createProjectCard()</code> და <code>renderProjects()</code> ზემოთ ნაჩვენები პატერნით; (3) დარწმუნდი, რომ გვერდზე რეალურად ჩანს იგივე 4 card, ახლა უკვე მონაცემებიდან დინამიურად გენერირებული.</li>
         </ol>
       </div>
 
@@ -173,7 +317,7 @@ newCard.remove();</code></pre>
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
