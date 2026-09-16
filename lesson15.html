@@ -82,7 +82,7 @@
 <span class="cmt">&lt;!-- defer: ჩატვირთვა ხდება პარალელურად, გაშვება — HTML-ის სრულად დამუშავების შემდეგ --&gt;</span>
 &lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span> <span class="attr">defer</span>&gt;&lt;/<span class="tag">script</span>&gt;
 
-<span class="cmt">&lt;!-- async: ჩატვირთვა და გაშვება ხდება პარალელურად, HTML-ის დამუშავებას შეუძლია შეწყვეტა --&gt;</span>
+<span class="cmt">&lt;!-- async: ჩატვირთვა და გაშვება ხდება პარალელურად,  როგორც კი JavaScript  ფაილის გადმოწერა <br>(ჩატვირთვა) დასრულდება, ბრაუზერი იმავე წამს აჩერებს HTML-ის დამუშავებას და უშუალოდ იწყებს <br>გადმოწერილი JavaScript კოდის შესრულებას. --&gt;</span>
 &lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span> <span class="attr">async</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
       <p>
         <strong>საუკეთესო პრაქტიკა:</strong> გამოიყენე <code>defer</code>, თუ სკრიპტს სჭირდება
@@ -122,7 +122,7 @@
 
       <h3>closest() და matches() — „ზემოთ ძებნა" და პირობითი შემოწმება</h3>
       <pre><code><span class="cmt">// closest() — ეძებს უახლოეს წინაპარს (ან თავად ელემენტს), რომელიც სელექტორს ემთხვევა</span>
-<span class="attr">const</span> card = someInnerElement.closest(".project-card"); <span class="cmt">// "ზემოთ ავდივართ" ხემდე, სანამ ვერ ვიპოვით</span>
+<span class="attr">const</span> card = someInnerElement.closest(".project-card"); <span class="cmt">// "ზემოთ ავდივართ" ხემზე, სანამ არ ვიპოვით</span>
 
 <span class="cmt">// matches() — ამოწმებს, ემთხვევა თუ არა ელემენტი კონკრეტულ სელექტორს</span>
 <span class="attr">if</span> (element.matches(".featured")) {
@@ -159,7 +159,7 @@ newCard.remove();</code></pre>
       <p>
         <strong>უსაფრთხოების წესი:</strong> <code>textContent</code>-ს გამოიყენე, როცა უბრალო
         ტექსტს ამატებ (განსაკუთრებით, თუ ეს ტექსტი მომხმარებლისგან მოდის) — <code>innerHTML</code>
-        ტექსტს აპარსავს HTML-ად, რაც შეიძლება საშიში იყოს (Cross-Site Scripting).
+        ტექსტს პარსავს ((Parsing) ნიშნავს ტექსტის წაკითხვას, გაანალიზებას და მისი კოდის სტრუქტურად გადაქცევას.) HTML-ად, რაც შეიძლება საშიში იყოს (Cross-Site Scripting).
       </p>
 
       <h3>insertAdjacentHTML() — თანამედროვე, სწრაფი ალტერნატივა</h3>
@@ -317,7 +317,7 @@ renderProjects(projects); <span class="cmt">// საწყისად — ყ�
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
+      <div class="brand"><span class="brand-dot"></span> </div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
