@@ -1,12 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ka">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Doe — Front-End დეველოპერი</title>
+  <meta name="description" content="John Doe's Portfolio — Front-End Developer, Projects and contact information. Control project for front-end-course lesson 15." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
 </head>
 <body>
-  
-  <script src="script.js" defer></script>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <span class="nav-name">John Doe</span>
+      <ul class="nav-links">
+        <li><a href="#about">ABOUT</a></li>
+        <li><a href="#projects">PROJECTS</a></li>
+        <li><a href="#contact">CONTACT</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero container">
+      <span class="role">Front-End Developer</span>
+      <h1>Lorem ipsum dolor sit amet consectetur..</h1>
+      <p>
+        lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga neque sed, voluptates doloremque repellendus ut tempora in inventore nostrum facere consectetur pariatur et maiores, deleniti recusandae illum omnis, amet vel.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#projects">View Projects</a>
+        <a class="btn btn-secondary" href="#contact">Get in Touch</a>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="section container" id="about">
+      <h2>ABOUT ME</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga neque sed, voluptates doloremque repellendus ut tempora in inventore nostrum facere consectetur pariatur et maiores, deleniti recusandae illum omnis, amet vel.
+          </p>
+          <p>
+            lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga neque sed, voluptates doloremque repellendus ut tempora in inventore nostrum facere consectetur pariatur et maiores, deleniti recusandae illum omnis, amet vel.
+          </p>
+        </div>
+        <div class="skills">
+          <h3>Technologies</h3>
+          <ul>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>Flexbox</li>
+            <li>CSS Grid</li>
+            <li>JavaScript</li>
+            <li>Git</li>
+            <li>Figma</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section class="section container" id="projects">
+      <h2>PROJECTS</h2>
+      <p class="section-lede">
+        Small projects built during the course — practicing HTML/CSS/JS fundamentals.
+      </p>
+
+      <!-- სტატიკური card-ები წაშლილია; JS დინამიურად დაარენდერებს ამ კონტეინერში -->
+      <div class="project-grid" id="project-grid"></div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="section container" id="contact">
+      <h2>CONTACT</h2>
+      <p class="section-lede">Have a question or want to work together? Get in touch.</p>
+
+      <form class="contact-form" action="#" method="POST">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Write your message..." required></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Send Message</button>
+      </form>
+
+      <p class="console-hint">
+        Open DevTools Console (F12), to see how the projects data is processed using JavaScript.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer container">
+    <span>© 2026 johndoe.com. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="#" target="_blank" rel="noopener">GitHub</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </footer>
+
 </body>
 </html>

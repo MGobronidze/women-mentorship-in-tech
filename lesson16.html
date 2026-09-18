@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 16 — Events, Event Handlers, preventDefault</title>
-  <meta name="description" content="JavaScript მოვლენები (events), addEventListener, event object და preventDefault მეთოდის დანიშნულება." />
+  <title>გაკვეთილი 16 — Events სრულად, AbortController, საკონტროლო პროექტი</title>
+  <meta name="description" content="JavaScript მოვლენები, addEventListener-ის თანამედროვე პარამეტრები (once/passive/signal), AbortController, preventDefault, Event Delegation, და პორტფოლიოს პროექტის სრულად ინტერაქტიული გახდომა." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 16/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Events, Event Handlers, preventDefault
+        Events სრულად, AbortController, საკონტროლო პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         წინა გაკვეთილში ვისწავლეთ, როგორ ვცვლით DOM-ს. ახლა ვისწავლოთ, როგორ ვარეაგირებთ
-        მომხმარებლის მოქმედებებზე — დაწკაპუნება, აკრეფა, ფორმის გაგზავნა.
+        მომხმარებლის მოქმედებებზე — დაწკაპუნება, აკრეფა, ფორმის გაგზავნა. და ბოლოს, ამ ცოდნით,
+        პორტფოლიოს პროექტი <strong>საბოლოოდ, სრულად ინტერაქტიული</strong> გახდება.
       </p>
       <div class="lesson-progress" data-lesson="16">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -78,20 +79,75 @@ button.addEventListener("click", () => {
         (გვერდის/სურათის ჩატვირთვაზე).
       </p>
 
+      <h3>მესამე არგუმენტი — options ობიექტი (თანამედროვე, ხშირად გამოტოვებული)</h3>
+      <p>
+        <code>addEventListener</code>-ს შეუძლია მესამე, options ობიექტის მიღება — სამი
+        განსაკუთრებით სასარგებლო თვისებით:
+      </p>
+      <pre><code><span class="cmt">// once — listener თავად "იშლება" პირველივე გამოძახების შემდეგ</span>
+button.addEventListener("click", () => console.log("მხოლოდ ერთხელ!"), { once: <span class="attr">true</span> });
+
+<span class="cmt">// passive — ეუბნება ბრაუზერს "არასდროს არ დავიძახებ preventDefault()-ს"
+// გამოსადეგია scroll/touch event-ებზე — ბრაუზერი მაშინვე იწყებს სქროლვას, listener-ის მოლოდინის გარეშე</span>
+window.addEventListener("scroll", () => { /* ... */ }, { passive: <span class="attr">true</span> });</code></pre>
+
+      <h3>Listener-ის მოხსნა — removeEventListener და AbortController</h3>
+      <p>
+        ჩვეულებრივი გზა listener-ის მოსახსნელად — <code>removeEventListener</code> — მოითხოვს
+        ზუსტად იმ ფუნქციის „მითითებას" (reference), რომელიც თავდაპირველად დაემატა:
+      </p>
+      <pre><code><span class="attr">function</span> handleClick() {
+  console.log("დაწკაპუნდა");
+}
+
+button.addEventListener("click", handleClick);
+button.removeEventListener("click", handleClick); <span class="cmt">// იგივე ფუნქციის მითითება საჭიროა</span></code></pre>
+      <p>
+        როცა ბევრი listener გვაქვს, რომელთა ერთდროულად მოცილებაც გვინდა — მოსახერხებელია
+        <strong><code>signal</code></strong> პარამეტრი, <code>AbortController</code>-თან ერთად
+        (დღეს ფართოდ მხარდაჭერილი, MDN-ის მიხედვით):
+      </p>
+      <pre><code><span class="attr">const</span> controller = <span class="attr">new</span> AbortController();
+
+button.addEventListener("click", handleClick, { signal: controller.signal });
+input.addEventListener("input", handleInput, { signal: controller.signal });
+window.addEventListener("resize", handleResize, { signal: controller.signal });
+
+<span class="cmt">// ერთი გამოძახება — სამივე listener ერთდროულად მოიხსნება!</span>
+controller.abort();</code></pre>
+      <p>
+        <strong>რატომ არის ეს მნიშვნელოვანი:</strong> React-ის მოდულში (მე-22 გაკვეთილი,
+        <code>useEffect</code>) ხშირად საჭირო იქნება, კომპონენტის „გაქრობისას" ყველა მისი
+        event listener მოვაცილოთ, რომ „memory leak" არ გამოვიწვიოთ — <code>AbortController</code>
+        ამის ყველაზე სუფთა, თანამედროვე გზაა.
+      </p>
+
       <h2>3. Event Object</h2>
       <p>
         Event handler ფუნქცია ავტომატურად იღებს <strong>event object</strong>-ს, რომელიც შეიცავს
-        ინფორმაციას მოხდილ მოვლენაზე — მათ შორის, თუ <strong>რომელმა</strong> ელემენტმა გამოიწვია ის:
+        ინფორმაციას მომხდარ მოვლენაზე — მათ შორის, თუ <strong>რომელმა</strong> ელემენტმა გამოიწვია ის:
       </p>
       <pre><code>button.addEventListener("click", (event) => {
   console.log(event.type);    <span class="cmt">// "click"</span>
-  console.log(event.target);  <span class="cmt">// კონკრეტული ელემენტი, რომელზეც დაწკაპუნდა</span>
+  console.log(event.target);  <span class="cmt">// კონკრეტული ელემენტი, რომელზეც დაწკაპუნდა (შეიძლება იყოს შვილი)</span>
 });
 
 <span class="cmt">// input-ის მნიშვნელობის წაკითხვა ცოცხლად, აკრეფისას</span>
 <span class="attr">const</span> searchInput = document.querySelector("#search");
 searchInput.addEventListener("input", (event) => {
   console.log(event.target.value); <span class="cmt">// მიმდინარე ტექსტი input-ში</span>
+});</code></pre>
+
+      <h3>target vs currentTarget — ხშირი გაუგებრობა</h3>
+      <p>
+        <code>event.target</code> არის ის ელემენტი, სადაც event <strong>რეალურად მოხდა</strong>
+        (შეიძლება იყოს ჩადგმული შვილი). <code>event.currentTarget</code> კი — ის ელემენტი,
+        რომელზეც <strong>listener თავად არის მიმაგრებული</strong>. Event delegation-ში ეს
+        განსხვავება კრიტიკულია:
+      </p>
+      <pre><code>list.addEventListener("click", (event) => {
+  console.log(event.target);        <span class="cmt">// კონკრეტული &lt;li&gt; ან მისი შიგნით &lt;span&gt;, სადაც რეალურად დაწკაპუნდა</span>
+  console.log(event.currentTarget); <span class="cmt">// ყოველთვის list — სადაც listener დევს</span>
 });</code></pre>
 
       <h2>4. preventDefault — ბრაუზერის ნაგულისხმევი ქცევის შეჩერება</h2>
@@ -114,9 +170,9 @@ form.addEventListener("submit", (event) => {
         JavaScript-ის ლოგიკა შეასრულოს ახალ გვერდზე გადასვლის ნაცვლად.
       </p>
 
-      <h2>5. Event Delegation — მოკლე შესავალი</h2>
+      <h2>5. Event Delegation</h2>
       <p>
-        მოვლენებში „ბუშტვდება" (bubbling) — event, რომელიც შვილ ელემენტზე ხდება, ავტომატურად
+       მოვლენათა ბაბლინგი (bubbling) — event, რომელიც შვილ ელემენტზე ხდება, ავტომატურად
         „ადის" მშობელამდეც. ეს საშუალებას გვაძლევს, ერთი listener დავამაგროთ მშობელზე, ბევრი
         ინდივიდუალური listener-ის მაგივრად:
       </p>
@@ -128,15 +184,99 @@ list.addEventListener("click", (event) => {
   }
 });
 <span class="cmt">// მუშაობს ყველა &lt;li&gt;-ზეც, თუნდაც ისინი JS-ით მოგვიანებით დაემატოს!</span></code></pre>
+      <p>
+        <strong>მე-15 გაკვეთილის <code>closest()</code></strong> ხშირად უფრო საიმედოა, ვიდრე
+        <code>event.target.tagName</code>-ის შემოწმება — განსაკუთრებით მაშინ, თუ card-ის
+        შიგნით ჩადგმულია სხვა ელემენტებიც (მაგ. <code>&lt;span&gt;</code> ტეგი-ჩიპები):
+      </p>
+      <pre><code>grid.addEventListener("click", (event) => {
+  <span class="attr">const</span> card = event.target.closest(".project-card"); <span class="cmt">// "ზემოთ ავდივართ" ხემდე, სანამ card-ს ვერ ვიპოვით</span>
+  <span class="attr">if</span> (!card) <span class="attr">return</span>; <span class="cmt">// დაწკაპუნდა card-ის გარეთ — არაფერი გვინდა</span>
+
+  console.log("დაწკაპუნდა card-ზე:", card.querySelector("h3").textContent);
+});</code></pre>
+
+      <h2>6. საკონტროლო პროექტი — პორტფოლიო საბოლოოდ ინტერაქტიულია</h2>
+      <p>
+        მე-12-დან მე-15 გაკვეთილამდე ავაწყვეთ მონაცემები, ფუნქციები, მოდულები და DOM-ზე რენდერი
+        — მაგრამ card-ებზე დაწკაპუნება ჯერ არაფერს აკეთებდა. ახლა, Events-ის ცოდნით, დავამატოთ
+        სამი რეალური ინტერაქცია.
+      </p>
+
+      <h3>ინტერაქცია 1 — ფილტრის ღილაკები (All / Featured)</h3>
+      <pre><code><span class="cmt">&lt;!-- index.html-ში, #project-grid-ის წინ --&gt;</span>
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"filter-row"</span> <span class="attr">id</span>=<span class="str">"filter-row"</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">data-filter</span>=<span class="str">"all"</span>&gt;ყველა&lt;/<span class="tag">button</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">data-filter</span>=<span class="str">"featured"</span>&gt;⭐ მხოლოდ გამორჩეული&lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</code></pre>
+      <pre><code><span class="cmt">// app.js-ში — event delegation ორ ღილაკზე, ერთი listener-ით</span>
+<span class="attr">const</span> filterRow = document.querySelector("#filter-row");
+
+filterRow.addEventListener("click", (event) => {
+  <span class="attr">const</span> btn = event.target.closest("button");
+  <span class="attr">if</span> (!btn) <span class="attr">return</span>;
+
+  <span class="attr">const</span> filter = btn.dataset.filter; <span class="cmt">// "all" ან "featured"</span>
+  <span class="attr">const</span> filtered = filter === "featured" ? getFeaturedProjects(projects) : projects;
+  renderProjects(filtered); <span class="cmt">// მე-15 გაკვეთილის ფუნქცია — ხელახლა გამოძახებადია!</span>
+});</code></pre>
+
+      <h3>ინტერაქცია 2 — Event Delegation card-ებზე, "ნახვის" თვალთვალით</h3>
+      <pre><code><span class="attr">const</span> grid = document.querySelector("#project-grid");
+
+grid.addEventListener("click", (event) => {
+  <span class="attr">const</span> card = event.target.closest(".project-card");
+  <span class="attr">if</span> (!card) <span class="attr">return</span>;
+
+  <span class="attr">const</span> title = card.querySelector("h3").textContent;
+  tracker.markViewed(title); <span class="cmt">// მე-13 გაკვეთილის closure-ფუნქცია!</span>
+  card.classList.toggle("is-expanded"); <span class="cmt">// მარტივი ვიზუალური უკუკავშირი</span>
+});</code></pre>
+
+      <h3>ინტერაქცია 3 — საკონტაქტო ფორმის ვალიდაცია, preventDefault-ით</h3>
+      <pre><code><span class="attr">const</span> form = document.querySelector(".contact-form");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault(); <span class="cmt">// გვერდის ხელახლა ჩატვირთვა არ გვინდა</span>
+
+  <span class="attr">const</span> email = form.querySelector("#email").value.trim();
+  <span class="attr">if</span> (!email.includes("@")) {
+    console.log("⚠️ გთხოვთ, მიუთითოთ ვალიდური ელფოსტა");
+    <span class="attr">return</span>;
+  }
+
+  console.log("✅ ფორმა წარმატებით 'გაიგზავნა' (დემო):", email);
+  form.reset(); <span class="cmt">// ველების გასუფთავება</span>
+});</code></pre>
+      <p>
+        <strong>შედეგი:</strong> პორტფოლიო ახლა სრულად ინტერაქტიულია — ფილტრი ცოცხლად ცვლის
+        card-ებს, card-ზე დაწკაპუნება „აღნიშნავს" მას ნანახად, ფორმა კი უსაფრთხოდ „მუშავდება"
+        გვერდის გადატვირთვის გარეშე. ერთადერთი, რაც აკლია — რეალური სერვერი, რომელსაც ფორმა
+        გაეგზავნება — ამას Fetch/AJAX-ის გაკვეთილებში (მე-19) მივხედავთ.
+      </p>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/introduction-browser-events" target="_blank" rel="noopener">JavaScript.info — Introduction to browser events</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">MDN — addEventListener()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">MDN — addEventListener() (options: once/passive/signal)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController" target="_blank" rel="noopener">MDN — AbortController</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/target" target="_blank" rel="noopener">MDN — Event.target vs currentTarget</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault" target="_blank" rel="noopener">MDN — Event.preventDefault()</a></li>
           <li><a href="https://javascript.info/event-delegation" target="_blank" rel="noopener">JavaScript.info — Event delegation</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას აკეთებს <code>{ once: true }</code> და როდის დაგვჭირდება ის?</li>
+          <li>რატომ არის <code>{ passive: true }</code> სასარგებლო scroll/touch event-ებზე?</li>
+          <li>რას აკეთებს <code>AbortController</code> event listener-ების კონტექსტში, და რატომ არის ის უკეთესი, ვიდრე ცალ-ცალკე <code>removeEventListener</code>-ის გამოძახება?</li>
+          <li>რა განსხვავებაა <code>event.target</code>-სა და <code>event.currentTarget</code>-ს შორის?</li>
+          <li>რატომ არის <code>closest(".project-card")</code> უფრო საიმედო, ვიდრე <code>event.target.tagName === "..."</code> შემოწმება?</li>
+          <li>რატომ საჭიროებს ფორმის submit ღილაკი <code>preventDefault()</code>-ს, სხვა ღილაკებისგან განსხვავებით?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -144,9 +284,12 @@ list.addEventListener("click", (event) => {
         <ol style="padding-left: 20px;">
           <li>დაამატე ღილაკს <code>click</code> event listener, რომელიც ცვლის მისი ტექსტის შემცველობას დაწკაპუნებისას.</li>
           <li>დაამატე input ველს <code>input</code> event listener, რომელიც ცოცხლად აჩვენებს აკრეფილი სიმბოლოების რაოდენობას გვერდზე.</li>
+          <li>დაწერე ერთი listener <code>{ once: true }</code>-ით და ერთი — ჩვეულებრივი — შეადარე, რამდენჯერ გამოიძახება თითოეული 5 დაწკაპუნების შემდეგ.</li>
+          <li>დაწერე <code>AbortController</code>-ის მაგალითი — მიამაგრე 2-3 listener ერთი <code>signal</code>-ით, შემდეგ ერთი ღილაკით ყველა ერთდროულად მოაცილე.</li>
           <li>შექმენი მარტივი ფორმა და დაამატე <code>submit</code> event, სადაც <code>preventDefault()</code>-ის შემდეგ Console-ში ბეჭდავ input-ის მნიშვნელობას.</li>
-          <li>შექმენი სია (<code>&lt;ul&gt;</code>-ში 4-5 <code>&lt;li&gt;</code>) და event delegation-ის გამოყენებით (listener მშობელზე) დაბეჭდე, რომელ ელემენტზე დაწკაპუნდა.</li>
+          <li>შექმენი სია (<code>&lt;ul&gt;</code>-ში 4-5 <code>&lt;li&gt;</code>) და event delegation-ის გამოყენებით (listener მშობელზე) დაბეჭდე, რომელ ელემენტზე დაწკაპუნდა — გამოიყენე <code>event.target</code> და <code>event.currentTarget</code> ორივე, დააკვირდი განსხვავებას.</li>
           <li><em>(რთული)</em> ააწყვე მარტივი "to-do" — input + ღილაკი „დამატება". დაწკაპუნებისას (ან Enter-ზე) <code>createElement</code>-ის გამოყენებით დაამატე ახალი <code>&lt;li&gt;</code> სიაში, ხოლო თითოეულ <code>&lt;li&gt;</code>-ზე დაწკაპუნებამ წაშალოს ის (event delegation-ის გამოყენებით).</li>
+          <li><em>(საკონტროლო პროექტი)</em> გახსენი მე-12-მე-15 გაკვეთილების პორტფოლიოს პროექტი და დაამატე სამივე ინტერაქცია ზემოთ ნაჩვენები კოდით — ფილტრის ღილაკები, card-ზე დაწკაპუნების თვალთვალი, და ფორმის ვალიდაცია. დარწმუნდი, რომ ყველა listener event delegation-ს იყენებს სადაც შესაძლებელია, ცალკეული ელემენტების ხელით დამუშავების ნაცვლად.</li>
         </ol>
       </div>
 
@@ -161,7 +304,7 @@ list.addEventListener("click", (event) => {
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span></div>
+      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

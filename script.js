@@ -37,7 +37,7 @@ const LESSONS = [
   { n: 13, mod: "js", title: "ფუნქციები სრულად, Scope, Closure, პროექტი" },
   { n: 14, mod: "js", title: "ES6+ სრულად, მოდულური JS, საკონტროლო პროექტი" },
   { n: 15, mod: "js", title: "DOM სრულად, Performance (Fragment), საკონტროლო პროექტი" },
-  { n: 16, mod: "js", title: "Events, Event Handlers, PreventDefault" },
+  { n: 16, mod: "js", title: "Events სრულად, AbortController, საკონტროლო პროექტი" },
   { n: 17, mod: "js", title: "Burger Menu, call/apply/bind, Higher-Order Functions, Hoisting" },
   { n: 18, mod: "js", title: "Promises, setTimeout, Callbacks, Async/Await" },
   { n: 19, mod: "js", title: "Ajax, XHR, Fetch, JSON, DevTools Network, სლაიდერი და ვალიდაცია" },
