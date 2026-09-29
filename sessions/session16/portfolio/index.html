@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Doe — Front-End Developer</title>
+  <meta name="description" content="ლუკა ბერიძის პორტფოლიო — Front-End დეველოპერი, პროექტები და კონტაქტი. საკონტროლო პროექტი front-end-course-ის მე-12 გაკვეთილიდან." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <span class="nav-name">John Doe</span>
+      <ul class="nav-links">
+        <li><a href="#about">About me</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contacts</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero container">
+      <span class="role">Front-End Developer</span>
+      <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit.</h1>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium laudantium cumque debitis laborum distinctio est dolore, quidem ea eum nobis iste, dolor commodi placeat sequi iusto labore. Quas, praesentium perferendis.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#projects">See Projects</a>
+        <a class="btn btn-secondary" href="#contact">Contact me</a>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="section container" id="about">
+      <h2>About me</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis vitae repellat iure ratione consequuntur natus. Porro molestiae eveniet distinctio exercitationem maiores, nam quibusdam voluptates architecto mollitia, eum facere asperiores laborum.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis commodi nihil id labore, illum molestias aliquam quae. Iure ipsam dignissimos eligendi vitae eaque nesciunt nihil nostrum corporis qui, illo obcaecati.
+          </p>
+        </div>
+        <div class="skills">
+          <h3>Technologies</h3>
+          <ul>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>Flexbox</li>
+            <li>CSS Grid</li>
+            <li>JavaScript</li>
+            <li>Git</li>
+            <li>Figma</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section class="section container" id="projects">
+      <h2>Projects</h2>
+      <p class="section-lede">
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Velit perferendis ex modi ut officia minima saepe. Temporibus, repudiandae ducimus praesentium facere dolores numquam, fugiat modi ab eaque illum a cupiditate?
+      </p>
+
+      <!-- lesson16: ფილტრის ღილაკები — event delegation-ით მართავს app.js -->
+      <div class="filter-row" id="filter-row">
+        <button data-filter="all" data-active="true">ყველა</button>
+        <button data-filter="featured">⭐ მხოლოდ გამორჩეული</button>
+      </div>
+
+      <!-- lesson15: card-ები აღარ არის ხელით ჩაწერილი — app.js დინამიურად ავსებს
+           ამ კონტეინერს projects მასივიდან (იხ. createProjectCard/renderProjects). -->
+      <div class="project-grid" id="project-grid"></div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="section container" id="contact">
+      <h2>Contact me</h2>
+      <p class="section-lede">Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p>
+
+      <form class="contact-form" action="#" method="POST">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="შენი სახელი" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="message">Messages</label>
+          <textarea id="message" name="message" placeholder="დაწერე შენი შეტყობინება..." required></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Send</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="console-hint">
+         პროექტების ბარათები ახლა <strong>დინამიურად, JavaScript-იდან რენდერდება</strong>
+        (<code>app.js</code> → <code>data.js</code> + <code>project-utils.js</code>) — გახსენი
+        DevTools Console (F12), რომ ნახო დამატებითი დეტალები.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer container">
+    <span>© 2026 John Doe</span>
+    <div class="footer-links">
+      <a href="#" target="_blank" rel="noopener">GitHub</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
