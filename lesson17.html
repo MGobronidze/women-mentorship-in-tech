@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 17 — Burger Menu, call/apply/bind, HOF, Hoisting</title>
-  <meta name="description" content="Burger menu ფუნქციონალის აწყობა ანიმაციით, call/apply/bind მეთოდები, Higher-Order Functions და Hoisting." />
+  <title>გაკვეთილი 17 — Burger Menu, call/apply/bind, HOF, Hoisting, საკონტროლო პროექტი</title>
+  <meta name="description" content="Burger menu ARIA-ხელმისაწვდომობით, call/apply/bind (spread-თან შედარებით), Higher-Order Functions, currying, Hoisting, და პორტფოლიოს მობილური ნავიგაციის დამატება." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 17/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Burger Menu, call/apply/bind, Higher-Order Functions, Hoisting
+        Burger Menu, call/apply/bind, HOF, Hoisting, საკონტროლო პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        დავიწყოთ ერთი კლასიკური, პრაქტიკული პროექტით — მობილური ბურგერ-მენიუთი — და შემდეგ
-        ჩავუღრმავდეთ ფუნქციების რამდენიმე მოწინავე კონცეფციას.
+        დავიწყოთ ერთი კლასიკური, პრაქტიკული პროექტით — მობილური ბურგერ-მენიუთი, ამჯერად
+        ხელმისაწვდომობასაც (accessibility) გავითვალისწინებთ — და შემდეგ ჩავუღრმავდეთ ფუნქციების
+        რამდენიმე მოწინავე კონცეფციას.
       </p>
       <div class="lesson-progress" data-lesson="17">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -86,6 +87,35 @@ toggleBtn.addEventListener("click", () => {
         <code>setupNav()</code> ფუნქცია) იყენებს.
       </p>
 
+      <h3>ხელმისაწვდომობა (ARIA) — ბურგერ-მენიუს „უხილავი" ნახევარი</h3>
+      <p>
+        ვიზუალურად მუშა ბურგერ-მენიუ საკმარისი არ არის — screen reader-ის მომხმარებელს
+        (და კლავიატურით მოსარგებლეს) არანაირი ინფორმაცია არ აქვს, ღია თუ დახურულია მენიუ,
+        თუ არ დავამატებთ სამ ARIA ატრიბუტს:
+      </p>
+      <pre><code>&lt;<span class="tag">button</span>
+  <span class="attr">class</span>=<span class="str">"nav-toggle"</span>
+  <span class="attr">aria-label</span>=<span class="str">"ნავიგაციის მენიუ"</span>         <span class="cmt">&lt;!-- screen reader "ხმამაღლა" ამას კითხულობს, ხატულას ნაცვლად --&gt;</span>
+  <span class="attr">aria-controls</span>=<span class="str">"nav-links"</span>           <span class="cmt">&lt;!-- რომელ ელემენტს "მართავს" ეს ღილაკი --&gt;</span>
+  <span class="attr">aria-expanded</span>=<span class="str">"false"</span>&gt;              <span class="cmt">&lt;!-- ღია/დახურული მდგომარეობა — JS-დან უნდა განახლდეს --&gt;</span>
+  &lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;&lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;&lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;
+&lt;/<span class="tag">button</span>&gt;
+
+&lt;<span class="tag">ul</span> <span class="attr">class</span>=<span class="str">"nav-links"</span> <span class="attr">id</span>=<span class="str">"nav-links"</span>&gt;...&lt;/<span class="tag">ul</span>&gt;</code></pre>
+      <pre><code>toggleBtn.addEventListener("click", () => {
+  <span class="attr">const</span> isOpen = toggleBtn.getAttribute("data-open") === "true";
+  <span class="attr">const</span> newState = !isOpen;
+
+  toggleBtn.setAttribute("data-open", String(newState));
+  navLinks.setAttribute("data-open", String(newState));
+  toggleBtn.setAttribute("aria-expanded", String(newState)); <span class="cmt">// screen reader-ისთვის "ცოცხალი" განახლება</span>
+});</code></pre>
+      <p>
+        <strong>წესი:</strong> <code>aria-expanded</code> ყოველთვის უნდა „მისდევდეს" ვიზუალურ
+        მდგომარეობას — ის მარტივად, ერთი დამატებითი ხაზით ემატება არსებულ toggle ლოგიკას,
+        მაგრამ მნიშვნელოვნად აუმჯობესებს საიტის ხელმისაწვდომობას.
+      </p>
+
       <h2>2. call, apply და bind</h2>
       <p>
         ეს სამივე მეთოდი გვაძლევს კონტროლს იმაზე, თუ რას წარმოადგენს <code>this</code> ფუნქციის
@@ -110,6 +140,32 @@ greetAna("დილა მშვიდობისა"); <span class="cmt">// "�
       <p>
         <code>bind</code> ხშირად გამოიყენება event handler-ებში, როცა გვინდა, ფუნქციამ „დაიმახსოვროს"
         კონკრეტული <code>this</code>, მაშინაც კი, თუ ის მოგვიანებით, სხვა კონტექსტში გამოიძახება.
+      </p>
+
+      <h3>თანამედროვე კონტექსტი — apply() vs Spread, bind() vs Arrow Functions</h3>
+      <p>
+        დღეს ამ სამიდან <code>apply</code> ყველაზე იშვიათად გამოიყენება — spread ოპერატორმა
+        (მე-14 გაკვეთილი) თითქმის მთლიანად ჩაანაცვლა მისი „მასივის არგუმენტებად დაშლის"
+        ფუნქცია:
+      </p>
+      <pre><code><span class="attr">const</span> nums = [4, 9, 16];
+
+<span class="cmt">// ძველი გზა — apply</span>
+Math.max.apply(<span class="attr">null</span>, nums); <span class="cmt">// 16</span>
+
+<span class="cmt">// თანამედროვე გზა — spread (მარტივი, წაკითხვადი)</span>
+Math.max(...nums); <span class="cmt">// 16</span></code></pre>
+      <p>
+        <code>apply</code> მაინც საჭიროა მხოლოდ იმ იშვიათ შემთხვევაში, როცა <strong>ერთდროულად</strong>
+        გვინდა <code>this</code>-ის დაყენებაც და არგუმენტების მასივად გადაცემაც — spread მხოლოდ
+        არგუმენტებზეა პასუხისმგებელი, <code>this</code>-ს ვერ „დააყენებს".
+      </p>
+      <p>
+        ანალოგიურად, <code>bind</code>-ის ერთ-ერთი ყველაზე გავრცელებული ისტორიული გამოყენება —
+        <code>this</code>-ის „დაფიქსირება" callback-ებში — დღეს ხშირად Arrow Function-ით
+        წყდება (მე-13 გაკვეთილი), რადგან მას თავისთავად არ აქვს საკუთარი <code>this</code>.
+        <code>bind</code> კი დღესაც აქტუალურია <strong>Partial Application</strong>-ისთვის —
+        იხ. შემდეგი სექცია.
       </p>
 
       <h2>3. Higher-Order Functions</h2>
@@ -141,6 +197,25 @@ console.log(triple(5)); <span class="cmt">// 15</span></code></pre>
         დაბრუნებული ფუნქცია „ახსოვს" <code>factor</code>-ს.
       </p>
 
+      <h3>Partial Application — bind()-ის პრაქტიკული გამოყენება</h3>
+      <p>
+        <strong>Partial Application</strong> ნიშნავს: ფუნქციას ნაწილობრივ „ვამზადებთ" წინასწარ
+        ცნობილი არგუმენტებით, და ვიღებთ ახალ, „შემოკლებულ" ფუნქციას. <code>bind</code> ამას
+        პირდაპირ უჭერს მხარს — პირველი არგუმენტის (<code>this</code>) შემდეგ გადაცემული
+        ნებისმიერი დამატებითი არგუმენტი „ფიქსირდება":
+      </p>
+      <pre><code><span class="attr">function</span> multiply(a, b) {
+  <span class="attr">return</span> a * b;
+}
+
+<span class="cmt">// bind-ით "ვაფიქსირებთ" პირველ არგუმენტს (a = 2), this არ გვჭირდება — null</span>
+<span class="attr">const</span> double = multiply.bind(<span class="attr">null</span>, 2);
+double(5); <span class="cmt">// 10 — ზუსტად იგივე შედეგი, რაც closure-ზე დაფუძნებულ multiplyBy(2)-ს ზემოთ!</span></code></pre>
+      <p>
+        ეს აჩვენებს, რომ Closure (ფუნქცია, რომელიც ფუნქციას აბრუნებს) და <code>bind</code> ხშირად
+        ერთი და იმავე პრობლემის ორ, განსხვავებულ გადაწყვეტას წარმოადგენენ.
+      </p>
+
       <h2>4. Hoisting</h2>
       <p>
         <strong>Hoisting</strong> არის JavaScript-ის მექანიზმი, რომლის დროსაც ცვლადებისა და
@@ -165,24 +240,109 @@ console.log(y); <span class="cmt">// ❌ ReferenceError — let/const არი�
         უფრო „უსაფრთხოა" <code>var</code>-თან შედარებით.
       </p>
 
+      <h2>5. საკონტროლო პროექტი — მობილური ნავიგაცია და HOF-ით გაწმენდილი ფილტრები</h2>
+      <p>
+        პორტფოლიოს პროექტს აქამდე არ ჰქონდა მობილური ნავიგაცია — ამ გაკვეთილის ცოდნით, ახლა
+        დავამატოთ ბურგერ-მენიუ, ARIA-ხელმისაწვდომობით, და გავწმინდოთ მე-16 გაკვეთილის
+        ფილტრის ლოგიკა Higher-Order Function-ის გამოყენებით.
+      </p>
+
+      <h3>ნაბიჯი 1 — ბურგერ-მენიუ პორტფოლიოს ნავიგაციაში</h3>
+      <pre><code><span class="cmt">&lt;!-- index.html-ის header-ში --&gt;</span>
+&lt;<span class="tag">nav</span> <span class="attr">class</span>=<span class="str">"nav container"</span>&gt;
+  &lt;<span class="tag">span</span> <span class="attr">class</span>=<span class="str">"nav-name"</span>&gt;ლუკა ბერიძე&lt;/<span class="tag">span</span>&gt;
+  &lt;<span class="tag">ul</span> <span class="attr">class</span>=<span class="str">"nav-links"</span> <span class="attr">id</span>=<span class="str">"nav-links"</span>&gt;...&lt;/<span class="tag">ul</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"nav-toggle"</span> <span class="attr">id</span>=<span class="str">"nav-toggle"</span>
+    <span class="attr">aria-label</span>=<span class="str">"ნავიგაციის მენიუ"</span> <span class="attr">aria-controls</span>=<span class="str">"nav-links"</span> <span class="attr">aria-expanded</span>=<span class="str">"false"</span>&gt;
+    &lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;&lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;&lt;<span class="tag">span</span>&gt;&lt;/<span class="tag">span</span>&gt;
+  &lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">nav</span>&gt;</code></pre>
+      <pre><code><span class="cmt">// app.js-ში დამატებული ბლოკი</span>
+<span class="attr">const</span> navToggle = document.querySelector("#nav-toggle");
+<span class="attr">const</span> navLinksEl = document.querySelector("#nav-links");
+
+navToggle.addEventListener("click", () => {
+  <span class="attr">const</span> isOpen = navToggle.getAttribute("data-open") === "true";
+  <span class="attr">const</span> newState = !isOpen;
+
+  navToggle.setAttribute("data-open", String(newState));
+  navLinksEl.setAttribute("data-open", String(newState));
+  navToggle.setAttribute("aria-expanded", String(newState));
+});</code></pre>
+
+      <h3>ნაბიჯი 2 — ფილტრების HOF-ით გაწმენდა</h3>
+      <p>
+        მე-16 გაკვეთილში ფილტრის ლოგიკა <code>if/else</code>-ით იყო დაწერილი. ახლა, HOF-ის
+        პატერნით, შევქმნათ „ფუნქციათა ქარხანა" — <code>createFilterHandler</code> — რომელიც
+        თითოეული ღილაკისთვის მზა, სპეციალიზებულ handler-ს აბრუნებს:
+      </p>
+      <pre><code><span class="cmt">// HOF — იღებს "გასაფილტრად" საჭირო ლოგიკას და აბრუნებს მზა click handler-ს</span>
+<span class="attr">function</span> createFilterHandler(predicateFn) {
+  <span class="attr">return function</span>() {
+    <span class="attr">const</span> filtered = predicateFn(projects);
+    renderProjects(filtered);
+  };
+}
+
+<span class="cmt">// ორი "მზა" handler, ერთი და იგივე HOF-იდან — closure "ახსოვს" predicateFn-ს</span>
+<span class="attr">const</span> showAll = createFilterHandler((list) => list);
+<span class="attr">const</span> showFeatured = createFilterHandler((list) => getFeaturedProjects(list));
+
+filterRow.addEventListener("click", (event) => {
+  <span class="attr">const</span> btn = event.target.closest("button");
+  <span class="attr">if</span> (!btn) <span class="attr">return</span>;
+
+  filterRow.querySelectorAll("button").forEach((b) => b.setAttribute("data-active", "false"));
+  btn.setAttribute("data-active", "true");
+
+  <span class="attr">if</span> (btn.dataset.filter === "featured") {
+    showFeatured();
+  } <span class="attr">else</span> {
+    showAll();
+  }
+});</code></pre>
+      <p>
+        <strong>რატომ არის ეს უკეთესი:</strong> თუ მომავალში მესამე ფილტრი დაგვჭირდება (მაგ.
+        „მხოლოდ 2025+"), საკმარისია ერთი ახალი ხაზი —
+        <code>const showRecent = createFilterHandler((list) => list.filter(p =&gt; p.year &gt;= 2025));</code>
+        — არსებული <code>if/else</code> ჯაჭვის გაფართოების გარეშე.
+      </p>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/bind" target="_blank" rel="noopener">JavaScript.info — Function binding (call/apply/bind)</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call" target="_blank" rel="noopener">MDN — Function.prototype.call()</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind" target="_blank" rel="noopener">MDN — Function.prototype.bind()</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Hoisting" target="_blank" rel="noopener">MDN — Hoisting (Glossary)</a></li>
           <li><a href="https://javascript.info/var" target="_blank" rel="noopener">JavaScript.info — The old "var"</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-expanded" target="_blank" rel="noopener">MDN — aria-expanded</a></li>
+          <li><a href="https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/" target="_blank" rel="noopener">W3C ARIA Authoring Practices — Disclosure Pattern</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რას აკეთებს <code>aria-expanded</code> და რატომ უნდა განახლდეს ის ზუსტად ვიზუალურ მდგომარეობასთან ერთად?</li>
+          <li>რატომ არის <code>apply()</code> დღეს ნაკლებად საჭირო, ვიდრე spread ოპერატორის შემოსვლამდე იყო?</li>
+          <li>რატომ ამცირებს Arrow Function-ების გამოყენება <code>bind</code>-ის საჭიროებას?</li>
+          <li>რას ნიშნავს Partial Application და როგორ აკავშირებს <code>bind</code> მას closure-თან?</li>
+          <li>დაწერე მოკლედ, რატომ არის <code>createFilterHandler</code> HOF-ის მაგალითი.</li>
+          <li>რას ბეჭდავს <code>console.log(x)</code>, თუ <code>x</code> <code>var</code>-ით არის გამოცხადებული ქვემოთ, და რას — თუ <code>let</code>-ით?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>ააწყვე მუშა ბურგერ-მენიუ (HTML+CSS+JS) — მობილურ ეკრანზე ღილაკი ხსნის/ხურავს ნავიგაციას, ხატულა ტრანსფორმირდება X-ად ანიმაციით.</li>
+          <li>ააწყვე მუშა ბურგერ-მენიუ (HTML+CSS+JS) — მობილურ ეკრანზე ღილაკი ხსნის/ხურავს ნავიგაციას, ხატულა ტრანსფორმირდება X-ად ანიმაციით, <code>aria-expanded</code>-ის განახლებით.</li>
           <li>დაწერე ორი ობიექტი და ერთი ფუნქცია, რომელიც იყენებს <code>this</code>-ს — გამოიძახე ის <code>call</code>-ით ორივე ობიექტისთვის.</li>
+          <li>გადაწერე <code>Math.max.apply(null, numbersArray)</code> spread-ის გამოყენებით — შეადარე ორივე ვერსია.</li>
           <li>დაწერე Higher-Order Function, რომელიც იღებს მასივს და ფუნქციას, და აბრუნებს ახალ მასივს ფუნქციის გამოყენებით (თავად დაწერე შენი "map").</li>
           <li>დაწერე კოდის მაგალითი, სადაც ცხადად აჩვენებ <code>var</code> და <code>let</code> ჰოისტინგის სხვაობას (console.log-ის ცვლადის გამოცხადებამდე).</li>
           <li><em>(რთული)</em> გამოიყენე <code>bind</code>, რომ შექმნა „წინასწარ მორგებული" ფუნქცია — მაგ. <code>multiplyBy(2)</code>-ის მსგავსი შედეგი, მაგრამ <code>bind</code>-ის საშუალებით (მინიშნება: ჩვეულებრივი ფუნქცია ორი პარამეტრით, ერთი <code>bind</code>-ით "დაფიქსირებული").</li>
+          <li><em>(საკონტროლო პროექტი)</em> გახსენი მე-12-მე-16 გაკვეთილების პორტფოლიოს პროექტი: (1) დაამატე ბურგერ-მენიუ მობილური ნავიგაციისთვის, სრული ARIA ატრიბუტებით; (2) გადაწერე ფილტრის ლოგიკა <code>createFilterHandler</code> HOF-ის პატერნით; (3) შეამოწმე Chrome DevTools-ის Lighthouse-ით (Accessibility ანგარიშით), რომ ბურგერ-მენიუს ღილაკი „ხედავს" screen reader.</li>
         </ol>
       </div>
 
@@ -197,7 +357,7 @@ console.log(y); <span class="cmt">// ❌ ReferenceError — let/const არი�
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span></div>
+      <div class="brand"><span class="brand-dot"></span> </div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
