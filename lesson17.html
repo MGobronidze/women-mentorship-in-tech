@@ -122,21 +122,21 @@ toggleBtn.addEventListener("click", () => {
         შესრულებისას — რაც გამოსადეგია, როცა ფუნქცია სესხულობს ან ერთი ობიექტიდან მეორეზე
         „გადადის".
       </p>
-      <pre><code><span class="attr">const</span> person = { name: "ანა" };
+      <pre><code><span class="attr">const</span> person = { name: "ჯონ" };
 
 <span class="attr">function</span> greet(greeting) {
   console.log(`${greeting}, ${this.name}!`);
 }
 
 <span class="cmt">// call — გამოძახებს ფუნქციას მაშინვე, this-ს და არგუმენტებს ცალ-ცალკე იღებს</span>
-greet.call(person, "გამარჯობა");   <span class="cmt">// "გამარჯობა, ანა!"</span>
+greet.call(person, "გამარჯობა");   <span class="cmt">// "გამარჯობა, ჯონ!"</span>
 
 <span class="cmt">// apply — იგივეა, მაგრამ არგუმენტები მასივის სახით</span>
-greet.apply(person, ["სალამი"]);   <span class="cmt">// "სალამი, ანა!"</span>
+greet.apply(person, ["სალამი"]);   <span class="cmt">// "სალამი, ჯონ!"</span>
 
 <span class="cmt">// bind — არ სვამს მაშინვე, აბრუნებს ახალ ფუნქციას, "მუდმივად" მიბმულ this-ით</span>
 <span class="attr">const</span> greetAna = greet.bind(person);
-greetAna("დილა მშვიდობისა"); <span class="cmt">// "დილა მშვიდობისა, ანა!" — გამოძახებადია მოგვიანებით</span></code></pre>
+greetAna("დილა მშვიდობისა"); <span class="cmt">// "დილა მშვიდობისა, ჯონ!" — გამოძახებადია მოგვიანებით</span></code></pre>
       <p>
         <code>bind</code> ხშირად გამოიყენება event handler-ებში, როცა გვინდა, ფუნქციამ „დაიმახსოვროს"
         კონკრეტული <code>this</code>, მაშინაც კი, თუ ის მოგვიანებით, სხვა კონტექსტში გამოიძახება.
