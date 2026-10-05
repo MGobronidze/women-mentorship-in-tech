@@ -12,17 +12,31 @@
 </head>
 <body>
 
-  <header class="site-header">
-    <nav class="nav container">
-      <span class="nav-name">John Doe</span>
-      <ul class="nav-links">
-        <li><a href="#about">About me</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#contact">Contacts</a></li>
-      </ul>
-    </nav>
-    
-  </header>
+ <header class="site-header">
+  <nav class="nav container">
+    <span class="nav-name">John Doe</span>
+
+    <!-- 1. ბურგერ-ღილაკი (ხელმისაწვდომობის ARIA ატრიბუტებით) -->
+    <button
+      class="nav-toggle"
+      id="nav-toggle"
+      aria-label="ნავიგაციის მენიუ"
+      aria-controls="nav-links"
+      aria-expanded="false"
+      data-open="false">
+      <span class="burger-bar"></span>
+      <span class="burger-bar"></span>
+      <span class="burger-bar"></span>
+    </button>
+
+    <!-- 2. id და data-open ატრიბუტი მენიუს სიისთვის -->
+    <ul class="nav-links" id="nav-links" data-open="false">
+      <li><a href="#about">About me</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contacts</a></li>
+    </ul>
+  </nav>
+</header>
 
   <main>
 

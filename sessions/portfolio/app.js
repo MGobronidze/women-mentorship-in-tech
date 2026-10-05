@@ -118,3 +118,31 @@ form.addEventListener("submit", (event) => {
   console.log("ფორმა წარმატებით 'გაიგზავნა' (დემო):", email);
   form.reset(); // ველების გასუფთავება
 });
+
+
+// burger
+
+/* ---------- 7. ინტერაქცია 4 — ბურგერ-მენიუს ტოგლი (ARIA + Responsive) ---------- */
+const navToggle = document.querySelector("#nav-toggle");
+const navLinks = document.querySelector("#nav-links");
+
+if (navToggle && navLinks) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = navToggle.getAttribute("data-open") === "true";
+    const newState = !isOpen;
+
+    // მდგომარეობის განახლება ვიზუალისა და ARIA-სთვის
+    navToggle.setAttribute("data-open", String(newState));
+    navLinks.setAttribute("data-open", String(newState));
+    navToggle.setAttribute("aria-expanded", String(newState));
+  });
+
+  // UX გაუმჯობესება: მენიუს რომელიმე ლინკზე დაჭერისას მენიუ ავტომატურად დაიხუროს
+  navLinks.addEventListener("click", (event) => {
+    if (event.target.tagName === "A") {
+      navToggle.setAttribute("data-open", "false");
+      navLinks.setAttribute("data-open", "false");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+}
