@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nav Toggle Test</title>
+  <style>
+    /* ზოგადი სტილი ტესტირებისთვის */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f4f4f4;
+      padding: 10px 20px;
+    }
+
+    /* ჰამბურგერის ღილაკის სტილი */
+    .nav-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 20px;
+      padding: 0;
+    }
+
+    /* შენი CSS კოდი ხატულის ტრანსფორმაციისთვის */
+    .nav-toggle span {
+      width: 30px; 
+      height: 2px; 
+      background: black;
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
+    .nav-toggle[data-open="true"] span:nth-child(1) {
+      transform: translateY(9px) rotate(45deg);
+    }
+    .nav-toggle[data-open="true"] span:nth-child(2) {
+      opacity: 0;
+    }
+    .nav-toggle[data-open="true"] span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+
+    /* მენიუს ლინკების საბაზისო სტილი (მაგალითისთვის) */
+    .nav-links {
+      display: none; /* თავიდან დამალულია მცირე ეკრანებზე */
+      list-style: none;
+      margin: 0;
+      padding: 10px;
+      background: #ddd;
+    }
+
+    /* როცა მენიუ ღიაა (data-open="true"), ვჩვენებთ */
+    .nav-links[data-open="true"] {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>ლოგო</h2>
+    
+    <!-- ჰამბურგერ ღილაკი 3 ხაზით (span) -->
+    <button class="nav-toggle" aria-label="Toggle navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- სანავიგაციო მენიუ -->
+  <ul class="nav-links">
+    <li><a href="#">მთავარი</a></li>
+    <li><a href="#">ჩვენ შესახებ</a></li>
+    <li><a href="#">სერვისები</a></li>
+    <li><a href="#">კონტაქტი</a></li>
+  </ul>
+
+  <script src="script.js" defer></script>
+
+</body>
+</html>
