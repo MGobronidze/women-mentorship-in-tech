@@ -39,7 +39,7 @@ const LESSONS = [
   { n: 15, mod: "js", title: "DOM სრულად, Performance (Fragment), საკონტროლო პროექტი" },
   { n: 16, mod: "js", title: "Events სრულად, AbortController, საკონტროლო პროექტი" },
   { n: 17, mod: "js", title: "Burger Menu (ARIA), call/apply/bind, HOF, პროექტი" },
-  { n: 18, mod: "js", title: "Promises, setTimeout, Callbacks, Async/Await" },
+  { n: 18, mod: "js", title: "Promises სრულად, Event Loop, To-Do App პროექტი" },
   { n: 19, mod: "js", title: "Ajax, XHR, Fetch, JSON, DevTools Network, სლაიდერი და ვალიდაცია" },
   { n: 20, mod: "js", title: "Constructor, Prototype, Classes, Storage, Cookies, ფილტრი" },
 

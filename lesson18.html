@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 18 — Promises, Callbacks, Async/Await</title>
-  <meta name="description" content="ასინქრონული JavaScript: setTimeout, callbacks და callback hell, Promises, და async/await სინტაქსი." />
+  <title>გაკვეთილი 18 — Promises სრულად, Event Loop, To-Do App პროექტი</title>
+  <meta name="description" content="setTimeout, Callback Hell, Promises და Promise.all/allSettled/any/race, async/await, Microtask vs Macrotask queue, და სრული To-Do App პროექტი ასინქრონული ლოგიკით." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 18/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Promises, Callbacks, Async/Await
+        Promises სრულად, Event Loop, To-Do App პროექტი
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
         რეალურ აპლიკაციებში ბევრი რამ არ ხდება მყისიერად — მონაცემების წამოღება სერვერიდან,
-        ტაიმერები. ამ გაკვეთილში ვსწავლობთ, როგორ ვმართავთ ამ „დროში გაწელილ" ოპერაციებს.
+        ტაიმერები. ამ გაკვეთილში ვსწავლობთ, როგორ ვმართავთ ამ „დროში გაწელილ" ოპერაციებს — და
+        ბოლოს, ყველაფერს ვიყენებთ სრული To-Do აპლიკაციის ასაწყობად.
       </p>
       <div class="lesson-progress" data-lesson="18">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -97,7 +98,7 @@ getUser(userId, (user) => {
       </p>
       <pre><code><span class="attr">const</span> fetchUser = <span class="attr">new</span> Promise((resolve, reject) => {
   setTimeout(() => {
-    <span class="attr">const</span> success = true;
+    <span class="attr">const</span> success = <span class="attr">true</span>;
     <span class="attr">if</span> (success) {
       resolve({ name: "ანა", id: 1 }); <span class="cmt">// წარმატება</span>
     } <span class="attr">else</span> {
@@ -120,6 +121,50 @@ fetchUser
   .then(details => console.log(details))
   .catch(error => console.error(error)); <span class="cmt">// ერთი catch ყველა ჯაჭვის ნაბიჯისთვის</span></code></pre>
 
+      <h3>Promise-ის კომბინატორები — all, allSettled, any, race</h3>
+      <p>
+        როცა <strong>ერთდროულად, პარალელურად</strong> რამდენიმე Promise-ის დასრულებას ველოდებით
+        (არა ერთმანეთზე დამოკიდებულს, როგორც ზემოთ), ოთხი მეთოდი გვეხმარება — თითოეული
+        განსხვავებულად რეაგირებს შეცდომებზე:
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">მეთოდი</th>
+            <th style="text-align: left; padding: 8px;">ეს ხდება</th>
+            <th style="text-align: left; padding: 8px;">გამოყენების შემთხვევა</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>Promise.all()</code></td>
+            <td style="padding: 8px;"><strong>Fail-fast</strong> — ერთის წარუმატებლობაც საკმარისია, რომ მთელი ოპერაცია ჩავარდეს</td>
+            <td style="padding: 8px;">ყველა შედეგი აუცილებელია, ან არცერთი არ გინდა</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>Promise.allSettled()</code></td>
+            <td style="padding: 8px;">არასდროს „ჩავარდება" — ყოველთვის აბრუნებს ყველას შედეგს (<code>status: "fulfilled"/"rejected"</code>)</td>
+            <td style="padding: 8px;">ნაწილობრივი წარუმატებლობაც მისაღებია — გინდა ყველა შედეგის ნახვა</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;"><code>Promise.any()</code></td>
+            <td style="padding: 8px;">წყდება პირველივე <strong>წარმატებაზე</strong></td>
+            <td style="padding: 8px;">გჭირდება მხოლოდ ერთი, ნებისმიერი წარმატებული შედეგი</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;"><code>Promise.race()</code></td>
+            <td style="padding: 8px;">წყდება პირველივე <strong>დასრულებაზე</strong> (წარმატება ან შეცდომა)</td>
+            <td style="padding: 8px;">"ვინც პირველი მოვა" — მაგ. timeout-ის იმიტაცია</td>
+          </tr>
+        </tbody>
+      </table>
+      <pre><code><span class="cmt">// allSettled — ყოველთვის იცის ყველა შედეგი, რაც ჩავარდა და რაც არა</span>
+<span class="attr">const</span> results = <span class="attr">await</span> Promise.allSettled([saveTodo(a), saveTodo(b), saveTodo(c)]);
+
+<span class="attr">const</span> successful = results.filter((r) => r.status === "fulfilled");
+<span class="attr">const</span> failed = results.filter((r) => r.status === "rejected");
+console.log(`${successful.length} წარმატებული, ${failed.length} ჩავარდა`);</code></pre>
+
       <h2>4. async/await</h2>
       <p>
         <code>async</code>/<code>await</code> არის სინტაქსური „შაქარი" Promise-ების თავზე —
@@ -141,9 +186,188 @@ fetchUser
         შიგნით. ის „აჩერებს" კონკრეტულად ამ ფუნქციის შესრულებას (არა მთელ პროგრამას!), სანამ
         Promise არ დასრულდება — შემდეგ აგრძელებს შემდეგი ხაზიდან.
       </p>
+
+      <h3>ხშირი შეცდომა — არასაჭირო თანმიმდევრული await</h3>
       <p>
-        <strong>დღეს:</strong> async/await არის რეკომენდებული სტანდარტი მოდერნიზებულ კოდში —
-        Promise-ების საფუძვლების ცოდნა კი აუცილებელია, რადგან async/await სწორედ მათზეა აშენებული.
+        თუ ორი <code>await</code> ერთმანეთზე <strong>არ</strong> არის დამოკიდებული, მათი
+        თანმიმდევრული დალოდება ტყუილად ანელებს კოდს:
+      </p>
+      <pre><code><span class="cmt">// ნელი — 2 წამი ჯამში, თუ ორივე ოპერაცია თითო წამს სჭირდება</span>
+<span class="attr">const</span> todos = <span class="attr">await</span> fetchTodos();     <span class="cmt">// ელოდება დასრულებას...</span>
+<span class="attr">const</span> settings = <span class="attr">await</span> fetchSettings(); <span class="cmt">// ...მხოლოდ შემდეგ იწყებს ამას</span>
+
+<span class="cmt">// სწრაფი — 1 წამი ჯამში, ორივე პარალელურად</span>
+<span class="attr">const</span> [todos2, settings2] = <span class="attr">await</span> Promise.all([fetchTodos(), fetchSettings()]);</code></pre>
+      <p>
+        <strong>წესი:</strong> <code>await</code> თანმიმდევრულად მხოლოდ მაშინ გამოიყენე, როცა
+        მეორე ოპერაციას ნამდვილად სჭირდება პირველის შედეგი — წინააღმდეგ შემთხვევაში,
+        <code>Promise.all()</code>-ით დაიწყე ორივე ერთდროულად.
+      </p>
+
+      <h2>5. Microtask Queue vs Macrotask Queue — Event Loop</h2>
+      <p>
+        ეს არის ერთ-ერთი ყველაზე ხშირად დასმული, „გამოცდილი" JavaScript-ის კითხვა — რატომ
+        ასრულდება Promise-ის <code>.then()</code> ხშირად <strong>უფრო ადრე</strong>, ვიდრე
+        <code>setTimeout(..., 0)</code>, თუნდაც ორივე „მომავალში" იყოს დაგეგმილი?
+      </p>
+      <pre><code>console.log("1. სინქრონული");
+
+setTimeout(() => console.log("4. setTimeout (macrotask)"), 0);
+
+Promise.resolve().then(() => console.log("3. Promise .then (microtask)"));
+
+console.log("2. ისევ სინქრონული");
+
+<span class="cmt">// შედეგი: "1. სინქრონული" → "2. ისევ სინქრონული" → "3. Promise .then" → "4. setTimeout"
+// მიუხედავად იმისა, რომ setTimeout კოდში ადრე წერია!</span></code></pre>
+      <p>
+        <strong>ახსნა:</strong> JavaScript-ის „event loop" ჯერ ასრულებს <strong>მთელ</strong>
+        სინქრონულ კოდს, შემდეგ <strong>სრულად ცარიელჰყოფს microtask queue-ს</strong> (Promise-ის
+        <code>.then</code>/<code>catch</code>/<code>finally</code> callback-ები — მაღალი
+        პრიორიტეტის) — და მხოლოდ ამის შემდეგ იღებს ერთ დავალებას <strong>macrotask queue-დან</strong>
+        (<code>setTimeout</code>, event handler-ები).
+      </p>
+      <pre><code>┌─────────────────────────────┐
+│  1. Call Stack (სინქრონული)  │  ← ჯერ ეს სრულად სრულდება
+└─────────────────────────────┘
+┌─────────────────────────────┐
+│  2. Microtask Queue          │  ← შემდეგ ეს, მთლიანად (Promise .then)
+└─────────────────────────────┘
+┌─────────────────────────────┐
+│  3. Macrotask Queue          │  ← მხოლოდ ბოლოს, ერთი დავალება ციკლზე (setTimeout)
+└─────────────────────────────┘</code></pre>
+      <p>
+        <strong>პრაქტიკული დასკვნა:</strong> ამ დეტალის ზედმიწევნით ცოდნა ყოველდღიურ კოდში
+        იშვიათად გჭირდება, მაგრამ ხსნის ბევრ „უცნაურ" ქცევას, რომელსაც დიდ, რთულ აპლიკაციებში
+        ხშირად ხვდები — და ეს არის ზუსტად ის თემა, რომელსაც ხშირად ტექნიკურ გასაუბრებაზე
+        გეკითხებიან.
+      </p>
+
+      <h2>6. საკონტროლო პროექტი — To-Do App, ასინქრონული ლოგიკით</h2>
+      <p>
+        ახლა ავაწყოთ სრული To-Do აპლიკაცია, რომელიც იყენებს 1-დან 18-ე გაკვეთილამდე ნასწავლ
+        ყველა ძირითად კონცეფციას — მასივები/ობიექტები, ფუნქციები/closure, DOM-რენდერი, Event
+        Delegation, და ახლა — <strong>ასინქრონული „შენახვა"</strong>, თითქოს რეალურ სერვერზე
+        გავდიოდეთ (სერვერის იმიტაცია <code>setTimeout</code>-ით, რეალური backend-ის გარეშე).
+      </p>
+
+      <h3>HTML — საბაზისო სტრუქტურა</h3>
+      <pre><code>&lt;<span class="tag">section</span> <span class="attr">class</span>=<span class="str">"todo-app"</span>&gt;
+  &lt;<span class="tag">form</span> <span class="attr">id</span>=<span class="str">"todo-form"</span>&gt;
+    &lt;<span class="tag">input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">id</span>=<span class="str">"todo-input"</span> <span class="attr">placeholder</span>=<span class="str">"ახალი დავალება..."</span> <span class="attr">required</span>&gt;
+    &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;დამატება&lt;/<span class="tag">button</span>&gt;
+  &lt;/<span class="tag">form</span>&gt;
+
+  &lt;<span class="tag">p</span> <span class="attr">id</span>=<span class="str">"todo-status"</span>&gt;&lt;/<span class="tag">p</span>&gt;  <span class="cmt">&lt;!-- "ინახება..." / "შენახულია" / შეცდომა --&gt;</span>
+
+  &lt;<span class="tag">ul</span> <span class="attr">id</span>=<span class="str">"todo-list"</span>&gt;&lt;/<span class="tag">ul</span>&gt;
+&lt;/<span class="tag">section</span>&gt;</code></pre>
+
+      <h3>JS — მონაცემები და "სერვერის" იმიტაცია</h3>
+      <pre><code><span class="attr">let</span> todos = []; <span class="cmt">// { id, text, completed }</span>
+<span class="attr">let</span> nextId = 1;
+
+<span class="cmt">// "სერვერზე შენახვის" იმიტაცია — Promise, 20% შანსით ჩავარდება (რეალისტური სცენარისთვის)</span>
+<span class="attr">function</span> saveTodoToServer(todo) {
+  <span class="attr">return new</span> Promise((resolve, reject) => {
+    setTimeout(() => {
+      <span class="attr">if</span> (Math.random() < 0.2) {
+        reject(<span class="attr">new</span> Error("ქსელის შეცდომა — ვერ შეინახა"));
+      } <span class="attr">else</span> {
+        resolve({ ...todo, savedAt: Date.now() }); <span class="cmt">// spread — immutable განახლება (მე-14 გაკვეთილი)</span>
+      }
+    }, 800); <span class="cmt">// 800ms "ქსელის დაყოვნება"</span>
+  });
+}</code></pre>
+
+      <h3>JS — DOM რენდერი და Event Delegation (მე-15/16 გაკვეთილები)</h3>
+      <pre><code><span class="attr">function</span> createTodoElement(todo) {
+  <span class="attr">const</span> { id, text, completed } = todo; <span class="cmt">// destructuring, მე-14</span>
+  <span class="attr">const</span> li = document.createElement("li");
+  li.dataset.id = id;
+  <span class="attr">if</span> (completed) li.classList.add("completed");
+
+  li.insertAdjacentHTML("beforeend", `
+    &lt;input type="checkbox" ${completed ? "checked" : ""}&gt;
+    &lt;span&gt;${text}&lt;/span&gt;
+    &lt;button class="delete-btn" aria-label="წაშლა"&gt;✕&lt;/button&gt;
+  `);
+  <span class="attr">return</span> li;
+}
+
+<span class="attr">function</span> renderTodos() {
+  <span class="attr">const</span> list = document.querySelector("#todo-list");
+  <span class="attr">const</span> fragment = document.createDocumentFragment(); <span class="cmt">// batch insert, მე-15</span>
+
+  <span class="attr">for</span> (<span class="attr">const</span> todo <span class="attr">of</span> todos) {
+    fragment.appendChild(createTodoElement(todo));
+  }
+
+  list.innerHTML = "";
+  list.appendChild(fragment);
+}
+
+<span class="cmt">// Event Delegation — ერთი listener მთელი სიისთვის (მე-16 გაკვეთილი)</span>
+document.querySelector("#todo-list").addEventListener("click", (event) => {
+  <span class="attr">const</span> li = event.target.closest("li");
+  <span class="attr">if</span> (!li) <span class="attr">return</span>;
+  <span class="attr">const</span> id = Number(li.dataset.id);
+
+  <span class="attr">if</span> (event.target.matches(".delete-btn")) {
+    todos = todos.filter((t) => t.id !== id); <span class="cmt">// filter, მე-12</span>
+    renderTodos();
+  } <span class="attr">else if</span> (event.target.matches("input[type='checkbox']")) {
+    todos = todos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)); <span class="cmt">// map + spread, immutable</span>
+    renderTodos();
+  }
+});</code></pre>
+
+      <h3>JS — async/await + try/catch, loading state</h3>
+      <pre><code><span class="attr">const</span> form = document.querySelector("#todo-form");
+<span class="attr">const</span> input = document.querySelector("#todo-input");
+<span class="attr">const</span> status = document.querySelector("#todo-status");
+
+form.addEventListener("submit", <span class="attr">async</span> (event) => {
+  event.preventDefault(); <span class="cmt">// preventDefault, მე-16</span>
+
+  <span class="attr">const</span> text = input.value.trim();
+  <span class="attr">if</span> (!text) <span class="attr">return</span>;
+
+  <span class="attr">const</span> newTodo = { id: nextId++, text, completed: <span class="attr">false</span> };
+
+  status.textContent = "⏳ ინახება...";
+  status.setAttribute("data-state", "pending");
+
+  <span class="attr">try</span> {
+    <span class="attr">await</span> saveTodoToServer(newTodo); <span class="cmt">// "სერვერზე" შენახვის მოლოდინი</span>
+    todos.push(newTodo);
+    renderTodos();
+    input.value = "";
+    status.textContent = "✅ შენახულია";
+    status.setAttribute("data-state", "success");
+  } <span class="attr">catch</span> (error) {
+    status.textContent = `⚠️ ${error.message} — სცადე ხელახლა`;
+    status.setAttribute("data-state", "error");
+  }
+});</code></pre>
+
+      <h3>JS — Promise.allSettled: "ყველას სინქრონიზაცია" ღილაკი</h3>
+      <pre><code><span class="attr">async function</span> syncAllTodos() {
+  status.textContent = `⏳ ${todos.length} დავალების სინქრონიზაცია...`;
+
+  <span class="attr">const</span> results = <span class="attr">await</span> Promise.allSettled(
+    todos.map((todo) => saveTodoToServer(todo)) <span class="cmt">// ყველა პარალელურად, ერთდროულად</span>
+  );
+
+  <span class="attr">const</span> failed = results.filter((r) => r.status === "rejected").length;
+  status.textContent = failed === 0
+    ? "✅ ყველა დავალება წარმატებით სინქრონიზდა"
+    : `⚠️ ${failed} დავალება ვერ სინქრონიზდა, დანარჩენი — წარმატებით`;
+}</code></pre>
+      <p>
+        <strong>რატომ <code>allSettled</code>, არა <code>all</code>:</strong> თუ 10 დავალებიდან
+        ერთი ჩავარდება, <code>Promise.all()</code> მთელ ოპერაციას „ჩაშლიდა" — <code>allSettled</code>
+        კი გვაჩვენებს ზუსტად, რომელი 9 შევინახეთ წარმატებით და რომელი ერთი ვერა.
       </p>
 
       <div class="resources">
@@ -151,9 +375,24 @@ fetchUser
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/callbacks" target="_blank" rel="noopener">JavaScript.info — Callbacks</a></li>
           <li><a href="https://javascript.info/promise-basics" target="_blank" rel="noopener">JavaScript.info — Promise</a></li>
+          <li><a href="https://javascript.info/promise-api" target="_blank" rel="noopener">JavaScript.info — Promise API (all/allSettled/any/race)</a></li>
           <li><a href="https://javascript.info/async-await" target="_blank" rel="noopener">JavaScript.info — Async/await</a></li>
+          <li><a href="https://javascript.info/event-loop" target="_blank" rel="noopener">JavaScript.info — Event loop: microtasks and macrotasks</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" rel="noopener">MDN — Promise reference</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled" target="_blank" rel="noopener">MDN — Promise.allSettled()</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რა განსხვავებაა <code>Promise.all()</code>-სა და <code>Promise.allSettled()</code>-ს შორის?</li>
+          <li>როდის გამოვიყენებდით <code>Promise.any()</code>-ს და როდის — <code>Promise.race()</code>-ს?</li>
+          <li>რატომ არის ზედმეტად ნელი ორი დამოუკიდებელი <code>await</code>-ის თანმიმდევრულად დაწერა?</li>
+          <li>რატომ ასრულდება Promise-ის <code>.then()</code> ხშირად <code>setTimeout(..., 0)</code>-ზე ადრე?</li>
+          <li>რა განსხვავებაა microtask queue-სა და macrotask queue-ს შორის?</li>
+          <li>რატომ გამოვიყენეთ To-Do აპლიკაციაში <code>Promise.allSettled()</code>, არა <code>Promise.all()</code>, სინქრონიზაციისთვის?</li>
+        </ol>
       </div>
 
       <div class="exercises">
@@ -162,8 +401,10 @@ fetchUser
           <li>დაწერე <code>setTimeout</code>-ის გამოყენებით 3 შეტყობინება, რომლებიც ცალ-ცალკე დროის დაყოვნებით გამოჩნდება Console-ში — დააკვირდი, რომ ისინი არ ელოდებიან ერთმანეთს.</li>
           <li>შექმენი მარტივი Promise, რომელიც 50% შემთხვევაში resolve-დება და 50%-ში reject-დება (<code>Math.random()</code>-ის გამოყენებით) — გამოსცადე <code>.then()</code>/<code>.catch()</code>.</li>
           <li>გადაწერე წინა დავალების Promise <code>async/await</code>-ისა და <code>try/catch</code>-ის გამოყენებით.</li>
-          <li>დაწერე ჯაჭვური <code>.then()</code> მაგალითი 3 ნაბიჯით (თითოეული წინას შედეგზეა დამოკიდებული).</li>
+          <li>დაწერე 3 Promise (სხვადასხვა setTimeout-ის დაყოვნებით) და გამოსცადე <code>Promise.all()</code>, <code>Promise.allSettled()</code> და <code>Promise.race()</code> ერთსა და იმავე მასივზე — შეადარე შედეგები.</li>
+          <li>დაწერე მოკლე console.log მაგალითი, რომელიც აჩვენებს microtask-ის პრიორიტეტს macrotask-ზე (<code>Promise.resolve().then()</code> vs <code>setTimeout(..., 0)</code>).</li>
           <li><em>(რთული)</em> დაწერე <code>async</code> ფუნქცია, რომელიც იყენებს <code>Promise.all()</code>-ს ორი ან მეტი დამოუკიდებელი Promise-ის <strong>პარალელურად</strong> დასასრულებლად (ერთმანეთის მოლოდინის ნაცვლად) — შეადარე შესრულების დრო თანმიმდევრულ (sequential await) მიდგომასთან.</li>
+          <li><em>(საკონტროლო პროექტი)</em> ააწყვე სრული To-Do App ზემოთ ნაჩვენები კოდის მიხედვით: (1) HTML ჩონჩხი ფორმითა და სიით; (2) <code>saveTodoToServer()</code> — Promise-ზე დაფუძნებული, შემთხვევითი წარუმატებლობით; (3) DOM-რენდერი DocumentFragment-ით; (4) Event Delegation წაშლა/მონიშვნისთვის; (5) async submit handler, loading/success/error სტატუსებით; (6) <code>syncAllTodos()</code> ღილაკი, <code>Promise.allSettled()</code>-ის გამოყენებით.</li>
         </ol>
       </div>
 

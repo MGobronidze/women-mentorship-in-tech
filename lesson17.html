@@ -139,8 +139,8 @@ greet.call(person, "გამარჯობა");   <span class="cmt">// "გ�
 greet.apply(person, ["სალამი"]);   <span class="cmt">// "სალამი, ჯონ!"</span>
 
 <span class="cmt">// bind — არ სვამს მაშინვე, აბრუნებს ახალ ფუნქციას, "მუდმივად" მიბმულ this-ით</span>
-<span class="attr">const</span> greetAna = greet.bind(person);
-greetAna("დილა მშვიდობისა"); <span class="cmt">// "დილა მშვიდობისა, ჯონ!" — გამოძახებადია მოგვიანებით</span></code></pre>
+<span class="attr">const</span> greetJohn = greet.bind(person);
+greetJohn("დილა მშვიდობისა"); <span class="cmt">// "დილა მშვიდობისა, ჯონ!" — გამოძახებადია მოგვიანებით</span></code></pre>
       <p>
         <code>bind</code> ხშირად გამოიყენება event handler-ებში, როცა გვინდა, ფუნქციამ „დაიმახსოვროს"
         კონკრეტული <code>this</code>, მაშინაც კი, თუ ის მოგვიანებით, სხვა კონტექსტში გამოიძახება.
