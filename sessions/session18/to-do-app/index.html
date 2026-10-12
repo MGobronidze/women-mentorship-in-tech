@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App (Async Architecture)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <section class="todo-app">
+    <header class="app-header">
+      <h1>დავალებები</h1>
+      <button id="sync-btn" class="sync-btn"> სინქრონიზაცია</button>
+    </header>
+
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="ახალი დავალება..." required>
+      <button type="submit">დამატება</button>
+    </form>
+
+    <p id="todo-status" aria-live="polite"></p>
+
+    <ul id="todo-list"></ul>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

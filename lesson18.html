@@ -94,13 +94,23 @@ getUser(userId, (user) => {
       <p>
         <strong>Promise</strong> არის ობიექტი, რომელიც წარმოადგენს მომავალში დასრულებულ (ან
         წარუმატებელ) ოპერაციას. მას აქვს სამი მდგომარეობა: <code>pending</code> (მიმდინარეობს),
-        <code>fulfilled</code> (წარმატებული) და <code>rejected</code> (წარუუმატებელი).
+        <code>fulfilled</code> (წარმატებული) და <code>rejected</code> (წარუმატებელი).
       </p>
+      <h3>
+        მარტივი მაგალითი:
+      </h3>
+      <ul>
+        <li>შეკვეთის მიცემა (Promise-ის შექმნა): მიდიხართ მიმტანთან და უკვეთავთ კერძს. მიმტანი გაძლევთ ქვითარს/ნომერს და გეუბნებათ: "დაელოდეთ, კერძი მალე მზად იქნება". ეს არის Promise — დაპირება, რომ მომავალში რაღაც შედეგს მიიღებთ.</li>
+        <li>მოლოდინი (Pending): სანამ სამზარეულო კერძს ამზადებს, თქვენ არ დგახართ უქმად — შეგიძლიათ ტელეფონში ჩაიხედოთ ან მეგობარს ესაუბროთ (ასინქრონულობა: მთავარი ნაკადი არ იბლოკება).</li>
+        <li>შედეგი 1 — წარმატება (Fulfilled / Resolved): კერძი მომზადდა, მიმტანმა მოგიტანათ (resolve). თქვენ იღებთ საკვებს და მიირთმევთ (.then()).</li>
+        <li>შედეგი 2 — შეცდომა (Rejected): მზარეულს ინგრედიენტები გაუთავდა და მიმტანი გეუბნებათ, რომ კერძს ვერ მოგიმზადებენ (reject). თქვენ იღებთ შეტყობინებას შეცდომის შესახებ და გეგმავთ რა ქნათ (.catch()).</li>
+        <li>დასასრული (Settled / Finally): მიუხედავად იმისა, კერძი მოგიტანეს თუ უარი გითხრეს, მაგიდას ასუფთავებენ და პროცესი სრულდება (.finally()).</li>
+      </ul>
       <pre><code><span class="attr">const</span> fetchUser = <span class="attr">new</span> Promise((resolve, reject) => {
   setTimeout(() => {
     <span class="attr">const</span> success = <span class="attr">true</span>;
     <span class="attr">if</span> (success) {
-      resolve({ name: "ანა", id: 1 }); <span class="cmt">// წარმატება</span>
+      resolve({ name: "ჯონი", id: 1 }); <span class="cmt">// წარმატება</span>
     } <span class="attr">else</span> {
       reject(<span class="attr">new</span> Error("მომხმარებელი ვერ მოიძებნა")); <span class="cmt">// შეცდომა</span>
     }
@@ -112,8 +122,7 @@ fetchUser
   .catch((error) => console.error("შეცდომა:", error.message))
   .finally(() => console.log("დასრულდა (წარმატებით ან არა)"));</code></pre>
       <p>
-        <code>.then()</code> ჯაჭვად შესაძლებელია, რაც Callback Hell-ის პრობლემას წყვეტს —
-        ჩადგმის ნაცვლად, ოპერაციები ერთმანეთის „ქვემოთ" გრძელდება:
+        .then() მეთოდების ჯაჭვურად დაკავშირება შესაძლებელია, რაც Callback Hell-ის პრობლემას წყვეტს: ფუნქციების სიღრმეში ჩადგმის ნაცვლად, ასინქრონული ოპერაციები თანმიმდევრულად, ზევიდან ქვემოთ იწერება.
       </p>
       <pre><code>getUser(userId)
   .then(user => getOrders(user.id))
@@ -207,7 +216,7 @@ console.log(`${successful.length} წარმატებული, ${failed.le
       <h2>5. Microtask Queue vs Macrotask Queue — Event Loop</h2>
       <p>
         ეს არის ერთ-ერთი ყველაზე ხშირად დასმული, „გამოცდილი" JavaScript-ის კითხვა — რატომ
-        ასრულდება Promise-ის <code>.then()</code> ხშირად <strong>უფრო ადრე</strong>, ვიდრე
+        სრულდება Promise-ის <code>.then()</code> ხშირად <strong>უფრო ადრე</strong>, ვიდრე
         <code>setTimeout(..., 0)</code>, თუნდაც ორივე „მომავალში" იყოს დაგეგმილი?
       </p>
       <pre><code>console.log("1. სინქრონული");
@@ -361,8 +370,8 @@ form.addEventListener("submit", <span class="attr">async</span> (event) => {
 
   <span class="attr">const</span> failed = results.filter((r) => r.status === "rejected").length;
   status.textContent = failed === 0
-    ? "✅ ყველა დავალება წარმატებით სინქრონიზდა"
-    : `⚠️ ${failed} დავალება ვერ სინქრონიზდა, დანარჩენი — წარმატებით`;
+    ? " ყველა დავალება წარმატებით სინქრონიზდა"
+    : ` ${failed} დავალება ვერ სინქრონიზდა, დანარჩენი — წარმატებით`;
 }</code></pre>
       <p>
         <strong>რატომ <code>allSettled</code>, არა <code>all</code>:</strong> თუ 10 დავალებიდან
