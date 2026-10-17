@@ -40,7 +40,7 @@ const LESSONS = [
   { n: 16, mod: "js", title: "Events სრულად, AbortController, საკონტროლო პროექტი" },
   { n: 17, mod: "js", title: "Burger Menu (ARIA), call/apply/bind, HOF, პროექტი" },
   { n: 18, mod: "js", title: "Promises სრულად, Event Loop, To-Do App პროექტი" },
-  { n: 19, mod: "js", title: "Ajax, XHR, Fetch, JSON, DevTools Network, სლაიდერი და ვალიდაცია" },
+  { n: 19, mod: "js", title: "Fetch სრულად, JSON, DevTools, Weather App პროექტი" },
   { n: 20, mod: "js", title: "Constructor, Prototype, Classes, Storage, Cookies, ფილტრი" },
 
   { n: 21, mod: "react", title: "React, SPA, Vite, Babel, JSX, კომპონენტების რენდერი" },

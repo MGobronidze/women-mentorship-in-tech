@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 19 — Fetch, AJAX, JSON, DevTools — სლაიდერი და ვალიდაცია</title>
-  <meta name="description" content="Ajax, XMLHttpRequest, Fetch API, JSON ობიექტი, DevTools Network ტაბი, სლაიდერისა და ფორმის ვალიდაციის აწყობა." />
+  <title>გაკვეთილი 19 — Fetch სრულად, JSON, DevTools, Weather App</title>
+  <meta name="description" content="Fetch API სრულად (response.ok, URLSearchParams, AbortController, AbortSignal.timeout/any), JSON, DevTools Network, ფორმის ვალიდაცია და სრული Weather App რეალური API-ით." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,11 +37,12 @@
       </div>
       <span class="lesson-mod" style="background: var(--mod-js-bg); color: var(--mod-js);">JS · 19/24</span>
       <h1 style="font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; margin: 14px 0 10px;">
-        Fetch, AJAX, JSON, DevTools — სლაიდერი და ვალიდაცია
+        Fetch სრულად, JSON, DevTools და Weather App
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        წინა გაკვეთილში ვისწავლეთ, როგორ ვმართავთ ასინქრონულობას. ახლა გამოვიყენოთ ეს ცოდნა
-        რეალურ სცენარში — მონაცემების წამოსაღებად სერვერიდან — და ავაწყოთ ორი პრაქტიკული UI.
+        წინა გაკვეთილში ვისწავლეთ, როგორ ვმართავთ ასინქრონულობას. ახლა ეს ცოდნა რეალურ სცენარში
+        გამოვიყენოთ — მონაცემები წამოვიღოთ სერვერიდან, დავამუშაოთ, გამოვსახოთ, და ბოლოს
+        ავაწყოთ სრული ამინდის აპლიკაცია რეალური, საჯარო API-ით.
       </p>
       <div class="lesson-progress" data-lesson="19">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -60,31 +61,36 @@
 
       <h2>2. XMLHttpRequest — ისტორიული საფუძველი</h2>
       <p>
-        <code>XMLHttpRequest</code> (XHR) იყო პირველი API ბრაუზერის AJAX მოთხოვნებისთვის. დღეს
-        იშვიათად იწერება ხელით (Fetch უფრო მარტივია), მაგრამ მნიშვნელოვანია ვიცოდეთ, რომ ის
-        არსებობს — ბევრ ძველ კოდში ჯერ კიდევ გვხვდება:
+        <code>XMLHttpRequest</code> (XHR) იყო პირველი API ბრაუზერის AJAX მოთხოვნებისთვის. ის
+        callback-ებზეა აწყობილი (<code>onload</code>, <code>onerror</code>), ამიტომ რთულ
+        სცენარებში ადვილად ვარდება წინა გაკვეთილში ნანახ „Callback Hell"-ში — სწორედ ამიტომ
+        შეიქმნა Promise-ზე დაფუძნებული <code>fetch</code>. დღეს XHR იშვიათად იწერება ხელით,
+        მაგრამ ბევრ ძველ კოდში ჯერ კიდევ გვხვდება:
       </p>
-      <pre><code><span class="attr">const</span> xhr = <span class="attr">new</span> XMLHttpRequest();
-xhr.open("GET", "https://api.example.com/users");
+<pre><code><span class="attr">const</span> xhr = <span class="attr">new</span> XMLHttpRequest();
+xhr.open("GET", "https://jsonplaceholder.typicode.com/users");
 xhr.onload = <span class="attr">function</span>() {
   <span class="attr">if</span> (xhr.status === 200) {
     console.log(JSON.parse(xhr.responseText));
   }
 };
+xhr.onerror = <span class="attr">function</span>() {
+  console.error("ქსელის შეცდომა");
+};
 xhr.send();</code></pre>
-
       <h2>3. Fetch API — თანამედროვე სტანდარტი</h2>
       <p>
         <code>fetch()</code> არის Promise-ზე დაფუძნებული, ბევრად მარტივი API HTTP მოთხოვნების
-        გასაგზავნად. დღეს ეს არის სტანდარტული არჩევანი.
+        გასაგზავნად. დღეს ეს არის სტანდარტული არჩევანი — და წინა გაკვეთილზე ნასწავლი
+        <code>async/await</code> მასთან იდეალურად მუშაობს.
       </p>
-      <pre><code><span class="cmt">// GET მოთხოვნა — async/await-ით</span>
-<span class="attr">async function</span> loadUsers() {
+<pre><code><span class="cmt">// GET მოთხოვნა — async/await-ით</span>
+<span class="attr">async</span> <span class="attr">function</span> loadUsers() {
   <span class="attr">try</span> {
     <span class="attr">const</span> response = <span class="attr">await</span> fetch("https://jsonplaceholder.typicode.com/users");
 
     <span class="attr">if</span> (!response.ok) {
-      <span class="attr">throw new</span> Error(`HTTP შეცდომა: ${response.status}`);
+      <span class="attr">throw</span> <span class="attr">new</span> Error(`HTTP შეცდომა: ${response.status}`);
     }
 
     <span class="attr">const</span> users = <span class="attr">await</span> response.json(); <span class="cmt">// პასუხის ტექსტის JSON-ად გარდაქმნა</span>
@@ -93,22 +99,165 @@ xhr.send();</code></pre>
     console.error("მონაცემების წამოღება ვერ მოხერხდა:", error.message);
   }
 }</code></pre>
-      <pre><code><span class="cmt">// POST მოთხოვნა — მონაცემების გაგზავნა</span>
-<span class="attr">async function</span> createUser(userData) {
-  <span class="attr">const</span> response = <span class="attr">await</span> fetch("https://api.example.com/users", {
+      <h3>⚠️ ყველაზე ხშირი დამწყები შეცდომა — fetch HTTP შეცდომაზე „არ ვარდება"</h3>
+      <p>
+        <code>fetch()</code>-ის Promise <strong>reject</strong>-დება მხოლოდ მაშინ, როცა მოთხოვნა
+        საერთოდ ვერ შესრულდა (არ არის ინტერნეტი, DNS ვერ მოიძებნა, CORS-ით დაიბლოკა). თუ
+        სერვერმა <em>უპასუხა</em> — თუნდაც <code>404</code>-ით ან <code>500</code>-ით — Promise
+        წარმატებით სრულდება, და <code>catch</code> ბლოკი <strong>არ</strong> ამუშავდება:
+      </p>
+<pre><code><span class="attr">const</span> response = <span class="attr">await</span> fetch("https://jsonplaceholder.typicode.com/users/9999");
+
+console.log(response.ok);     <span class="cmt">// false — სტატუსი 200-299 დიაპაზონში არ არის</span>
+console.log(response.status); <span class="cmt">// 404</span>
+
+<span class="cmt">// catch-ბლოკი აქ არ ამუშავდებოდა! ამიტომ response.ok ხელით უნდა შევამოწმოთ:</span>
+<span class="attr">if</span> (!response.ok) {
+  <span class="attr">throw</span> <span class="attr">new</span> Error(`HTTP ${response.status}`);
+}</code></pre>
+      <h3>Response ობიექტი — რას შეიცავს</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>response.ok</code> — <code>true</code>, თუ სტატუსი 200-დან 299-მდეა.</li>
+        <li><code>response.status</code> — რიცხვითი კოდი (200, 404, 500...).</li>
+        <li><code>response.headers.get("content-type")</code> — პასუხის header-ები.</li>
+        <li><code>response.json()</code> / <code>.text()</code> / <code>.blob()</code> — სხეულის წაკითხვა სხვადასხვა ფორმატში (ყველა Promise-ს აბრუნებს).</li>
+      </ul>
+      <p>
+        <strong>მნიშვნელოვანი დეტალი:</strong> პასუხის სხეული შეიძლება წაიკითხო <strong>მხოლოდ
+        ერთხელ</strong>. თუ ჯერ <code>response.text()</code> გამოიძახე, მერე
+        <code>response.json()</code> შეცდომას გამოიწვევს. თუ ორივე ფორმატი გჭირდება —
+        <code>response.clone()</code>-ით გააკეთე ასლი.
+      </p>
+
+      <h3>URL-ის აწყობა — URLSearchParams</h3>
+      <p>
+        მოთხოვნის პარამეტრების (query string) სტრიქონების ხელით შეერთება
+        (<code>"?name=" + name</code>) სახიფათოა — სივრცეები, <code>&amp;</code> სიმბოლო და
+        ქართული ასოები URL-ში სწორად უნდა დაიშიფროს (percent-encoding).
+        <code>URLSearchParams</code> ამას ავტომატურად აკეთებს:
+      </p>
+<pre><code><span class="attr">const</span> params = <span class="attr">new</span> URLSearchParams({ name: "თბილისი", count: 1 });
+
+console.log(params.toString());
+<span class="cmt">// "name=%E1%83%97%E1%83%91%E1%83%98%E1%83%9A%E1%83%98%E1%83%A1%E1%83%98&amp;count=1"</span>
+
+<span class="attr">const</span> url = `https://geocoding-api.open-meteo.com/v1/search?${params}`; <span class="cmt">// ${params} თავად გადაიქცევა სტრიქონად</span>
+
+<span class="cmt">// სივრცეები და სპეც. სიმბოლოებიც უსაფრთხოდ მუშავდება:</span>
+<span class="attr">new</span> URLSearchParams({ q: "new york &amp; co" }).toString(); <span class="cmt">// "q=new+york+%26+co"</span></code></pre>
+      <h3>POST მოთხოვნა — მონაცემების გაგზავნა</h3>
+<pre><code><span class="attr">async</span> <span class="attr">function</span> createPost(postData) {
+  <span class="attr">const</span> response = <span class="attr">await</span> fetch("https://jsonplaceholder.typicode.com/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData), <span class="cmt">// JS ობიექტი → JSON სტრიქონი</span>
+    body: JSON.stringify(postData), <span class="cmt">// JS ობიექტი → JSON სტრიქონი</span>
   });
-  <span class="attr">return await</span> response.json();
-}</code></pre>
+
+  <span class="attr">if</span> (!response.ok) <span class="attr">throw</span> <span class="attr">new</span> Error(`HTTP ${response.status}`);
+  <span class="attr">return</span> response.json(); <span class="cmt">// სერვერი დაგვიბრუნებს შექმნილ ობიექტს, id-ითურთ</span>
+}
+
+<span class="cmt">// ფორმიდან მონაცემების ამოღება — FormData + Object.fromEntries (მე-12 გაკვეთილი)</span>
+form.addEventListener("submit", <span class="attr">async</span> (event) =&gt; {
+  event.preventDefault();
+  <span class="attr">const</span> data = Object.fromEntries(<span class="attr">new</span> FormData(form)); <span class="cmt">// { title: "...", body: "..." }</span>
+  <span class="attr">const</span> created = <span class="attr">await</span> createPost(data);
+  console.log("შეიქმნა:", created);
+});</code></pre>
+      <h3>მოთხოვნის გაუქმება და timeout — AbortController</h3>
+      <p>
+        <code>fetch</code> თავისით არასდროს წყვეტს ლოდინს — თუ სერვერი „გაჩერდა", მოთხოვნა
+        შეიძლება დიდხანს „გაიჭედოს". სამი ხელსაწყო გვეხმარება (პირველს მე-16 გაკვეთილზე
+        უკვე შევხვდით event listener-ების კონტექსტში):
+      </p>
+<pre><code><span class="cmt">// 1. ხელით გაუქმება — AbortController</span>
+<span class="attr">const</span> controller = <span class="attr">new</span> AbortController();
+fetch(url, { signal: controller.signal });
+controller.abort(); <span class="cmt">// fetch დაუყოვნებლივ reject-დება; error.name === "AbortError"</span>
+
+<span class="cmt">// 2. ავტომატური timeout — AbortSignal.timeout(მილიწამები)</span>
+<span class="attr">const</span> response = <span class="attr">await</span> fetch(url, { signal: AbortSignal.timeout(5000) });
+<span class="cmt">// 5 წამში პასუხი თუ არ მოვიდა, error.name === "TimeoutError"</span>
+
+<span class="cmt">// 3. ორივე ერთად — AbortSignal.any([...]): პირველივე გაუქმების მიზეზი იმარჯვებს</span>
+<span class="attr">const</span> signal = AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]);
+<span class="attr">await</span> fetch(url, { signal });</code></pre>
+      <p>
+        <strong>თავსებადობა (2026):</strong> <code>AbortSignal.timeout()</code> „Baseline
+        Newly available" სტატუსშია 2024 წლის აპრილიდან, და web-features-ის პროგნოზით 2026 წლის
+        18 ოქტომბერს „Widely available"-ს გახდება. <code>AbortSignal.any()</code> მუშაობს
+        Chrome 116+, Firefox 124+ და Safari 17.4+-ში — ძველ ბრაუზერებზე მის გარეშე
+        გამოიყენე ცალკე <code>timeout</code> ან <code>controller</code>.
+      </p>
+
+      <h3>შეცდომების სახეობები — რას „ვხედავთ" catch-ში</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">რა ხდება</th>
+            <th style="text-align: left; padding: 8px;">როგორ ამოვიცნობთ</th>
+            <th style="text-align: left; padding: 8px;">რას ვუთხრათ მომხმარებელს</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">ქსელი/DNS/CORS ჩავარდა</td>
+            <td style="padding: 8px;"><code>TypeError</code>, <code>error.status</code> არ არსებობს</td>
+            <td style="padding: 8px;">„შეამოწმე ინტერნეტი"</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">სერვერმა შეცდომით უპასუხა</td>
+            <td style="padding: 8px;"><code>response.ok === false</code> → ჩვენი <code>error.status</code></td>
+            <td style="padding: 8px;">404 → „ვერ მოიძებნა", 5xx → „სერვერის პრობლემაა"</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">timeout</td>
+            <td style="padding: 8px;"><code>error.name === "TimeoutError"</code></td>
+            <td style="padding: 8px;">„სერვერი დიდხანს არ პასუხობს"</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--line);">
+            <td style="padding: 8px;">ჩვენ თვითონ გავაუქმეთ</td>
+            <td style="padding: 8px;"><code>error.name === "AbortError"</code></td>
+            <td style="padding: 8px;">არაფერი — ეს შეცდომა არ არის</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;">პასუხი არ არის ვალიდური JSON</td>
+            <td style="padding: 8px;"><code>SyntaxError</code> (<code>response.json()</code>-იდან)</td>
+            <td style="padding: 8px;">„მონაცემები არასწორი ფორმატითაა"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Race Condition — „მოძველებული პასუხის" პრობლემა</h3>
+      <p>
+        წარმოიდგინე: მომხმარებელმა მოძებნა „Batumi", მაშინვე — „Tbilisi". თუ პირველი მოთხოვნა
+        ნელია და მეორეზე <em>გვიან</em> მოვიდა, ეკრანზე „Tbilisi"-ს ნაცვლად „Batumi"-ს
+        შედეგი გამოჩნდება — ე.წ. <strong>stale response</strong>. გამოსავალი: ახალი მოთხოვნის
+        დაწყებისას წინა <code>controller.abort()</code>-ით გავაუქმოთ (ზუსტად ამას ქვემოთ,
+        Weather App-ში გავაკეთებთ).
+      </p>
+
+      <h3>CORS და API გასაღებები — უსაფრთხოება</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>CORS</strong> (Cross-Origin Resource Sharing): ბრაუზერი ბლოკავს სხვა დომენის პასუხის წაკითხვას, თუ სერვერი პასუხში არ აბრუნებს <code>Access-Control-Allow-Origin</code> header-ს. Console-ში ამას „blocked by CORS policy" წერია. ეს <strong>frontend-იდან გამოსასწორებელი არ არის</strong> — სერვერმა უნდა დაუშვას (ან შენი საკუთარი backend-ის გავლით გააგზავნო მოთხოვნა). Open-Meteo და JSONPlaceholder CORS-ს უშვებენ.</li>
+        <li><strong>საიდუმლო გასაღებები</strong> (API key, token) <strong>არასდროს</strong> ჩაწერო frontend კოდში — ყველაფერი, რაც ბრაუზერშია, ხილულია DevTools-ში ნებისმიერისთვის. ფასიანი/პირადი API-ებისთვის გასაღები backend-ზე უნდა ინახებოდეს. სწორედ ამიტომ არის Open-Meteo მისაღები სასწავლო პროექტისთვის: მას გასაღები საერთოდ არ სჭირდება.</li>
+      </ul>
+
+      <h3>პარალელური მოთხოვნები (წინა გაკვეთილის გამეორება)</h3>
+      <p>
+        ერთმანეთისგან <em>დამოუკიდებელი</em> მოთხოვნები პარალელურად გავუშვათ
+        <code>Promise.all()</code>-ით (ან <code>Promise.allSettled()</code>-ით, თუ ერთის
+        ჩავარდნა დანარჩენებს არ უნდა აფუჭებდეს). ხოლო <em>ერთმანეთზე დამოკიდებული</em>
+        მოთხოვნები (მაგ. ჯერ ქალაქის კოორდინატები, შემდეგ — ამინდი) თანმიმდევრულ
+        <code>await</code>-ს მოითხოვს.
+      </p>
 
       <h2>4. JSON — ობიექტი და მეთოდები</h2>
       <p>
         <strong>JSON</strong> (JavaScript Object Notation) არის ტექსტური ფორმატი მონაცემების
         გადასაცემად — ის ჰგავს JS ობიექტს, მაგრამ არის მკაცრად ტექსტური (string).
       </p>
-      <pre><code><span class="attr">const</span> user = { name: "ანა", age: 22, active: true };
+<pre><code><span class="attr">const</span> user = { name: "ანა", age: 22, active: <span class="attr">true</span> };
 
 <span class="cmt">// JS ობიექტი → JSON სტრიქონი (გასაგზავნად)</span>
 <span class="attr">const</span> jsonString = JSON.stringify(user);
@@ -116,79 +265,608 @@ console.log(jsonString); <span class="cmt">// '{"name":"ანა","age":22,"act
 
 <span class="cmt">// JSON სტრიქონი → JS ობიექტი (მიღებული პასუხის დასამუშავებლად)</span>
 <span class="attr">const</span> parsedUser = JSON.parse(jsonString);
-console.log(parsedUser.name); <span class="cmt">// "ანა"</span></code></pre>
+console.log(parsedUser.name); <span class="cmt">// "ანა"</span>
+
+<span class="cmt">// ლამაზი, დაშორებებიანი ფორმატი (დებაგირებისთვის): მესამე არგუმენტი — დაშორების ზომა</span>
+console.log(JSON.stringify(user, <span class="attr">null</span>, 2));</code></pre>
       <p>
         <code>response.json()</code>, რომელსაც Fetch-თან ერთად ვიყენებთ, სინამდვილეში
         <code>JSON.parse()</code>-ის „მოხერხებული" ვერსიაა, უშუალოდ HTTP პასუხისთვის.
       </p>
 
+      <h3>JSON ≠ JS ობიექტი — რას კარგავს <code>stringify</code></h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>undefined</code>, ფუნქციები და <code>Symbol</code> ობიექტიდან უბრალოდ <strong>იკარგება</strong>.</li>
+        <li><code>Date</code> გადაიქცევა ISO სტრიქონად — <code>parse</code>-ის შემდეგ ის უკვე სტრიქონია, არა <code>Date</code>.</li>
+        <li><code>NaN</code> და <code>Infinity</code> გადაიქცევა <code>null</code>-ად.</li>
+        <li>JSON-ის წესები უფრო მკაცრია: key-ები <strong>ორმაგ ბრჭყალებში</strong>, ბოლო ელემენტის შემდეგ მძიმე დაუშვებელია, კომენტარები არ არსებობს.</li>
+        <li>ამიტომ <code>JSON.parse(JSON.stringify(obj))</code> ობიექტის კოპირების არასანდო გზაა — სანაცვლოდ გამოიყენე <code>structuredClone()</code> (მე-12 გაკვეთილი).</li>
+      </ul>
+<pre><code><span class="cmt">// JSON.parse არავალიდურ ტექსტზე შეცდომას ისვრის — ყოველთვის try/catch-ში:</span>
+<span class="attr">try</span> {
+  <span class="attr">const</span> data = JSON.parse(text);
+} <span class="attr">catch</span> (error) {
+  console.error("არავალიდური JSON:", error.message); <span class="cmt">// SyntaxError</span>
+}</code></pre>
       <h2>5. DevTools — Network ტაბი</h2>
       <p>
-        Network ტაბი (გავეცანით მე-1 გაკვეთილში ზოგადად) ახლა კონკრეტულად გამოსადეგია
-        <code>fetch</code> მოთხოვნების სადებაგოდ:
+        Network ტაბი (გავეცანით მე-1 გაკვეთილში ზოგადად) <code>fetch</code> მოთხოვნების
+        სადებაგოდ უმთავრესი ინსტრუმენტია. ყველაზე სასარგებლო შესაძლებლობები:
       </p>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li>ხედავ ყველა გაგზავნილ მოთხოვნას, მათ <strong>სტატუს კოდს</strong> და დროს.</li>
-        <li>ერთ მოთხოვნაზე დაწკაპუნებით ხედავ Headers-ს (რა გაგზავნე), Response-ს (რა მიიღე) და Preview-ს (გაფორმებული ხედი).</li>
-        <li>ფილტრით <code>Fetch/XHR</code> შეგიძლია დანარჩენი (სურათები, ფონტები) დამალო და მხოლოდ API მოთხოვნებზე ფოკუსირდე.</li>
+        <li><strong>Fetch/XHR ფილტრი</strong> — დამალავს სურათებს, ფონტებს, CSS-ს და დაგტოვებს მხოლოდ API მოთხოვნებს.</li>
+        <li><strong>მოთხოვნაზე დაწკაპუნება</strong> → <em>Headers</em> (რა გაგზავნე), <em>Payload</em> (body), <em>Response</em> და <em>Preview</em> (გაფორმებული ხედი), <em>Timing</em> (სად დაიხარჯა დრო: ლოდინი სერვერზე vs ჩამოტვირთვა).</li>
+        <li><strong>Throttling</strong> (ქსელის შენელება: Slow 4G, 3G, <em>Offline</em> — სახელები Chrome-ის ვერსიით ოდნავ განსხვავდება) — ერთადერთი სწორი გზა, რომ შენი loading და error მდგომარეობები რეალურად გამოსცადო.</li>
+        <li><strong>Block request URL</strong> (მარჯვენა კლავიში მოთხოვნაზე) — კონკრეტული მოთხოვნის „ჩავარდნის" სიმულაცია, სერვერის გათიშვის გარეშე.</li>
+        <li><strong>Copy → Copy as fetch</strong> — ნებისმიერი ქსელური მოთხოვნის ზუსტი ასლი JS კოდად, Console-ში გასამეორებლად.</li>
+        <li><strong>Disable cache</strong> და <strong>Preserve log</strong> — ხელს უშლის ძველი პასუხების მოტყუებას და გვერდის გადატვირთვისას ჩანაწერებს არ შლის.</li>
       </ul>
+
+      <h3>HTTP სტატუს კოდები — რომელი რას ნიშნავს</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">კოდი</th>
+            <th style="text-align: left; padding: 8px;">მნიშვნელობა</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>200 OK</code></td><td style="padding: 8px;">წარმატება</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>201 Created</code></td><td style="padding: 8px;">რესურსი შეიქმნა (ჩვეულებრივ POST-ის შემდეგ)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>204 No Content</code></td><td style="padding: 8px;">წარმატება, მაგრამ სხეული არ არის (<code>response.json()</code> აქ შეცდომას გამოიწვევს!)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>301 / 302</code></td><td style="padding: 8px;">გადამისამართება (fetch მას ავტომატურად მიჰყვება)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>400 Bad Request</code></td><td style="padding: 8px;">მოთხოვნა არასწორია (მაგ. არავალიდური პარამეტრი)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>401 / 403</code></td><td style="padding: 8px;">არ ხარ ავტორიზებული / წვდომა აკრძალულია</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>404 Not Found</code></td><td style="padding: 8px;">რესურსი ვერ მოიძებნა</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>429 Too Many Requests</code></td><td style="padding: 8px;">ლიმიტი გადააჭარბე — ცოტა ხანში სცადე</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>500 Internal Server Error</code></td><td style="padding: 8px;">სერვერის შიდა შეცდომა</td></tr>
+          <tr><td style="padding: 8px;"><code>503 Service Unavailable</code></td><td style="padding: 8px;">სერვერი დროებით მიუწვდომელია</td></tr>
+        </tbody>
+      </table>
 
       <h2>6. პრაქტიკა: სლაიდერი და ფორმის ვალიდაცია</h2>
       <p>
         ორი პატარა, დამოუკიდებელი UI კომპონენტი, რომლებიც აერთიანებს ამ და წინა გაკვეთილების
         ცოდნას — DOM, events, state ცვლადებში.
       </p>
-      <pre><code><span class="cmt">// მარტივი სურათების სლაიდერი</span>
-<span class="attr">const</span> slides = document.querySelectorAll(".slide");
+      <h3>სლაიდერი</h3>
+<pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slider"</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 1&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 2&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 3&lt;/<span class="tag">div</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"prev-btn"</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">aria-label</span>=<span class="str">"წინა"</span>&gt;←&lt;/<span class="tag">button</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"next-btn"</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">aria-label</span>=<span class="str">"შემდეგი"</span>&gt;→&lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</code></pre><pre><code><span class="attr">const</span> slides = document.querySelectorAll(".slide");
 <span class="attr">let</span> currentIndex = 0;
 
 <span class="attr">function</span> showSlide(index) {
-  slides.forEach((slide, i) => {
+  slides.forEach((slide, i) =&gt; {
     slide.style.display = i === index ? "block" : "none";
   });
 }
 
-document.querySelector(".next-btn").addEventListener("click", () => {
+document.querySelector(".next-btn").addEventListener("click", () =&gt; {
   currentIndex = (currentIndex + 1) % slides.length; <span class="cmt">// წრიულად უბრუნდება დასაწყისს</span>
   showSlide(currentIndex);
 });
 
+document.querySelector(".prev-btn").addEventListener("click", () =&gt; {
+  currentIndex = (currentIndex - 1 + slides.length) % slides.length; <span class="cmt">// + length — რომ უარყოფითი რიცხვი არ მივიღოთ</span>
+  showSlide(currentIndex);
+});
+
 showSlide(currentIndex); <span class="cmt">// საწყისი მდგომარეობა</span></code></pre>
-      <pre><code><span class="cmt">// ფორმის ვალიდაცია, submit-ის დროს</span>
-<span class="attr">const</span> form = document.querySelector("#signup-form");
+      <h3>ფორმის ვალიდაცია — Constraint Validation API</h3>
+      <p>
+        HTML ატრიბუტები (<code>required</code>, <code>type="email"</code>, <code>minlength</code>,
+        <code>pattern</code>) ბრაუზერის ჩაშენებულ ვალიდაციას უკვე გვაძლევს JS-ის გარეშე. JS საჭიროა
+        მხოლოდ საკუთარი შეტყობინებისა და სპეციფიკური წესებისთვის — <code>includes("@")</code>-ის
+        ნაცვლად გამოიყენე ბრაუზერის <strong>Constraint Validation API</strong>:
+      </p>
+<pre><code><span class="attr">const</span> form = document.querySelector("#signup-form");
+<span class="attr">const</span> email = document.querySelector("#email");
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  <span class="attr">const</span> email = document.querySelector("#email").value.trim();
-  <span class="attr">const</span> errorEl = document.querySelector("#email-error");
+email.addEventListener("input", () =&gt; {
+  <span class="attr">if</span> (email.validity.typeMismatch) {
+    email.setCustomValidity("გთხოვთ, შეიყვანე ვალიდური ელფოსტა (მაგ. name@example.com)");
+  } <span class="attr">else</span> {
+    email.setCustomValidity(""); <span class="cmt">// სავალდებულოა! თუ არ გავასუფთავებთ, ველი "არავალიდური" დარჩება</span>
+  }
+});
 
-  <span class="attr">if</span> (!email.includes("@")) {
-    errorEl.textContent = "გთხოვთ, მიუთითოთ ვალიდური ელფოსტა";
+form.addEventListener("submit", (event) =&gt; {
+  <span class="attr">if</span> (!form.checkValidity()) {
+    event.preventDefault();
+    form.reportValidity(); <span class="cmt">// ბრაუზერი თავად აჩვენებს შეტყობინებას პირველ არავალიდურ ველზე</span>
     <span class="attr">return</span>;
   }
-
-  errorEl.textContent = "";
-  console.log("ფორმა ვალიდურია, იგზავნება:", email);
+  console.log("ფორმა ვალიდურია, იგზავნება");
 });</code></pre>
+      <p>
+        <strong>მნიშვნელოვანი:</strong> ბრაუზერში ვალიდაცია მხოლოდ მომხმარებლის
+        <em>კომფორტისთვისაა</em> — ის ადვილად შეიძლება გვერდი აუარო (DevTools-ით ან პირდაპირ
+        მოთხოვნით). ნამდვილი, სავალდებულო ვალიდაცია ყოველთვის სერვერზეც უნდა ხდებოდეს.
+      </p>
+
+      <h2>7. საკონტროლო პროექტი — Weather App</h2>
+      <p>
+        ახლა ავაწყოთ სრული ამინდის აპლიკაცია, რომელიც იყენებს 1-დან 19-ე გაკვეთილამდე ნასწავლ
+        ყველა ძირითად კონცეფციას. მონაცემებისთვის ვიყენებთ <strong>Open-Meteo</strong>-ს —
+        უფასო, საჯარო ამინდის API-ს, რომელსაც <strong>გასაღები არ სჭირდება</strong>
+        (არაკომერციული გამოყენებისთვის, დღეში 10 000 მოთხოვნამდე) და CORS-ს უშვებს, ამიტომ
+        პირდაპირ ბრაუზერიდან მუშაობს.
+      </p>
+
+      <h3>რას გააკეთებს აპლიკაცია</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ქალაქის სახელით ძებნა → ამჟამინდელი ამინდი (ტემპერატურა, შეგრძნება, ტენიანობა, ქარი) + 5-დღიანი პროგნოზი;</li>
+        <li>ოთხი მკაფიო მდგომარეობა: <code>idle</code>, <code>loading</code>, <code>success</code>, <code>error</code>;</li>
+        <li>წინა ძებნის გაუქმება ახალი ძებნისას (stale response-ის გარეშე) და 8-წამიანი timeout;</li>
+        <li>„ფავორიტი ქალაქების" პანელი — სამი ქალაქი პარალელურად იტვირთება, ერთის ჩავარდნა დანარჩენებს არ აფუჭებს.</li>
+      </ul>
+
+      <h3>ორი API მოთხოვნა — ერთმანეთზე დამოკიდებული</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>Geocoding:</strong> <code>geocoding-api.open-meteo.com/v1/search?name=...</code> — ქალაქის სახელი → კოორდინატები. თუ ვერაფერი მოიძებნა, პასუხში <code>results</code> ველი საერთოდ არ არის!</li>
+        <li><strong>Forecast:</strong> <code>api.open-meteo.com/v1/forecast?latitude=...&amp;longitude=...</code> — კოორდინატები → ამინდი. პასუხში <code>weather_code</code> არის WMO სტანდარტული კოდი (0 = მოწმენდილი, 61 = წვიმა, 95 = ჭექა-ქუხილი...), რომელსაც ჩვენ თვითონ გადავათარგმნით ემოჯიდ და ქართულ ტექსტად.</li>
+      </ol>
+      <p>
+        მეორე მოთხოვნა პირველის შედეგზეა დამოკიდებული — ამიტომ აქ თანმიმდევრული
+        <code>await</code> სწორი არჩევანია. ფავორიტი ქალაქების კოორდინატები კი წინასწარ ვიცით,
+        ამიტომ მათი ამინდი <em>დამოუკიდებელი</em> მოთხოვნებია — პარალელურად წავიღოთ.
+      </p>
+
+      <h3>ფაილური სტრუქტურა (ES მოდულები — მე-14 გაკვეთილი)</h3>
+<pre><code>weather-app/
+├── index.html
+├── style.css
+└── js/
+    ├── api.js        // ქსელი: fetch, URL-ები, შეცდომები (DOM-ს არ ეხება)
+    ├── weather.js    // წმინდა ლოგიკა: კოდები, ნორმალიზაცია, შეცდომის ტექსტი
+    ├── ui.js         // მხოლოდ DOM: state → ეკრანი
+    └── app.js        // "შემკრები": state, events, async ნაკადი</code></pre>
+      <p>
+        <strong>მნიშვნელოვანია:</strong> ES მოდულები <code>file://</code>-ით გახსნისას არ მუშაობს —
+        გახსენი Live Server-ით (ან <code>npx serve</code>-ით).
+      </p>
+
+      <h3>index.html</h3>
+<pre><code>&lt;<span class="tag">!DOCTYPE html</span>&gt;
+&lt;<span class="tag">html</span> <span class="attr">lang</span>=<span class="str">"ka"</span>&gt;
+&lt;<span class="tag">head</span>&gt;
+  &lt;<span class="tag">meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span> /&gt;
+  &lt;<span class="tag">meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span> /&gt;
+  &lt;<span class="tag">title</span>&gt;ამინდი&lt;/<span class="tag">title</span>&gt;
+  &lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"style.css"</span> /&gt;
+&lt;/<span class="tag">head</span>&gt;
+&lt;<span class="tag">body</span>&gt;
+  &lt;<span class="tag">main</span> <span class="attr">class</span>=<span class="str">"weather-app"</span>&gt;
+    &lt;<span class="tag">h1</span>&gt;ამინდი&lt;/<span class="tag">h1</span>&gt;
+
+    &lt;<span class="tag">form</span> <span class="attr">id</span>=<span class="str">"search-form"</span> <span class="attr">role</span>=<span class="str">"search"</span>&gt;
+      &lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"city-input"</span> <span class="attr">class</span>=<span class="str">"visually-hidden"</span>&gt;ქალაქი&lt;/<span class="tag">label</span>&gt;
+      &lt;<span class="tag">input</span> <span class="attr">id</span>=<span class="str">"city-input"</span> <span class="attr">type</span>=<span class="str">"search"</span> <span class="attr">placeholder</span>=<span class="str">"მაგ. Tbilisi"</span> <span class="attr">autocomplete</span>=<span class="str">"off"</span> <span class="attr">required</span> <span class="attr">minlength</span>=<span class="str">"2"</span> /&gt;
+      &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;ძებნა&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+
+    <span class="cmt">&lt;!-- aria-live: screen reader-ი ხმამაღლა ამცნობს ცვლილებებს (loading → შედეგი) --&gt;</span>
+    &lt;<span class="tag">div</span> <span class="attr">id</span>=<span class="str">"weather-output"</span> <span class="attr">aria-live</span>=<span class="str">"polite"</span>&gt;&lt;/<span class="tag">div</span>&gt;
+
+    &lt;<span class="tag">section</span> <span class="attr">aria-labelledby</span>=<span class="str">"fav-title"</span>&gt;
+      &lt;<span class="tag">h2</span> <span class="attr">id</span>=<span class="str">"fav-title"</span>&gt;ფავორიტი ქალაქები&lt;/<span class="tag">h2</span>&gt;
+      &lt;<span class="tag">ul</span> <span class="attr">id</span>=<span class="str">"favorites-list"</span>&gt;&lt;/<span class="tag">ul</span>&gt;
+    &lt;/<span class="tag">section</span>&gt;
+  &lt;/<span class="tag">main</span>&gt;
+
+  &lt;<span class="tag">script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"js/app.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;
+&lt;/<span class="tag">body</span>&gt;
+&lt;/<span class="tag">html</span>&gt;</code></pre>
+      <h3>style.css (მინიმალური — დიზაინს შენ მიხედვით გააფორმებ)</h3>
+<pre><code>.weather-app { max-width: 560px; margin: 0 auto; padding: 1.5rem; }
+
+#search-form { display: flex; gap: 0.5rem; }
+#search-form input { flex: 1; }
+
+.weather-current { text-align: center; padding: 1.5rem 0; }
+.weather-emoji { font-size: 4rem; }
+.weather-temp { font-size: 3rem; font-weight: 800; }
+
+<span class="cmt">/* Grid — მე-9 გაკვეთილი: სვეტების რაოდენობა ეკრანის სიგანეს მისდევს */</span>
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+.forecast-day {
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.75rem;
+}
+
+.favorite-city { display: flex; justify-content: space-between; padding: 0.5rem 0; }
+.favorite-failed { color: #888; }
+[data-state="error"] .weather-error { color: #c0392b; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}</code></pre>
+      <h3>js/api.js — ქსელური ფენა</h3>
+      <p>
+        ერთი დამხმარე ფუნქცია (<code>fetchJSON</code>) ერთ ადგილას ამოწმებს <code>response.ok</code>-ს,
+        ხოლო <code>searchCity</code>/<code>getForecast</code> მხოლოდ URL-ს აგებენ.
+        <code>error.status</code>-ს ვინახავთ, რომ UI-მა მოგვიანებით შეცდომა კატეგორიებად დაყოს.
+      </p>
+<pre><code><span class="cmt">/* api.js — ქსელთან კომუნიკაცია (Fetch). DOM-ს არ ეხება. */</span>
+
+<span class="attr">const</span> GEO_URL = "https://geocoding-api.open-meteo.com/v1/search";
+<span class="attr">const</span> FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
+
+<span class="cmt">// fetch() მხოლოდ ქსელის შეცდომაზე "ვარდება" — HTTP 404/500-ზე არა! ამიტომ ვამოწმებთ response.ok-ს.</span>
+<span class="attr">async</span> <span class="attr">function</span> fetchJSON(url, signal) {
+  <span class="attr">const</span> response = <span class="attr">await</span> fetch(url, { signal });
+
+  <span class="attr">if</span> (!response.ok) {
+    <span class="attr">const</span> error = <span class="attr">new</span> Error(`HTTP ${response.status}`);
+    error.status = response.status; <span class="cmt">// კატეგორიზაციისთვის, UI-ში</span>
+    <span class="attr">throw</span> error;
+  }
+
+  <span class="attr">return</span> response.json();
+}
+
+<span class="cmt">// ნაბიჯი 1: ქალაქის სახელი → კოორდინატები</span>
+<span class="attr">export</span> <span class="attr">async</span> <span class="attr">function</span> searchCity(name, signal) {
+  <span class="cmt">// URLSearchParams თავად აკეთებს encoding-ს — ქართული ასოებიც უსაფრთხოდ გადადის URL-ში</span>
+  <span class="attr">const</span> params = <span class="attr">new</span> URLSearchParams({ name, count: "1", language: "en", format: "json" });
+  <span class="attr">const</span> data = <span class="attr">await</span> fetchJSON(`${GEO_URL}?${params}`, signal);
+
+  <span class="cmt">// თუ ვერაფერი მოიძებნა, API-ს პასუხში "results" ველი საერთოდ არ არის!</span>
+  <span class="attr">if</span> (!data.results || data.results.length === 0) {
+    <span class="attr">return</span> <span class="attr">null</span>;
+  }
+
+  <span class="attr">const</span> { name: cityName, latitude, longitude, country } = data.results[0];
+  <span class="attr">return</span> { name: cityName, latitude, longitude, country };
+}
+
+<span class="cmt">// ნაბიჯი 2: კოორდინატები → ამინდის პროგნოზი</span>
+<span class="attr">export</span> <span class="attr">function</span> getForecast({ latitude, longitude }, signal) {
+  <span class="attr">const</span> params = <span class="attr">new</span> URLSearchParams({
+    latitude,
+    longitude,
+    current: "temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min",
+    timezone: "auto",
+    forecast_days: "5",
+  });
+  <span class="attr">return</span> fetchJSON(`${FORECAST_URL}?${params}`, signal);
+}</code></pre>
+      <h3>js/weather.js — წმინდა ლოგიკა</h3>
+      <p>
+        ეს ფაილი არც DOM-ს ეხება, არც ქსელს — მხოლოდ ფუნქციები, რომლებიც მონაცემს იღებენ და
+        მონაცემს აბრუნებენ (ისინი ადვილად ტესტირებადია). API-ს „ნედლი" პასუხი
+        (<code>temperature_2m</code>, <code>daily.time[]</code>...) გადადის ჩვენთვის მოსახერხებელ
+        სტრუქტურაში — ასე ქსელური ფორმატის ცვლილება მხოლოდ ერთ ფაილს შეეხება.
+      </p>
+<pre><code><span class="cmt">/* weather.js — წმინდა ლოგიკა (pure functions): კოდები, ნორმალიზაცია, შეცდომების აღწერა */</span>
+
+<span class="cmt">// WMO weather code → ემოჯი და ქართული აღწერა</span>
+<span class="attr">const</span> WEATHER_CODES = [
+  { codes: [0], emoji: "☀️", label: "მოწმენდილი ცა" },
+  { codes: [1], emoji: "🌤️", label: "ძირითადად მოწმენდილი" },
+  { codes: [2], emoji: "⛅", label: "ნაწილობრივ მოღრუბლული" },
+  { codes: [3], emoji: "☁️", label: "მოღრუბლული" },
+  { codes: [45, 48], emoji: "🌫️", label: "ნისლი" },
+  { codes: [51, 53, 55, 56, 57], emoji: "🌦️", label: "წვრილი წვიმა" },
+  { codes: [61, 63, 65, 66, 67], emoji: "🌧️", label: "წვიმა" },
+  { codes: [71, 73, 75, 77], emoji: "🌨️", label: "თოვლი" },
+  { codes: [80, 81, 82], emoji: "🌦️", label: "კოკისპირული წვიმა" },
+  { codes: [85, 86], emoji: "🌨️", label: "თოვლის ჩავლა" },
+  { codes: [95, 96, 99], emoji: "⛈️", label: "ჭექა-ქუხილი" },
+];
+
+<span class="attr">export</span> <span class="attr">function</span> getWeatherInfo(code) {
+  <span class="attr">const</span> match = WEATHER_CODES.find((item) =&gt; item.codes.includes(code));
+  <span class="attr">return</span> match ? { emoji: match.emoji, label: match.label } : { emoji: "❓", label: "უცნობი" };
+}
+
+<span class="cmt">// API-ს "ნედლი" პასუხი → ჩვენთვის მოსახერხებელი სტრუქტურა</span>
+<span class="attr">export</span> <span class="attr">function</span> normalizeForecast(raw) {
+  <span class="attr">const</span> { current, daily } = raw;
+
+  <span class="attr">return</span> {
+    current: {
+      temp: Math.round(current.temperature_2m),
+      feelsLike: Math.round(current.apparent_temperature),
+      humidity: current.relative_humidity_2m,
+      wind: Math.round(current.wind_speed_10m),
+      ...getWeatherInfo(current.weather_code),
+    },
+    days: daily.time.map((date, i) =&gt; ({
+      date,
+      max: Math.round(daily.temperature_2m_max[i]),
+      min: Math.round(daily.temperature_2m_min[i]),
+      ...getWeatherInfo(daily.weather_code[i]),
+    })),
+  };
+}
+
+<span class="cmt">// "2026-10-14" → "ოთხ" (ქართული ლოკალი, Intl API)</span>
+<span class="attr">export</span> <span class="attr">function</span> formatWeekday(isoDate) {
+  <span class="cmt">// "T00:00:00" — რომ თარიღი ადგილობრივ დროდ ჩაითვალოს, არა UTC-დ</span>
+  <span class="attr">return</span> <span class="attr">new</span> Date(`${isoDate}T00:00:00`).toLocaleDateString("ka-GE", { weekday: "short" });
+}
+
+<span class="cmt">// შეცდომა → მომხმარებლისთვის გასაგები ტექსტი</span>
+<span class="attr">export</span> <span class="attr">function</span> describeError(error) {
+  <span class="attr">if</span> (error.name === "TimeoutError") <span class="attr">return</span> "სერვერმა დიდხანს არ უპასუხა. სცადე ხელახლა.";
+  <span class="attr">if</span> (error.status === 429) <span class="attr">return</span> "ძალიან ბევრი მოთხოვნა. ცოტა ხანში სცადე.";
+  <span class="attr">if</span> (error.status &gt;= 500) <span class="attr">return</span> "სერვერის შეცდომა. მოგვიანებით სცადე.";
+  <span class="attr">if</span> (error.status) <span class="attr">return</span> `მოთხოვნა ვერ შესრულდა (HTTP ${error.status}).`;
+  <span class="attr">return</span> "ქსელთან კავშირი ვერ დამყარდა. შეამოწმე ინტერნეტი.";
+}</code></pre>
+      <h3>js/ui.js — მხოლოდ DOM</h3>
+      <p>
+        <code>render(state)</code> — ერთადერთი ფუნქცია, რომელიც state-ს ეკრანად გარდაქმნის.
+        ყურადღება მიაქციე: API-დან მოსულ ტექსტს (ქალაქის სახელი) ვწერთ <code>textContent</code>-ით,
+        არა <code>innerHTML</code>-ით (მე-15 გაკვეთილის XSS გაფრთხილება) — თუ API-მ ან
+        მომხმარებელმა <code>&lt;img onerror=...&gt;</code> დაგვიბრუნა, ის უბრალო ტექსტად დარჩება.
+      </p>
+<pre><code><span class="cmt">/* ui.js — მხოლოდ DOM. API-ს "ნედლ" მონაცემებს არ იცნობს — ღებულობს უკვე ნორმალიზებულს. */</span>
+<span class="attr">import</span> { formatWeekday } <span class="attr">from</span> "./weather.js";
+
+<span class="cmt">// დამხმარე: ელემენტის შექმნა. textContent — უსაფრთხოა (API-დან მოსული ტექსტი HTML-ად არ პარსირდება!)</span>
+<span class="attr">function</span> el(tag, className, text) {
+  <span class="attr">const</span> node = document.createElement(tag);
+  <span class="attr">if</span> (className) node.className = className;
+  <span class="attr">if</span> (text !== undefined) node.textContent = text;
+  <span class="attr">return</span> node;
+}
+
+<span class="attr">function</span> createCurrentCard(city, current) {
+  <span class="attr">const</span> card = el("section", "weather-current");
+  card.append(
+    el("h2", "weather-city", `${city.name}${city.country ? ", " + city.country : ""}`),
+    el("p", "weather-emoji", current.emoji),
+    el("p", "weather-temp", `${current.temp}°C`),
+    el("p", "weather-label", current.label),
+    el("p", "weather-meta", `შეგრძნება ${current.feelsLike}° · ტენიანობა ${current.humidity}% · ქარი ${current.wind} კმ/სთ`)
+  );
+  <span class="attr">return</span> card;
+}
+
+<span class="attr">function</span> createForecastList(days) {
+  <span class="attr">const</span> list = el("ul", "forecast-grid");
+  <span class="attr">const</span> fragment = document.createDocumentFragment(); <span class="cmt">// მე-15 გაკვეთილი</span>
+
+  <span class="attr">for</span> (<span class="attr">const</span> { date, emoji, max, min, label } <span class="attr">of</span> days) {
+    <span class="attr">const</span> item = el("li", "forecast-day");
+    item.title = label;
+    item.append(
+      el("span", "forecast-weekday", formatWeekday(date)),
+      el("span", "forecast-emoji", emoji),
+      el("span", "forecast-temps", `${max}° / ${min}°`)
+    );
+    fragment.appendChild(item);
+  }
+
+  list.appendChild(fragment);
+  <span class="attr">return</span> list;
+}
+
+<span class="cmt">// ერთი ფუნქცია, რომელიც state-ს გარდაქმნის ეკრანად</span>
+<span class="attr">export</span> <span class="attr">function</span> render(state, container) {
+  container.replaceChildren(); <span class="cmt">// ძველი შიგთავსის გასუფთავება</span>
+  container.dataset.state = state.status;
+
+  <span class="attr">switch</span> (state.status) {
+    <span class="attr">case</span> "idle":
+      container.append(el("p", "weather-hint", "შეიყვანე ქალაქის სახელი და დააჭირე „ძებნას“."));
+      <span class="attr">break</span>;
+    <span class="attr">case</span> "loading":
+      container.append(el("p", "weather-loading", "⏳ იტვირთება..."));
+      <span class="attr">break</span>;
+    <span class="attr">case</span> "error":
+      container.append(el("p", "weather-error", `⚠️ ${state.message}`));
+      <span class="attr">break</span>;
+    <span class="attr">case</span> "success":
+      container.append(createCurrentCard(state.city, state.forecast.current), createForecastList(state.forecast.days));
+      <span class="attr">break</span>;
+  }
+}
+
+<span class="cmt">// ფავორიტი ქალაქების პანელი (Promise.allSettled-ის შედეგებიდან)</span>
+<span class="attr">export</span> <span class="attr">function</span> renderFavorites(items, container) {
+  container.replaceChildren();
+
+  <span class="attr">for</span> (<span class="attr">const</span> { city, forecast } <span class="attr">of</span> items) {
+    <span class="attr">const</span> row = el("li", "favorite-city");
+    row.append(
+      el("span", "favorite-name", city.name),
+      forecast
+        ? el("span", "favorite-temp", `${forecast.current.emoji} ${forecast.current.temp}°C`)
+        : el("span", "favorite-temp favorite-failed", "— მიუწვდომელია")
+    );
+    container.appendChild(row);
+  }
+}</code></pre>
+      <h3>js/app.js — ყველაფრის შეკრება</h3>
+      <p>
+        აქ ერთად მუშაობს: <strong>state</strong> (ერთი ობიექტი, ერთი <code>setState</code>),
+        <strong>event</strong> (submit + <code>preventDefault</code>), <strong>თანმიმდევრული
+        await</strong> (ძებნა → პროგნოზი), <strong>AbortController + AbortSignal.any/timeout</strong>
+        (გაუქმება და timeout), და <strong>Promise.allSettled</strong> (ფავორიტები).
+      </p>
+<pre><code><span class="cmt">/* app.js — "შემკრები": state, events, async ლოგიკა */</span>
+<span class="attr">import</span> { searchCity, getForecast } <span class="attr">from</span> "./api.js";
+<span class="attr">import</span> { normalizeForecast, describeError } <span class="attr">from</span> "./weather.js";
+<span class="attr">import</span> { render, renderFavorites } <span class="attr">from</span> "./ui.js";
+
+<span class="attr">const</span> FAVORITES = [
+  { name: "თბილისი", latitude: 41.72, longitude: 44.79 },
+  { name: "ბათუმი", latitude: 41.65, longitude: 41.64 },
+  { name: "ქუთაისი", latitude: 42.27, longitude: 42.7 },
+];
+
+<span class="attr">const</span> form = document.querySelector("#search-form");
+<span class="attr">const</span> input = document.querySelector("#city-input");
+<span class="attr">const</span> output = document.querySelector("#weather-output");
+<span class="attr">const</span> favoritesList = document.querySelector("#favorites-list");
+
+<span class="attr">let</span> state = { status: "idle" };
+<span class="attr">let</span> currentController = <span class="attr">null</span>; <span class="cmt">// მიმდინარე მოთხოვნის გასაუქმებლად</span>
+
+<span class="attr">function</span> setState(newState) {
+  state = newState;
+  render(state, output);
+}
+
+<span class="attr">async</span> <span class="attr">function</span> handleSearch(cityName) {
+  <span class="cmt">// 1. წინა, ჯერ კიდევ მიმდინარე მოთხოვნა უქმდება (stale response-ის პრობლემა)</span>
+  currentController?.abort();
+  currentController = <span class="attr">new</span> AbortController();
+
+  <span class="cmt">// 2. ერთი signal: ხელით გაუქმება + 8 წამიანი timeout</span>
+  <span class="attr">const</span> signal = AbortSignal.any([currentController.signal, AbortSignal.timeout(8000)]);
+
+  setState({ status: "loading" });
+
+  <span class="attr">try</span> {
+    <span class="attr">const</span> city = <span class="attr">await</span> searchCity(cityName, signal);
+    <span class="attr">if</span> (!city) {
+      setState({ status: "error", message: `„${cityName}“ ვერ მოიძებნა. სცადე სხვა დაწერილობა.` });
+      <span class="attr">return</span>;
+    }
+
+    <span class="attr">const</span> raw = <span class="attr">await</span> getForecast(city, signal); <span class="cmt">// დამოკიდებულია city-ზე → თანმიმდევრული await</span>
+    setState({ status: "success", city, forecast: normalizeForecast(raw) });
+  } <span class="attr">catch</span> (error) {
+    <span class="attr">if</span> (error.name === "AbortError") <span class="attr">return</span>; <span class="cmt">// ახალმა ძებნამ გააუქმა — ეს შეცდომა არ არის</span>
+    setState({ status: "error", message: describeError(error) });
+  }
+}
+
+form.addEventListener("submit", (event) =&gt; {
+  event.preventDefault();
+  <span class="attr">const</span> cityName = input.value.trim();
+  <span class="attr">if</span> (cityName.length &lt; 2) {
+    setState({ status: "error", message: "შეიყვანე მინიმუმ 2 სიმბოლო." });
+    <span class="attr">return</span>;
+  }
+  handleSearch(cityName);
+});
+
+<span class="cmt">// ფავორიტები — დამოუკიდებელი მოთხოვნები, ამიტომ პარალელურად; allSettled — ერთის ჩავარდნა დანარჩენს არ აფუჭებს</span>
+<span class="attr">async</span> <span class="attr">function</span> loadFavorites() {
+  <span class="attr">const</span> results = <span class="attr">await</span> Promise.allSettled(
+    FAVORITES.map((city) =&gt; getForecast(city, AbortSignal.timeout(8000)))
+  );
+
+  <span class="attr">const</span> items = results.map((result, i) =&gt; ({
+    city: FAVORITES[i],
+    forecast: result.status === "fulfilled" ? normalizeForecast(result.value) : <span class="attr">null</span>,
+  }));
+
+  renderFavorites(items, favoritesList);
+}
+
+render(state, output);
+loadFavorites();</code></pre>
+      <h3>რა სად გამოვიყენეთ — რუკა</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--line);">
+            <th style="text-align: left; padding: 8px;">კონცეფცია</th>
+            <th style="text-align: left; padding: 8px;">სად ჩანს</th>
+            <th style="text-align: left; padding: 8px;">გაკვეთილი</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Fetch, <code>response.ok</code>, JSON</td><td style="padding: 8px;"><code>api.js</code> → <code>fetchJSON</code></td><td style="padding: 8px;">19</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">URLSearchParams, ქართული ასოების encoding</td><td style="padding: 8px;"><code>api.js</code></td><td style="padding: 8px;">19</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">თანმიმდევრული <code>await</code> (დამოკიდებული მოთხოვნები)</td><td style="padding: 8px;"><code>app.js</code> → <code>handleSearch</code></td><td style="padding: 8px;">18</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>Promise.allSettled</code> (დამოუკიდებელი მოთხოვნები)</td><td style="padding: 8px;"><code>app.js</code> → <code>loadFavorites</code></td><td style="padding: 8px;">18</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">AbortController, <code>AbortSignal.any/timeout</code></td><td style="padding: 8px;"><code>app.js</code></td><td style="padding: 8px;">16, 19</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Destructuring, spread, <code>map</code>, ES მოდულები</td><td style="padding: 8px;"><code>weather.js</code>, ყველა ფაილი</td><td style="padding: 8px;">12, 14</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>createElement</code>, <code>textContent</code>, <code>DocumentFragment</code></td><td style="padding: 8px;"><code>ui.js</code></td><td style="padding: 8px;">15</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;"><code>submit</code>, <code>preventDefault</code></td><td style="padding: 8px;"><code>app.js</code></td><td style="padding: 8px;">16</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Optional chaining <code>?.</code>, <code>switch</code></td><td style="padding: 8px;"><code>app.js</code>, <code>ui.js</code></td><td style="padding: 8px;">11, 13</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">CSS Grid <code>auto-fit/minmax</code>, Flexbox</td><td style="padding: 8px;"><code>style.css</code></td><td style="padding: 8px;">6, 9</td></tr>
+          <tr><td style="padding: 8px;"><strong>UI = f(state)</strong> — ერთი <code>render</code> ფუნქცია</td><td style="padding: 8px;"><code>ui.js</code></td><td style="padding: 8px;">ახალი — React-ის (21-22) წინასწარი გემო</td></tr>
+        </tbody>
+      </table>
+
+      <h3>გამოცდა DevTools-ით — ეს არის გაკვეთილის მთავარი პრაქტიკა</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li>Network → Throttling → <strong>Slow 4G</strong>: დარწმუნდი, რომ „⏳ იტვირთება..." ჩანს.</li>
+        <li>Throttling → <strong>Offline</strong>, მერე მოძებნე ქალაქი: უნდა გამოჩნდეს „ქსელთან კავშირი ვერ დამყარდა".</li>
+        <li>ერთ-ერთ მოთხოვნაზე <strong>Block request URL</strong>: ფავორიტებში ერთი ქალაქი უნდა გახდეს „— მიუწვდომელია", დანარჩენი — ჩვეულებრივად.</li>
+        <li>სწრაფად მოძებნე ორი სხვადასხვა ქალაქი ზედიზედ: Network-ში პირველი მოთხოვნა <em>(canceled)</em> იქნება, ეკრანზე კი მხოლოდ მეორე ქალაქი.</li>
+        <li>მოძებნე სისულელე (მაგ. „Xyzxyz"): „ვერ მოიძებნა" შეტყობინება, არა ცარიელი ეკრანი.</li>
+      </ol>
+      <p>
+        <strong>გამჭვირვალობისთვის:</strong> ამ პროექტის ლოგიკა (მათ შორის ზემოთ ჩამოთვლილი ყველა
+        სცენარი) გავტესტე ავტომატურად, API პასუხების იმიტაციით (mock), ამიტომ კოდის
+        სტრუქტურა და შეცდომების დამუშავება გადამოწმებულია. თუმცა ცოცხალ Open-Meteo სერვერს
+        ჩემი გარემოდან ვერ მივწვდი — შეხვედრამდე გაუშვი აპლიკაცია ერთხელ ცოცხლად. ქართული
+        სახელით ძებნა (<code>თბილისი</code>) geocoding-ის მხარდაჭერაზეა დამოკიდებული; თუ რომელიმე
+        ქალაქი ვერ იპოვა, სცადე ინგლისური დაწერილობა (<code>Tbilisi</code>, <code>Batumi</code>).
+      </p>
+
+      <h3>შემდეგი ნაბიჯები (მომავალი გაკვეთილები)</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>მე-20 გაკვეთილი:</strong> <code>localStorage</code> — „ბოლო მოძებნილი ქალაქის" დამახსოვრება; <code>class</code>-ები.</li>
+        <li><strong>21-24 გაკვეთილები:</strong> ამავე აპლიკაციის გადაწერა React-ზე — <code>state</code> + <code>render</code> იქ ჩაშენებული მექანიზმია, <code>useEffect</code>-ში კი AbortController-ით გაუქმება იგივე პატერნია.</li>
+      </ul>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/fetch" target="_blank" rel="noopener">JavaScript.info — Fetch</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank" rel="noopener">MDN — Using the Fetch API</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal" target="_blank" rel="noopener">MDN — AbortSignal (timeout / any)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank" rel="noopener">MDN — URLSearchParams</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank" rel="noopener">MDN — CORS</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" target="_blank" rel="noopener">MDN — JSON reference</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Constraint_validation" target="_blank" rel="noopener">MDN — Constraint validation</a></li>
           <li><a href="https://developer.chrome.com/docs/devtools/network/" target="_blank" rel="noopener">Chrome DevTools — Network features reference</a></li>
+          <li><a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Open-Meteo — Weather Forecast API დოკუმენტაცია (WMO კოდები)</a></li>
+          <li><a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noopener">Open-Meteo — Geocoding API</a></li>
+          <li><a href="https://jsonplaceholder.typicode.com/" target="_blank" rel="noopener">JSONPlaceholder — უფასო სატესტო API</a></li>
         </ul>
+      </div>
+
+      <div class="resources">
+        <h3 style="margin-top: 0;">გაიმეორე — შეკითხვები</h3>
+        <ol style="padding-left: 20px;">
+          <li>რატომ არ „ვარდება" <code>fetch</code> HTTP 404-ზე ან 500-ზე, და როგორ ვამოწმებთ ამას?</li>
+          <li>რით განსხვავდება ერთმანეთისგან <code>TypeError</code>, <code>TimeoutError</code> და <code>AbortError</code> — და რომელს ვაჩვენებთ მომხმარებელს?</li>
+          <li>რატომ ვიყენებთ <code>URLSearchParams</code>-ს URL-ის ხელით შეერთების ნაცვლად?</li>
+          <li>რას აკეთებს <code>AbortSignal.any()</code> და რატომ გვჭირდებოდა ის Weather აპში?</li>
+          <li>რა არის „stale response" და როგორ ვასწორებთ მას <code>AbortController</code>-ით?</li>
+          <li>რატომ არის ძებნაში თანმიმდევრული <code>await</code>, ფავორიტებში კი <code>Promise.allSettled</code>?</li>
+          <li>რატომ არ შეიძლება საიდუმლო API key-ის frontend კოდში ჩაწერა?</li>
+          <li>რატომ ვიყენებთ <code>textContent</code>-ს და არა <code>innerHTML</code>-ს API-დან მოსულ ქალაქის სახელზე?</li>
+        </ol>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>გამოიყენე <code>fetch()</code>, რომ წამოიღო მონაცემები <code>https://jsonplaceholder.typicode.com/users</code>-იდან და დაბეჭდო თითოეული სახელი Console-ში.</li>
-          <li>DevTools-ის Network ტაბში იპოვე ეს მოთხოვნა, გახსენი Response ტაბი და დააკვირდი, როგორია მიღებული JSON-ის სტრუქტურა.</li>
-          <li>ააწყვე მარტივი სლაიდერი 3 სურათით/ბლოკით, „წინა"/„შემდეგი" ღილაკებით.</li>
-          <li>ააწყვე ფორმა 2 ველით (email, password) და დაწერე ვალიდაცია, რომელიც submit-ისას ამოწმებს — email შეიცავს „@"-ს და password 6+ სიმბოლოა.</li>
-          <li><em>(რთული)</em> გააერთიანე Fetch და UI — წამოიღე <code>jsonplaceholder.typicode.com/posts</code>-იდან პირველი 5 პოსტი და დინამიურად, <code>createElement</code>-ის გამოყენებით, გამოსახე ისინი გვერდზე, სათაურითა და ტექსტით.</li>
+          <li>გამოიყენე <code>fetch()</code>, რომ წამოიღო მონაცემები <code>https://jsonplaceholder.typicode.com/users</code>-იდან და დაბეჭდო თითოეული სახელი Console-ში — <code>response.ok</code>-ის შემოწმებით.</li>
+          <li>DevTools-ის Network ტაბში იპოვე ეს მოთხოვნა, გახსენი <em>Response</em> და <em>Timing</em> ტაბები და ჩამოწერე: რამდენი ხანი დასჭირდა სერვერზე ლოდინს.</li>
+          <li>გამოიძახე <code>/users/9999</code> (არარსებული ID) და დაადასტურე, რომ <code>catch</code> არ ამუშავდა, მაგრამ <code>response.ok === false</code>. შემდეგ დაამატე სწორი შემოწმება.</li>
+          <li>Throttling-ში ჩართე <strong>Offline</strong> და გაუშვი შენი fetch — რა <code>error.name</code> და <code>error.message</code> მიიღე?</li>
+          <li>შექმენი <code>URLSearchParams</code> ქართული ტექსტით და დაბეჭდე შედეგი; შეადარე <code>encodeURIComponent</code>-ს.</li>
+          <li>გამოიყენე <code>AbortSignal.timeout(1)</code>, რომ განზრახ მიიღო <code>TimeoutError</code>, და დაბეჭდე <code>error.name</code>.</li>
+          <li>ააწყვე სლაიდერი 3 ბლოკით „წინა/შემდეგი" ღილაკებით, და ფორმა ორი ველით (email, password) <code>checkValidity()</code>/<code>setCustomValidity()</code>-ით — password მინიმუმ 6 სიმბოლოა.</li>
+          <li>წამოიღე <code>jsonplaceholder.typicode.com/posts</code>-იდან პირველი 5 პოსტი და <code>createElement</code> + <code>DocumentFragment</code>-ით გამოსახე გვერდზე სათაურითა და ტექსტით.</li>
+          <li><em>(საკონტროლო პროექტი)</em> ააწყვე Weather App ზემოთ ნაჩვენები სტრუქტურით (4 JS ფაილი + HTML + CSS). გაუშვი Live Server-ით და გაიარე „გამოცდა DevTools-ით" სექციის ხუთივე სცენარი.</li>
+          <li><em>(გაფართოება ა)</em> დაამატე °C / °F გადამრთველი — Open-Meteo-ს <code>temperature_unit=fahrenheit</code> პარამეტრით (დაფიქრდი: ხელახლა წამოიღო მონაცემები, თუ გადათვალო?).</li>
+          <li><em>(გაფართოება ბ)</em> შეცდომის შეტყობინებას დაამატე „სცადე ხელახლა" ღილაკი, რომელიც ბოლო ძებნას იმეორებს (event delegation <code>#weather-output</code>-ზე).</li>
+          <li><em>(გაფართოება გ — რთული)</em> ფავორიტ ქალაქზე დაწკაპუნებისას გამოსახე მისი სრული პროგნოზი ძირითად პანელში — <code>getForecast</code>-ის ხელახლა გამოყენებით, კოორდინატებით (geocoding-ის გარეშე).</li>
         </ol>
       </div>
 
@@ -203,7 +881,7 @@ form.addEventListener("submit", (event) => {
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> </div>
+      <div class="brand"><span class="brand-dot"></span></div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>

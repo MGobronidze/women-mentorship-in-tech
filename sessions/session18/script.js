@@ -1,6 +1,6 @@
 const fetchUser = new Promise((resolve, reject) => {
   setTimeout(() => {
-    const success = true; // შეცვალეთ true ან false წარმატების/წარუმატებლობის დასადგენად
+    const success = true;
     if (success) {
       resolve({ name: "ჯონი", id: 1 }); // წარმატება
     } else {
@@ -8,6 +8,7 @@ const fetchUser = new Promise((resolve, reject) => {
     }
   }, 1000);
 });
+
 fetchUser
   .then((user) => console.log("მიღებულია:", user))
   .catch((error) => console.error("შეცდომა:", error.message))
