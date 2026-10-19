@@ -290,8 +290,8 @@ console.log(JSON.stringify(user, <span class="attr">null</span>, 2));</code></pr
 }</code></pre>
       <h2>5. DevTools — Network ტაბი</h2>
       <p>
-        Network ტაბი (გავეცანით მე-1 გაკვეთილში ზოგადად) <code>fetch</code> მოთხოვნების
-        სადებაგოდ უმთავრესი ინსტრუმენტია. ყველაზე სასარგებლო შესაძლებლობები:
+        Network ტაბი (გავეცანით 1-ლ გაკვეთილში ზოგადად) <code>fetch</code> მოთხოვნების
+        დებაგირებისთვის უმთავრესი ინსტრუმენტია. ყველაზე სასარგებლო შესაძლებლობები:
       </p>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
         <li><strong>Fetch/XHR ფილტრი</strong> — დამალავს სურათებს, ფონტებს, CSS-ს და დაგტოვებს მხოლოდ API მოთხოვნებს.</li>
@@ -324,71 +324,7 @@ console.log(JSON.stringify(user, <span class="attr">null</span>, 2));</code></pr
         </tbody>
       </table>
 
-      <h2>6. პრაქტიკა: სლაიდერი და ფორმის ვალიდაცია</h2>
-      <p>
-        ორი პატარა, დამოუკიდებელი UI კომპონენტი, რომლებიც აერთიანებს ამ და წინა გაკვეთილების
-        ცოდნას — DOM, events, state ცვლადებში.
-      </p>
-      <h3>სლაიდერი</h3>
-<pre><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slider"</span>&gt;
-  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 1&lt;/<span class="tag">div</span>&gt;
-  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 2&lt;/<span class="tag">div</span>&gt;
-  &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"slide"</span>&gt;სლაიდი 3&lt;/<span class="tag">div</span>&gt;
-  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"prev-btn"</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">aria-label</span>=<span class="str">"წინა"</span>&gt;←&lt;/<span class="tag">button</span>&gt;
-  &lt;<span class="tag">button</span> <span class="attr">class</span>=<span class="str">"next-btn"</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">aria-label</span>=<span class="str">"შემდეგი"</span>&gt;→&lt;/<span class="tag">button</span>&gt;
-&lt;/<span class="tag">div</span>&gt;</code></pre><pre><code><span class="attr">const</span> slides = document.querySelectorAll(".slide");
-<span class="attr">let</span> currentIndex = 0;
-
-<span class="attr">function</span> showSlide(index) {
-  slides.forEach((slide, i) =&gt; {
-    slide.style.display = i === index ? "block" : "none";
-  });
-}
-
-document.querySelector(".next-btn").addEventListener("click", () =&gt; {
-  currentIndex = (currentIndex + 1) % slides.length; <span class="cmt">// წრიულად უბრუნდება დასაწყისს</span>
-  showSlide(currentIndex);
-});
-
-document.querySelector(".prev-btn").addEventListener("click", () =&gt; {
-  currentIndex = (currentIndex - 1 + slides.length) % slides.length; <span class="cmt">// + length — რომ უარყოფითი რიცხვი არ მივიღოთ</span>
-  showSlide(currentIndex);
-});
-
-showSlide(currentIndex); <span class="cmt">// საწყისი მდგომარეობა</span></code></pre>
-      <h3>ფორმის ვალიდაცია — Constraint Validation API</h3>
-      <p>
-        HTML ატრიბუტები (<code>required</code>, <code>type="email"</code>, <code>minlength</code>,
-        <code>pattern</code>) ბრაუზერის ჩაშენებულ ვალიდაციას უკვე გვაძლევს JS-ის გარეშე. JS საჭიროა
-        მხოლოდ საკუთარი შეტყობინებისა და სპეციფიკური წესებისთვის — <code>includes("@")</code>-ის
-        ნაცვლად გამოიყენე ბრაუზერის <strong>Constraint Validation API</strong>:
-      </p>
-<pre><code><span class="attr">const</span> form = document.querySelector("#signup-form");
-<span class="attr">const</span> email = document.querySelector("#email");
-
-email.addEventListener("input", () =&gt; {
-  <span class="attr">if</span> (email.validity.typeMismatch) {
-    email.setCustomValidity("გთხოვთ, შეიყვანე ვალიდური ელფოსტა (მაგ. name@example.com)");
-  } <span class="attr">else</span> {
-    email.setCustomValidity(""); <span class="cmt">// სავალდებულოა! თუ არ გავასუფთავებთ, ველი "არავალიდური" დარჩება</span>
-  }
-});
-
-form.addEventListener("submit", (event) =&gt; {
-  <span class="attr">if</span> (!form.checkValidity()) {
-    event.preventDefault();
-    form.reportValidity(); <span class="cmt">// ბრაუზერი თავად აჩვენებს შეტყობინებას პირველ არავალიდურ ველზე</span>
-    <span class="attr">return</span>;
-  }
-  console.log("ფორმა ვალიდურია, იგზავნება");
-});</code></pre>
-      <p>
-        <strong>მნიშვნელოვანი:</strong> ბრაუზერში ვალიდაცია მხოლოდ მომხმარებლის
-        <em>კომფორტისთვისაა</em> — ის ადვილად შეიძლება გვერდი აუარო (DevTools-ით ან პირდაპირ
-        მოთხოვნით). ნამდვილი, სავალდებულო ვალიდაცია ყოველთვის სერვერზეც უნდა ხდებოდეს.
-      </p>
-
-      <h2>7. საკონტროლო პროექტი — Weather App</h2>
+      <h2>6. საკონტროლო პროექტი — Weather App</h2>
       <p>
         ახლა ავაწყოთ სრული ამინდის აპლიკაცია, რომელიც იყენებს 1-დან 19-ე გაკვეთილამდე ნასწავლ
         ყველა ძირითად კონცეფციას. მონაცემებისთვის ვიყენებთ <strong>Open-Meteo</strong>-ს —
