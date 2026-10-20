@@ -1,14 +1,9 @@
 const output = document.getElementById("output");
+// 1) GET
 
-    // 1) GET
-    document.getElementById("getBtn").onclick = async () => {
-      const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
-      const data = await res.json();
-      output.textContent = JSON.stringify(data, null, 2);
-    };
 
-    // 2) POST
-    document.getElementById("postBtn").onclick = async () => {
+// 2) POST
+document.getElementById("postBtn").onclick = async () => {
       const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -18,22 +13,22 @@ const output = document.getElementById("output");
       output.textContent = JSON.stringify(data, null, 2);
     };
 
-    async function updatePost() {
-    try {
-          const res = await fetch("https://jsonplaceholder.typicode.com/posts/1", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            // PUT-ში ვგზავნით ყველა ველს
-            body: JSON.stringify({
-            id: 1,
-            title: "ახალი სათაური",
-            body: "ახალი ტექსტი",
-            userId: 1
-            })
+async function updatePost() {
+  try {
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts/1", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          // PUT-ში ვგზავნით ყველა ველს
+          body: JSON.stringify({
+          id: 1,
+          title: "ახალი სათაური",
+          body: "ახალი ტექსტი",
+          userId: 1
+          })
         });
         if (!res.ok) throw new Error("სტატუსი: " + res.status);
         console.log(await res.json());
-    } catch (err) {
+  } catch (err) {
       console.error("შეცდომა:", err.message);
     }
 }
@@ -54,6 +49,13 @@ async function patchPost() {
 }
 }
 patchPost()
+document.getElementById("getBtn").onclick = async () => {
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+      const data = await res.json();
+      
+      output.textContent = JSON.stringify(data, null, 2);
+};
+
 
 async function deletePost() {
   try {
@@ -70,7 +72,7 @@ deletePost();
 
 
     // 3) 404
-    document.getElementById("errBtn").onclick = async () => {
-      const res = await fetch("https://jsonplaceholder.typicode.com/users/99999");
+  document.getElementById("errBtn").onclick = async () => {
+      const res = await fetch("https://jsonplaceholder.typicode.com/users/11");
       output.textContent = "სტატუსი: " + res.status;
-    };
+   };

@@ -2,17 +2,44 @@
 <html lang="ka">
 <head>
   <meta charset="UTF-8">
-  <title>Network დემო</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch API ტესტი</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    .buttons {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
 </head>
 <body>
-  <h1>Network ტაბის დემო</h1>
 
-  <button id="getBtn">GET: მომხმარებელი</button>
-  <button id="postBtn">POST: ახალი პოსტი</button>
-  <button id="errBtn">404 შეცდომა</button>
+  <h2>Fetch API-ს ტესტირება</h2>
 
-  <pre id="output"></pre>
+  <div class="buttons">
+    <button id="getBtn">GET მოთხოვნა</button>
+    <button id="postBtn">POST მოთხოვნა</button>
+    <button id="errBtn">404 შეცდომის ტესტი</button>
+  </div>
 
-  <script src="script.js"></script>
+  <h3>შედეგი:</h3>
+  <pre id="output">დააჭირეთ ღილაკს შედეგის სანახავად...</pre>
+ <script src="script.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@ async function fetchJSON(url, signal) {
 
 // ნაბიჯი 1: ქალაქის სახელი → კოორდინატები
 export async function searchCity(name, signal) {
-  // URLSearchParams თავად აკეთებს encoding-ს — ქართული ასოებიც უსაფრთხოდ გადადის URL-ში
+  
   const params = new URLSearchParams({ name, count: "1", language: "en", format: "json" });
   const data = await fetchJSON(`${GEO_URL}?${params}`, signal);
 
