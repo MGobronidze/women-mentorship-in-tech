@@ -3,12 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>გაკვეთილი 20 — OOP, Prototype, Classes, Storage & Cookies</title>
-  <meta name="description" content="Constructor function, Prototype, მემკვიდრეობითობა, Classes, Setters/Getters, instanceof, localStorage/sessionStorage, Cookies და ფილტრის აწყობა." />
+  <title>გაკვეთილი 20 — OOP, Prototype, Classes, Storage & Cookies + To-Do პროექტი</title>
+  <meta name="description" content="Constructor function, Prototype chain, Classes (private, static), Getters/Setters, instanceof, localStorage/sessionStorage, Cookies, ფილტრი და სრული To-Do App პროექტი." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* მხოლოდ ამ გაკვეთილის დამატებითი სტილები */
+    .l20-note, .l20-warn, .l20-tip { padding: 12px 16px; border-radius: 10px; margin: 16px 0; border-left: 4px solid; background: rgba(128,128,128,.08); }
+    .l20-note { border-color: #3b82f6; } .l20-warn { border-color: #ef4444; } .l20-tip { border-color: #10b981; }
+    .l20-table-wrap { overflow-x: auto; margin: 16px 0; }
+    .l20-table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+    .l20-table th, .l20-table td { border: 1px solid rgba(128,128,128,.35); padding: 8px 10px; text-align: left; vertical-align: top; }
+    .l20-table th { background: rgba(128,128,128,.12); }
+    .l20-agenda li { margin: 4px 0; }
+    .demo-box { border: 1px solid rgba(128,128,128,.35); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .demo-box input, .demo-box select { font: inherit; padding: 8px 10px; border: 1px solid rgba(128,128,128,.5); border-radius: 8px; background: transparent; color: inherit; }
+    .demo-box button { font: inherit; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(128,128,128,.5); background: rgba(128,128,128,.12); color: inherit; cursor: pointer; }
+    .demo-box button[aria-pressed="true"] { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+    .demo-box button:disabled { opacity: .5; cursor: wait; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+    .demo-row > input[type="text"] { flex: 1 1 180px; }
+    #todo-list, #st-out { list-style: none; padding: 0; margin: 12px 0; }
+    #todo-list li { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid rgba(128,128,128,.25); }
+    #todo-list li span { flex: 1; word-break: break-word; }
+    #todo-list li.done span { text-decoration: line-through; opacity: .55; }
+    #todo-list li small { padding: 2px 8px; border-radius: 99px; background: rgba(128,128,128,.18); }
+    #todo-list li button { padding: 2px 8px; }
+    #todo-status, #st-msg { min-height: 1.4em; font-size: 14px; }
+    .is-error { color: #ef4444; }
+    pre { overflow-x: auto; }
+  </style>
 </head>
 <body>
 
@@ -40,8 +66,8 @@
         OOP, Prototype, Classes, Storage & Cookies
       </h1>
       <p style="color: var(--ink-soft); max-width: 62ch; font-size: 16px;">
-        JavaScript მოდულის ბოლო გაკვეთილი — ობიექტზე ორიენტირებული პროგრამირების საფუძვლები და
-        ბრაუზერში მონაცემების შენახვის გზები. ეს ცოდნა პირდაპირ მოგვამზადებს React-ისთვის.
+        ობიექტზე ორიენტირებული პროგრამირების საფუძვლები, ბრაუზერში მონაცემების შენახვის გზები და
+        საბოლოოდ — რეალური To-Do აპლიკაცია, რომელშიც 1–20 გაკვეთილის ცოდნა ერთიანდება.
       </p>
       <div class="lesson-progress" data-lesson="20">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
@@ -50,171 +76,558 @@
 
     <article class="lesson-article">
 
+      <!-- ===================== 1 ===================== -->
       <h2>1. Constructor Function</h2>
       <p>
-        Constructor function არის „ქარხანა", საიდანაც ერთი და იმავე „ფორმის" ბევრი ობიექტის
-        შექმნა შეიძლება. Convention-ის მიხედვით, სახელი იწერება დიდი ასოთი და გამოიძახება
-        <code>new</code> საკვანძო სიტყვით:
+        Constructor function არის „ქარხანა", საიდანაც ერთი „ფორმის" ბევრი ობიექტის შექმნა შეიძლება.
+        Convention: სახელი იწყება დიდი ასოთი, გამოიძახება <code>new</code>-ით.
       </p>
-      <pre><code><span class="attr">function</span> Student(name, age) {
-  <span class="attr">this</span>.name = name;
-  <span class="attr">this</span>.age = age;
+<pre><code>function Student(name, age) {
+  this.name = name;
+  this.age = age;
 }
 
-<span class="attr">const</span> student1 = <span class="attr">new</span> Student("ანა", 22);
-<span class="attr">const</span> student2 = <span class="attr">new</span> Student("გიორგი", 24);
+const student1 = new Student("ნატა", 22);
+const student2 = new Student("გიორგი", 24);
+console.log(student1.name); // "ნატა"</code></pre>
 
-console.log(student1.name); <span class="cmt">// "ანა"</span></code></pre>
+      <h3>რას აკეთებს <code>new</code> სინამდვილეში?</h3>
+      <ol style="padding-left: 20px;">
+        <li>ქმნის ცარიელ ობიექტს <code>{}</code>;</li>
+        <li>აკავშირებს მას <code>Student.prototype</code>-თან (ობიექტის შიდა <code>[[Prototype]]</code>);</li>
+        <li>ასრულებს ფუნქციას, სადაც <code>this</code> = ახალი ობიექტი;</li>
+        <li>აბრუნებს ამ ობიექტს (გარდა იმ შემთხვევისა, როცა constructor თავად აბრუნებს სხვა ობიექტს).</li>
+      </ol>
 
+      <div class="l20-warn">
+        <strong>ხშირი შეცდომა:</strong> <code>new</code>-ის დავიწყება. ჩვეულებრივი ფუნქციის რეჟიმში
+        <code>this</code> ან <code>undefined</code> იქნება (strict mode), ან — გლობალური ობიექტი. თავის დასაცავად:
+      </div>
+<pre><code>function Student(name) {
+  if (!new.target) {                     // new.target === undefined, თუ new-ის გარეშე გამოიძახეს
+    throw new TypeError("გამოიყენე new Student(...)");
+  }
+  this.name = name;
+}
+
+// ინსტანციიდან მისი "ქარხნის" გასაგებად:
+console.log(student1.constructor === Student); // true</code></pre>
+
+      <div class="l20-tip">
+        <strong>ისტორია:</strong> ჩაშენებული ტიპებიც იგივე მექანიზმია — <code>new Date()</code>,
+        <code>new Map()</code>, <code>new Error()</code>. იგივე ლოგიკა გამოიყენება class-შიც.
+      </div>
+
+      <!-- ===================== 2 ===================== -->
       <h2>2. Prototype და მემკვიდრეობითობა</h2>
       <p>
-        ყველა ობიექტს JavaScript-ში აქვს „ფარული" კავშირი მშობელ ობიექტთან — <strong>prototype</strong>-თან.
-        მეთოდები, საერთო ყველა instance-სთვის, საუკეთესოა prototype-ზე დავდოთ (და არა
-        constructor-ის შიგნით) — ეს ეკონომიურია მეხსიერების თვალსაზრისით:
+        ყველა ობიექტს აქვს „ფარული" კავშირი სხვა ობიექტთან — <strong>prototype</strong>-თან. როცა თვისებას
+        ვეძებთ და ობიექტში ვერ ვპოულობთ, JS მიყვება ამ კავშირს ზევით, სანამ <code>null</code>-ს არ მიაღწევს —
+        ამას ჰქვია <strong>prototype chain</strong>.
       </p>
-      <pre><code>Student.prototype.introduce = <span class="attr">function</span>() {
-  <span class="attr">return</span> `გამარჯობა, მე ვარ ${<span class="attr">this</span>.name}`;
+<pre><code>student1  ──►  Student.prototype  ──►  Object.prototype  ──►  null
+ (name, age)     (introduce)           (toString, hasOwnProperty...)</code></pre>
+
+      <p>
+        საერთო მეთოდები prototype-ზე დადე (და არა constructor-ში): ასე ყველა instance <em>ერთ</em> ფუნქციას
+        იზიარებს და მეხსიერება არ იხარჯება თითოეულ ობიექტზე ცალ-ცალკე ასლისთვის.
+      </p>
+<pre><code>Student.prototype.introduce = function () {
+  return `გამარჯობა, მე ვარ ${this.name}`;
 };
 
-console.log(student1.introduce()); <span class="cmt">// "გამარჯობა, მე ვარ ანა"</span>
-console.log(student2.introduce()); <span class="cmt">// ორივე instance-ი "იზიარებს" ერთსა და იმავე მეთოდს</span></code></pre>
-      <p>
-        <strong>მემკვიდრეობითობა (inheritance)</strong> საშუალებას გვაძლევს, ერთმა „ტიპმა"
-        მემკვიდრეობით მიიღოს მეორის თვისებები და მეთოდები — ეს პრაქტიკაში დღეს თითქმის ყოველთვის
-        <code>class</code> სინტაქსით (იხ. ქვემოთ) ხორციელდება.
-      </p>
+console.log(student1.introduce());                         // "გამარჯობა, მე ვარ მატა"
+console.log(student1.introduce === student2.introduce);    // true — იგივე ფუნქცია</code></pre>
 
+      <h3>prototype-ის შესამოწმებელი ხელსაწყოები</h3>
+<pre><code>Object.getPrototypeOf(student1) === Student.prototype; // true (სწორი, თანამედროვე გზა)
+student1.__proto__ === Student.prototype;              // true, მაგრამ __proto__ მხოლოდ დებაგისთვის
+
+Object.hasOwn(student1, "name");        // true  — საკუთარი თვისება
+Object.hasOwn(student1, "introduce");   // false — მემკვიდრეობით მიღებული
+"introduce" in student1;                // true  — ჯაჭვშიც ეძებს
+
+student1.name = "ნინო";                 // shadowing: ჩაწერა ყოველთვის ობიექტზეა და არა prototype-ზე</code></pre>
+
+      <div class="l20-note">
+        <strong>for...in gotcha:</strong> <code>for (const k in student1)</code> გამოიტანს prototype-ზე ხელით
+        მიმატებულ (enumerable) მეთოდებსაც. ამიტომ გამოიყენე <code>Object.keys(obj)</code> /
+        <code>Object.entries(obj)</code> — ისინი მხოლოდ საკუთარ თვისებებს აბრუნებენ.
+      </div>
+
+      <h3>მემკვიდრეობა prototype-ით (როგორ ხდებოდა class-მდე)</h3>
+<pre><code>function GraduateStudent(name, age, thesis) {
+  Student.call(this, name, age);          // მშობლის constructor — call (გაკვეთილი 17)
+  this.thesis = thesis;
+}
+GraduateStudent.prototype = Object.create(Student.prototype);
+GraduateStudent.prototype.constructor = GraduateStudent;
+
+// Object.create — ობიექტი პირდაპირ კონკრეტული prototype-ით:
+const animal = { speak() { return `${this.name} გამოსცემს ხმას`; } };
+const dog = Object.create(animal, { name: { value: "ბობი", enumerable: true } });
+dog.speak();
+
+// სუფთა "ლექსიკონი" prototype-ის გარეშე:
+const dict = Object.create(null);       // არ აქვს toString, hasOwnProperty და ა.შ.</code></pre>
+
+      <div class="l20-warn">
+        <strong>უსაფრთხოება (Prototype Pollution):</strong> თუ უცხო ობიექტებს (მაგ. JSON-იდან) ბრმად
+        აერთიანებ საკუთარ ობიექტში, გასაღებმა <code>"__proto__"</code> შეიძლება <code>Object.prototype</code> შეცვალოს.
+        არასდროს დააკოპირო user-ის ობიექტი key-ების შემოწმების გარეშე; ლექსიკონად გამოიყენე <code>Map</code> ან
+        <code>Object.create(null)</code>.
+      </div>
+
+      <!-- ===================== 3 ===================== -->
       <h2>3. Class-ები — თანამედროვე სინტაქსი</h2>
       <p>
-        ES6-ის <code>class</code> არის „სინტაქსური შაქარი" ზემოთ ნაჩვენები
-        constructor-function/prototype სისტემის თავზე — იგივე მექანიზმია, უფრო წასაკითხავი ფორმით:
+        ES6-ის <code>class</code> იგივე prototype-მექანიზმია, უფრო წასაკითხავი ფორმით („syntactic sugar"),
+        მაგრამ რამდენიმე დამატებითი წესით:
       </p>
-      <pre><code><span class="attr">class</span> Student {
-  <span class="attr">constructor</span>(name, age) {
-    <span class="attr">this</span>.name = name;
-    <span class="attr">this</span>._age = age; <span class="cmt">// კონვენცია: "_" პრეფიქსი "შიდა" თვისებისთვის (getter/setter-თან)</span>
+      <ul style="padding-left: 20px; list-style: disc;">
+        <li>class-ის გამოძახება <code>new</code>-ის გარეშე — <code>TypeError</code>;</li>
+        <li>class-ის სხეული ყოველთვის strict mode-ში მუშაობს;</li>
+        <li>class ცვლადივით იმალება TDZ-ში (<code>let</code>-ის მსგავსად) — გამოაცხადე გამოყენებამდე;</li>
+        <li>class-ის მეთოდები non-enumerable-ია — <code>for...in</code> მათ არ აჩვენებს.</li>
+      </ul>
+<pre><code>class Student {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
   }
 
-  introduce() {
-    <span class="attr">return</span> `გამარჯობა, მე ვარ ${<span class="attr">this</span>.name}`;
-  }
-}
-
-<span class="attr">const</span> student1 = <span class="attr">new</span> Student("ანა", 22);
-console.log(student1.introduce());</code></pre>
-
-      <h3>მემკვიდრეობითობა Class-ებში: extends</h3>
-      <pre><code><span class="attr">class</span> GraduateStudent <span class="attr">extends</span> Student {
-  <span class="attr">constructor</span>(name, age, thesisTopic) {
-    <span class="attr">super</span>(name, age); <span class="cmt">// მშობელი კლასის constructor-ის გამოძახება</span>
-    <span class="attr">this</span>.thesisTopic = thesisTopic;
-  }
-
-  introduce() {
-    <span class="attr">return</span> `${<span class="attr">super</span>.introduce()}, ჩემი თემაა "${<span class="attr">this</span>.thesisTopic}"`;
+  introduce() {                            // prototype-ზე ჩავარდება
+    return `გამარჯობა, მე ვარ ${this.name}`;
   }
 }
 
-<span class="attr">const</span> grad = <span class="attr">new</span> GraduateStudent("მარი", 27, "Front-end განათლება");
-console.log(grad.introduce());</code></pre>
+const student1 = new Student("ნატა", 22);
+console.log(typeof Student);               // "function" — class ფუნქციაა</code></pre>
 
+      <div class="l20-table-wrap">
+      <table class="l20-table">
+        <thead><tr><th></th><th>Constructor function</th><th><code>class</code></th></tr></thead>
+        <tbody>
+          <tr><td><code>new</code>-ის გარეშე გამოძახება</td><td>„მუშაობს" და უჩუმრად აფუჭებს (sloppy რეჟიმში თვისებები გლობალურ ობიექტზე ჩაიწერება)</td><td>ყოველთვის <code>TypeError</code></td></tr>
+          <tr><td>Hoisting</td><td>Function Declaration მთლიანად ჰოისტდება</td><td>Temporal Dead Zone — გამოცხადებამდე <code>ReferenceError</code></td></tr>
+          <tr><td>Strict mode</td><td>მხოლოდ თუ ჩავრთეთ</td><td>კლასის სხეული ყოველთვის strict-ია</td></tr>
+          <tr><td>მეთოდები</td><td><code>prototype.x = ...</code> (enumerable)</td><td>non-enumerable</td></tr>
+          <tr><td>კერძო ველები</td><td>არ არსებობს</td><td><code>#field</code> — ნამდვილი privacy</td></tr>
+          <tr><td>მემკვიდრეობა</td><td><code>call</code> + <code>Object.create</code> ხელით</td><td><code>extends</code> / <code>super</code></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>Class fields და private (#) თვისებები</h3>
+      <p>
+        თვისებები შეიძლება პირდაპირ class-ის სხეულში გამოვაცხადოთ. <code>#</code>-ით დაწყებული თვისება
+        <strong>ნამდვილად private</strong>-ია: მის წაკითხვას class-ის გარეთ ენა თავად კრძალავს (ეს „_" კონვენციისგან
+        განსხვავდება, რომელიც მხოლოდ შეთანხმებაა).
+      </p>
+<pre><code>class BankAccount {
+  #balance = 0;                            // private field
+  owner;                                   // public field
+
+  constructor(owner, initial = 0) {
+    this.owner = owner;
+    this.#deposit(initial);
+  }
+
+  #deposit(sum) {                          // private მეთოდი
+    if (sum &lt; 0) throw new RangeError("თანხა უარყოფითი ვერ იქნება");
+    this.#balance += sum;
+  }
+
+  add(sum) { this.#deposit(sum); return this; }   // return this → chaining
+  get balance() { return this.#balance; }
+
+  static isAccount(obj) { return #balance in obj; }  // brand check (ES2022)
+}
+
+const acc = new BankAccount("ნატა", 100).add(50);
+console.log(acc.balance);                  // 150
+// console.log(acc.#balance);              // ❌ SyntaxError — გარედან მიუწვდომელია</code></pre>
+
+      <div class="l20-note">
+        <strong>გაითვალისწინე:</strong> ქვეკლასი მშობლის <code>#ველს</code> ვერ წაიკითხავს (<code>SyntaxError</code>) — მშობლის public
+        getter-ს უნდა გამოიყენოს. კერძო ველები და public class fields თანამედროვე ბრაუზერებში „Baseline"-ია, ამიტომ
+        უპრობლემოდ გამოიყენება.
+      </div>
+      <div class="l20-warn">
+        <strong>ხაფანგი: JSON.stringify არ ხედავს კერძო ველებს.</strong> იგი მხოლოდ საკუთარ public თვისებებს აგროვებს:
+        <code>#balance</code> და prototype-ზე მდგომარე getter JSON-ში <em>არ</em> მოხვდება — localStorage-ში შენახვისას
+        მონაცემი უჩუმრად დაიკარგებოდა. გამოსავალი — <code>toJSON()</code> მეთოდი (იხ. პროექტი, <code>Task</code> კლასი).
+      </div>
+
+      <!-- ===================== 4 ===================== -->
       <h2>4. Setters & Getters</h2>
       <p>
-        Getter/setter გვაძლევს კონტროლს იმაზე, თუ როგორ იკითხება/იწერება თვისება — შესაძლებელია
-        დამატებითი ლოგიკის (მაგ. ვალიდაციის) ჩამატება:
+        Getter/setter გვაძლევს კონტროლს, როგორ იკითხება/იწერება თვისება: ვალიდაცია, გამოთვლადი მნიშვნელობა,
+        read-only თვისება. გარედან ჩვეულებრივი თვისებასავით გამოიყურება (ფრჩხილების გარეშე).
       </p>
-      <pre><code><span class="attr">class</span> Student {
-  <span class="attr">constructor</span>(name, age) {
-    <span class="attr">this</span>.name = name;
-    <span class="attr">this</span>._age = age;
+<pre><code>class Student {
+  #age;
+
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;                        // საწყისი მნიშვნელობაც setter-ით გაივლის ვალიდაციას
   }
 
-  <span class="attr">get</span> age() {
-    <span class="attr">return</span> <span class="attr">this</span>._age;
-  }
+  get age() { return this.#age; }
 
-  <span class="attr">set</span> age(value) {
-    <span class="attr">if</span> (value < 0) {
-      <span class="attr">throw new</span> Error("ასაკი ვერ იქნება უარყოფითი");
+  set age(value) {
+    if (!Number.isFinite(value) || value &lt; 0) {
+      throw new RangeError("ასაკი უნდა იყოს არაუარყოფითი რიცხვი");
     }
-    <span class="attr">this</span>._age = value;
+    this.#age = value;
+  }
+
+  get isAdult() { return this.#age &gt;= 18; }   // მხოლოდ getter → read-only
+}
+
+const s = new Student("ნატა", 22);
+console.log(s.age);        // 22 — getter
+s.age = 23;                // setter
+console.log(s.isAdult);    // true
+s.age = -5;                // ❌ RangeError</code></pre>
+
+      <div class="l20-note">
+        <strong>დაუშვებელია:</strong> <code>set age(v) { this.age = v; }</code> — უსასრულო რეკურსია, რადგან
+        <code>this.age = ...</code> ისევ setter-ს იძახებს. ამიტომ ვიყენებთ სხვა სახელს (<code>_age</code>) ან private <code>#age</code>-ს.
+      </div>
+
+      <!-- ===================== 5 ===================== -->
+      <h2>5. instanceof ოპერატორი</h2>
+      <p>ამოწმებს, არის თუ არა <code>Constructor.prototype</code> ობიექტის prototype chain-ში:</p>
+<pre><code>// 1. ვქმნით მშობელ კლასს
+class Student {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
   }
 }
 
-<span class="attr">const</span> s = <span class="attr">new</span> Student("ანა", 22);
-console.log(s.age);   <span class="cmt">// 22 — getter-ის გამოძახება, ფრჩხილების გარეშე</span>
-s.age = 23;           <span class="cmt">// setter-ის გამოძახება</span>
-s.age = -5;           <span class="cmt">// ❌ Error — setter-ის ვალიდაცია მუშაობს</span></code></pre>
+// 2. ვქმნით შვილობილ კლასს, რომელიც მემკვიდრეობით იღებს Student-ს
+class GraduateStudent extends Student {
+  constructor(name, age, thesisTopic) {
+    super(name, age); // აუცილებლად ვუძახებთ მშობლის კონსტრუქტორს
+    this.thesisTopic = thesisTopic;
+  }
+}
 
-      <h2>5. instanceof ოპერატორი</h2>
-      <p>ამოწმებს, არის თუ არა ობიექტი კონკრეტული class-ის (ან constructor-ის) instance-ი:</p>
-      <pre><code>console.log(grad instanceof GraduateStudent); <span class="cmt">// true</span>
-console.log(grad instanceof Student);         <span class="cmt">// true — მემკვიდრეობის გამო</span>
-console.log(grad instanceof Array);           <span class="cmt">// false</span></code></pre>
+const grad = new GraduateStudent("ჯონი", 27, "Front-end განათლება");
 
+console.log(grad instanceof GraduateStudent); // true (რადგან ამ კლასის ინსტანციაა)
+console.log(grad instanceof Student);         // true (მემკვიდრეობის გამო — GraduateStudent extends Student)
+console.log(grad instanceof Object);          // true (JavaScript-ში ყველა ობიექტი და კლასი Object-ის შვილია)
+console.log(grad instanceof Array);           // false (არანაირი კავშირი არ აქვს მასივთან)
+
+console.log([] instanceof Array, Array.isArray([])); // true true 
+//([] არის მასივი და ორივე გზით სწორად დგინდება)
+
+console.log(typeof null, typeof [], typeof class {}); // "object" "object" "function"
+// (typeof null-ის "object" არის JS-ის ისტორიული ბაგი, მასივი არის ობიექტი, ხოლო კლასი ტიპით არის ფუნქცია</code></pre>
+      <!-- ===================== 6 ===================== -->
       <h2>6. მონაცემების შენახვა ბრაუზერში</h2>
-      <p>
-        ბრაუზერს აქვს რამდენიმე ჩაშენებული მექანიზმი, რომ მონაცემი „გადარჩეს" გვერდის ხელახლა
-        ჩატვირთვის შემდეგაც:
-      </p>
-      <pre><code><span class="cmt">// localStorage — რჩება უსასრულოდ, სანამ ხელით არ წაიშლება</span>
-localStorage.setItem("theme", "dark");
-console.log(localStorage.getItem("theme")); <span class="cmt">// "dark"</span>
+
+      <h3>Web Storage: localStorage და sessionStorage</h3>
+      <ul style="padding-left: 20px; list-style: disc;">
+        <li>ინახავს <strong>მხოლოდ სტრიქონებს</strong> (key → string);</li>
+        <li>ლიმიტი დაახლოებით <strong>5 MiB</strong> ორიგინზე (origin = პროტოკოლი + დომენი + პორტი);</li>
+        <li>მონაცემი <strong>არ იგზავნება</strong> სერვერზე;</li>
+        <li><code>localStorage</code> რჩება ბრაუზერის დახურვის შემდეგაც; <code>sessionStorage</code> — მხოლოდ ერთი ტაბის სიცოცხლით;</li>
+        <li>API სინქრონულია: დიდი მონაცემი მთავარ thread-ს ბლოკავს.</li>
+        <p>(რა საფრთხეა: თუ შენ შეეცდები localStorage-ში დიდი მოცულობის ტექსტის (მაგ. 4-5 მეგაბაიტიანი ფაილის) ჩაწერას, მყარ დისკზე ჩაწერის პროცესის დასრულებამდე ბრაუზერი „გაიყინება“ (Main Thread დაიბლოკება). ამ დროს ვებსაიტი დროებით შეწყვეტს რეაგირებას კლიკებზე, ღილაკები არ იმოძრავებს და ანიმაციები შეჩერდება.</p>
+        <p>რჩევა: ამიტომ localStorage-ში ინახავენ მხოლოდ პატარა ზომის მონაცემებს (ტოკენები, პარამეტრები, მომხმარებლის სახელი), ხოლო დიდი მონაცემებისთვის იყენებენ ბრაუზერის სხვა, ასინქრონულ ბაზებს (მაგალითად, IndexedDB-ს).)</p>
+      </ul>
+
+<pre><code>localStorage.setItem("theme", "dark");
+localStorage.getItem("theme");        // "dark"; არარსებულზე → null
 localStorage.removeItem("theme");
+localStorage.clear();                 // ყველაფრის წაშლა (ამ ორიგინზე)
+localStorage.length;  localStorage.key(0);
 
-<span class="cmt">// sessionStorage — იშლება, როცა ბრაუზერის ტაბი იხურება</span>
-sessionStorage.setItem("draft", JSON.stringify({ text: "..." }));
+localStorage.setItem("count", 5);
+typeof localStorage.getItem("count"); // "string" ← რიცხვი სტრიქონად იქცა!
 
-<span class="cmt">// ობიექტების შენახვისას — ყოველთვის JSON.stringify/parse საჭიროა</span>
-<span class="attr">const</span> user = { name: "ანა", loggedIn: true };
-localStorage.setItem("user", JSON.stringify(user));
-<span class="attr">const</span> restoredUser = JSON.parse(localStorage.getItem("user"));</code></pre>
+localStorage.setItem("user", { name: "ნატა" });
+localStorage.getItem("user");         // "[object Object]" — მონაცემი დაიკარგა
+
+localStorage.setItem("isDark", false);
+Boolean(localStorage.getItem("isDark")); // true!! "false" არაცარიელი, ანუ truthy სტრიქონია</code></pre>
+
+
+      <h3>ბრაუზერის Storage-ის გამოყენებისას გახსოვდეს</h3>
+      <ul style="padding-left: 20px; list-style: disc;">
+        <li><strong>სენსიტიური მონაცემი</strong> (პაროლი, ტოკენი) localStorage-ში არ შეინახო — ნებისმიერ XSS-ს შეუძლია წაიკითხოს.</li>
+        <li>Private/Incognito რეჟიმში <code>localStorage</code> sessionStorage-ივით იქცევა: ფანჯრის დახურვისას იშლება.</li>
+        <li>Safari-ს თვალთვალისგან დაცვის პოლიტიკით, თუ მომხმარებელი დიდხანს (დაახლ. 7 დღე) არ ურთიერთობს საიტთან, script-ით ჩაწერილი მონაცემი შეიძლება წაიშალოს. დასკვნა: ბრაუზერის საცავი არის <strong>კომფორტი და ქეში</strong>, არა ერთადერთი „ჭეშმარიტების წყარო" — მნიშვნელოვანი მონაცემი სერვერზეც უნდა ინახებოდეს.</li>
+        <li>შენახული მონაცემი „არასანდოა": მომხმარებელს DevTools-ში ნებისმიერი ჩანაწერის შეცვლა შეუძლია — წაკითხვისას ყოველთვის გადაამოწმე ფორმატი .</li>
+        <li><strong>DevTools → Application → Local storage / Session storage / Cookies</strong>: ჩანაწერებს ცხრილად ნახავ, ორმაგი დაწკაპუნებით შეცვლი ან წაშლი, „Clear site data"-თი ყველაფერს გაასუფთავებ. ეს შენი მთავარი დებაგ-ხელსაწყოა ამ თემისთვის.</li>
+        <li>მომხმარებელს შეუძლია ხელით გაასუფთავოს, ამიტომ აპლიკაცია უნდა მუშაობდეს ცარიელი storage-ითაც.</li>
+        <li>დიდი/სტრუქტურული მონაცემისთვის (ათასობით ჩანაწერი, ფაილები) — <strong>IndexedDB</strong>. ადგილის შესამოწმებლად:
+            <code>navigator.storage.estimate()</code>.</li>
+      </ul>
+
+      <h3>Cookies</h3>
       <p>
-        <strong>Cookies</strong> უფრო ძველი მექანიზმია — ავტომატურად იგზავნება ყოველ HTTP
-        მოთხოვნასთან ერთად სერვერზე (localStorage/sessionStorage არ იგზავნება), რაც მას
-        გამოსადეგს ხდის session/auth ინფორმაციისთვის, თუმცა ტევადობა ბევრად ნაკლებია:
+        Cookie ბრაუზერისა და <strong>სერვერის</strong> საერთო მექანიზმია:
       </p>
-      <pre><code>document.cookie = "username=ana; max-age=3600"; <span class="cmt">// 1 საათის ვადით</span>
-console.log(document.cookie); <span class="cmt">// "username=ana" — ყველა cookie ერთ სტრიქონად</span></code></pre>
+      <p>
+        ბრაუზერიდან სერვერზე: როდესაც შენი საიტი სერვერზე აგზავნის რაიმე მოთხოვნას (მაგალითად, ღილაკს აჭერ ან გვერდს ტვირთავ), ბრაუზერი ავტომატურად აყოლებს იმ დომენისთვის შენახულ ქუქიებს HTTP Header-ში (Cookie: username=nata). სერვერი ამას კითხულობს და ხვდება, ვინ აკეთებს მოთხოვნას (მაგალითად, რომელი მომხმარებელია ავტორიზებული).
+      </p>
+      <p>
+        სერვერიდან ბრაუზერში: როდესაც სერვერს პასუხის დაბრუნება სურს, ის პასუხში აყოლებს სათაურს Set-Cookie: username=nata, ბრაუზერი კი ამას იმახსოვრებს </p>
+      <p>მოცულობა: ერთი ქუქი არის ძალიან პატარა — მაქსიმუმ 4 კილობაიტი (KB). ამიტომ მასში დიდ მონაცემებს (როგორც localStorage-ში) ვერ შეინახავ. ის ძირითადად გამოიყენება ტოკენებისთვის, იდენტიფიკატორებისთვის ან პატარა პარამეტრებისთვის.</p>
+<pre><code>document.cookie = "username=nata; max-age=3600; path=/; SameSite=Lax";
+console.log(document.cookie);   // "username=nata; theme=dark" — ყველა ხილული cookie ერთ სტრიქონად
 
+// წაშლა: იგივე name+path და max-age=0
+document.cookie = "username=; max-age=0; path=/";
+
+// მნიშვნელობა encode-ით, რომ ; და სხვა სიმბოლოებმა არ დააზიანოს:
+document.cookie = `note=${encodeURIComponent("გამარჯობა; მსოფლიო")}; path=/`;</code></pre>
+<ul>
+  <li>username=nata — თავად მონაცემი (Key-Value წყვილი: სახელი და მნიშვნელობა).</li>
+  <li>max-age=3600 — სიცოცხლის ხანგრძლივობა წამებში. 3600 წამი არის ზუსტად 1 საათი. ამ დროის გასვლის შემდეგ ბრაუზერი ქუქიფაილს ავტომატურად წაშლის. (თუ ამას არ მივუთითებთ, ქუქი წაიშლება როგორც კი მომხმარებელი ბრაუზერის ტაბს ან ფანჯრას დახურავს — ე.წ. Session Cookie).</li>
+  <li>path=/ — მიუთითებს, რომ ეს ქუქი ხელმისაწვდომია საიტის ნებისმიერ გვერდზე (მთელ დომენზე).</li>
+  <li>SameSite=Lax — უსაფრთხოების პარამეტრი, რომელიც იცავს საიტს ე.წ. CSRF შეტევებისგან (გვერდითა საიტებიდან მავნე მოთხოვნების გამოგზავნისგან). Lax ნიშნავს, რომ ქუქი გაჰყვება მხოლოდ ნორმალურ ლინკებზე გადასვლისას.</li>
+</ul>
+      <p>
+        <code>document.cookie</code> ერთ cookie-ს ამატებს/ანახლებს (დანარჩენებს არ „გადააწერს"), წაკითხვისას კი ყველას ერთ
+        სტრიქონად აბრუნებს, ატრიბუტების გარეშე. ხელით პარსინგი არასაიმედოა, ამიტომ სამი დამხმარე ფუნქცია:
+      </p>
+<pre><code>function setCookie(name, value, { days = 365, path = "/", sameSite = "Lax" } = {}) {
+  const maxAge = days * 24 * 60 * 60;
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; max-age=${maxAge}; path=${path}; SameSite=${sameSite}`;
+}
+
+function getCookie(name) {
+  const prefix = `${encodeURIComponent(name)}=`;
+  const found = document.cookie.split("; ").find(row =&gt; row.startsWith(prefix));
+  return found ? decodeURIComponent(found.slice(prefix.length)) : null;
+}
+
+function deleteCookie(name, path = "/") {
+  document.cookie = `${encodeURIComponent(name)}=; max-age=0; path=${path}`;  // path იგივე უნდა იყოს, რაც ჩაწერისას!
+}</code></pre>
+      <div class="l20-table-wrap">
+      <table class="l20-table">
+        <thead><tr><th>ატრიბუტი</th><th>რას აკეთებს</th></tr></thead>
+        <tbody>
+          <tr><td><code>max-age</code> / <code>expires</code></td><td>სიცოცხლის ხანგრძლივობა. გარეშე — session cookie (ბრაუზერის დახურვამდე)</td></tr>
+          <tr><td><code>path</code>, <code>domain</code></td><td>რომელ გვერდებზე/დომენებზე იგზავნება</td></tr>
+          <tr><td><code>Secure</code></td><td>იგზავნება მხოლოდ HTTPS-ით</td></tr>
+          <tr><td><code>HttpOnly</code></td><td>JS-ს (<code>document.cookie</code>) არ უჩანს; <strong>ამ ატრიბუტს მხოლოდ სერვერი აყენებს</strong> (<code>Set-Cookie</code> header-ით), JS-იდან ჩაწერა შეუძლებელია — ავტორიზაციისთვის საუკეთესო დაცვა XSS-ის წინააღმდეგ</td></tr>
+          <tr><td><code>SameSite</code> = <code>Strict</code> / <code>Lax</code> / <code>None</code></td><td>იგზავნება თუ არა cross-site მოთხოვნებზე (CSRF-ისგან დაცვა). <code>None</code> მოითხოვს <code>Secure</code>-ს</td></tr>
+          <tr><td><code>Partitioned</code></td><td>third-party cookie იყოფა ზედა საიტის მიხედვით (CHIPS)</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+
+      <h3>მესამე მხარის cookie-ები (2026)</h3>
+      <ul>
+        <li>რა არის მესამე მხარის ქუქი: ეს არის ქუქი, რომელსაც ქმნის არა ის საიტი, რომელზეც შეხვედი (მაგ. my-blog.ge), არამედ მასში ჩაშენებული სხვა დომენი (მაგალითად, YouTube ვიდეო, სარეკლამო ქსელი, ან ანალიტიკური ვიჯეტი).</li>
+        <li>რა ხდება რეალობაში: უსაფრთხოებისა და კონფიდენციალურობის გამო, თანამედროვე ბრაუზერების უმეტესობამ (Safari, Firefox, ხოლო Google Chrome-მაც თავისი მიდგომით) დაიწყო ან სრულად ბლოკავს მათ, ან მკაცრ შეზღუდვებს აწესებს.</li>
+        <li>მთავარი დასკვნა: არასდროს ააწყო შენი ვებსაიტის მნიშვნელოვანი ფუნქციონალი (მაგალითად, მომხმარებლის ავტორიზაცია ან კალათა) მესამე მხარის ქუქიებზე, რადგან დიდი შანსია, რომ მომხმარებლის ბრაუზერმა ის დაბლოკოს და საიტი გაგიფუჭდეს.</li>
+      </ul>
+      <h3>შედარება: რომელი როდის?</h3>
+      <div class="l20-table-wrap">
+      <table class="l20-table">
+        <thead><tr><th></th><th>localStorage</th><th>sessionStorage</th><th>Cookie</th><th>IndexedDB</th></tr></thead>
+        <tbody>
+          <tr><td>სიცოცხლე</td><td>სანამ არ წაიშლება</td><td>ტაბის დახურვამდე</td><td>max-age/expires</td><td>სანამ არ წაიშლება</td></tr>
+          <tr><td>ზომა</td><td>~5 MiB</td><td>~5 MiB</td><td>~4 KB</td><td>ბევრად მეტი</td></tr>
+          <tr><td>იგზავნება სერვერზე?</td><td>არა</td><td>არა</td><td>დიახ, ავტომატურად</td><td>არა</td></tr>
+          <tr><td>API</td><td>სინქრონული</td><td>სინქრონული</td><td>სტრიქონი / Cookie Store</td><td>ასინქრონული</td></tr>
+          <tr><td>ტიპური გამოყენება</td><td>თემა, ფილტრი, დავალებები</td><td>დრაფტი, ფორმის ეტაპი</td><td>სესია, ენა, სერვერისთვის საჭირო</td><td>offline მონაცემი, დიდი სია</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- ===================== 7 ===================== -->
       <h2>7. პრაქტიკა: ფილტრის აწყობა</h2>
       <p>
-        ყველაფერი ერთად — მონაცემთა მასივის ფილტრაცია (მე-12 გაკვეთილიდან), DOM (მე-15) და events
-        (მე-16):
+        გავაერთიანოთ მასივის მეთოდები (გაკვეთილი 12), DOM (15), events (16) და Storage. გაუმჯობესებული ვერსია:
+        <strong>event delegation</strong> (ერთი listener მთლიან კონტეინერზე), <code>data-*</code> ატრიბუტები,
+        <code>aria-pressed</code> და არჩეული ფილტრის შენახვა.
       </p>
-      <pre><code><span class="attr">const</span> products = [
+<pre><code>&lt;div id="filters"&gt;
+  &lt;button data-filter="all"&gt;ყველა&lt;/button&gt;
+  &lt;button data-filter="განათლება"&gt;განათლება&lt;/button&gt;
+  &lt;button data-filter="ტექნიკა"&gt;ტექნიკა&lt;/button&gt;
+&lt;/div&gt;
+&lt;ul id="product-list"&gt;&lt;/ul&gt;</code></pre>
+<pre><code>const products = [
   { name: "წიგნი", category: "განათლება", price: 15 },
   { name: "ყურსასმენი", category: "ტექნიკა", price: 80 },
   { name: "რვეული", category: "განათლება", price: 5 },
 ];
 
-<span class="attr">const</span> filterButtons = document.querySelectorAll("[data-filter]");
-<span class="attr">const</span> list = document.querySelector("#product-list");
+const filtersEl = document.querySelector("#filters");
+const listEl = document.querySelector("#product-list");
+const KEY = "products.filter";
 
-<span class="attr">function</span> render(items) {
-  list.innerHTML = items
-    .map(p => `&lt;li&gt;${p.name} — ${p.price}₾&lt;/li&gt;`)
-    .join("");
+let current = localStorage.getItem(KEY) ?? "all";   // ბოლო არჩეული ფილტრი
+
+function render() {
+  const items = current === "all" ? products : products.filter(p =&gt; p.category === current);
+  const frag = document.createDocumentFragment();           // ერთჯერადი DOM-ში ჩასმა
+  for (const { name, price } of items) {
+    const li = document.createElement("li");
+    li.textContent = `${name} — ${price}₾`;                 // textContent: XSS-ისგან უსაფრთხო
+    frag.append(li);
+  }
+  listEl.replaceChildren(frag);
+
+  filtersEl.querySelectorAll("[data-filter]").forEach(btn =&gt;
+    btn.setAttribute("aria-pressed", String(btn.dataset.filter === current)));
 }
 
-filterButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    <span class="attr">const</span> category = btn.dataset.filter;
-    <span class="attr">const</span> filtered = category === "all"
-      ? products
-      : products.filter(p => p.category === category);
-    render(filtered);
-  });
+filtersEl.addEventListener("click", (e) =&gt; {
+  const btn = e.target.closest("[data-filter]");
+  if (!btn) return;
+  current = btn.dataset.filter;
+  localStorage.setItem(KEY, current);
+  render();
 });
 
-render(products); <span class="cmt">// საწყისი მდგომარეობა — ყველა პროდუქტი</span></code></pre>
+render();</code></pre>
+      <div class="l20-tip">
+        <strong>დამატებითი იდეა:</strong> ფილტრი შეგიძლია URL-შიც შეინახო (<code>?filter=ტექნიკა</code>,
+        <code>URLSearchParams</code> + <code>history.replaceState</code>) — მაშინ გვერდის ბმულის გაზიარებისას
+        მეორე ადამიანიც იმავე ფილტრს ნახავს.
+      </div>
+
+      <h3>ძებნა Debounce-ით</h3>
+      <p>
+        <code>input</code> event ყოველ სიმბოლოზე ირთვება — ყოველ კლავიშზე ფილტრაცია/რენდერი (ან API მოთხოვნა) ზედმეტი
+        სამუშაოა. <strong>Debounce</strong> ფუნქციას „აყოვნებს": შესრულდება მხოლოდ მაშინ, როცა ბოლო გამოძახებიდან
+        <code>delay</code> ხანი გავიდა. აქ ერთად მუშაობს <strong>closure</strong> (<code>timerId</code>-ს „ახსოვს", გაკვეთილი 13),
+        <strong>Higher-Order Function</strong> (ფუნქციას აბრუნებს, 17) და <code>setTimeout</code> (18):
+      </p>
+<pre><code>function debounce(fn, delay = 300) {
+  let timerId;                              // closure-ში ცოცხალი
+  return (...args) =&gt; {
+    clearTimeout(timerId);                  // წინა "ჩანიშნული" გამოძახება გაუქმდეს
+    timerId = setTimeout(() =&gt; fn(...args), delay);
+  };
+}
+
+let query = "";
+const searchEl = document.querySelector("#search");
+searchEl.addEventListener("input", debounce((e) =&gt; {
+  query = e.target.value.trim().toLowerCase();
+  render();                                 // ჩვენი render ფილტრსაც ითვალისწინებს და ძებნასაც
+}, 300));
+
+// render-ში:
+// const items = products.filter(p =&gt; (current === "all" || p.category === current)
+//                                   &amp;&amp; p.name.toLowerCase().includes(query));</code></pre>
+      <div class="l20-note">
+        <strong>UI = f(state):</strong> ეკრანი არასდროს იცვლება „ხელით" — ის ყოველთვის state-იდან (<code>current</code>,
+        <code>query</code>) გამოითვლება. ეს ზუსტად ის იდეაა, რომელზეც React დგას. ფილტრი, რომლის შენახვაც ტაბის
+        დახურვის შემდეგ არ გვჭირდება, შეიძლება <code>sessionStorage</code>-ში ვიმახსოვროთ; ჩვენ აქ <code>localStorage</code>
+        ავირჩიეთ, რომ ბოლო არჩევანი მუდმივად დარჩეს.
+      </div>
+
+      <!-- ===================== 8 ===================== -->
+      <h2>8. პროექტი: To-Do App (გაკვეთილები 1–20-ის გაერთიანება)</h2>
+      <p>
+        ეს აპლიკაცია <strong>ნამდვილად მუშაობს ამ გვერდზე</strong> — ქვემოთ კოდი, რომელსაც ხედავ, ზუსტად ის არის,
+        რაც სრულდება. სცადე: დაამატე, მონიშნე, გაფილტრე, გადატვირთე გვერდი, გახსენი მეორე ტაბი.
+      </p>
+
+      <div class="demo-box" id="todo-app" aria-labelledby="todo-title">
+        <h3 id="todo-title" style="margin-top:0">📝 ჩემი დავალებები</h3>
+        <p id="todo-visit" style="margin:0 0 8px; font-size:14px; opacity:.8"></p>
+        <form id="todo-form" class="demo-row" novalidate>
+          <input type="text" id="todo-input" placeholder="რა უნდა გააკეთო?" aria-label="ახალი დავალება" maxlength="80" autocomplete="off">
+          <select id="todo-category" aria-label="კატეგორია">
+            <option value="study">სწავლა</option>
+            <option value="personal">პირადი</option>
+            <option value="work">სამუშაო</option>
+          </select>
+          <button type="submit">დამატება</button>
+        </form>
+        <div id="todo-filters" class="demo-row" role="group" aria-label="ფილტრები">
+          <button type="button" data-filter="all">ყველა</button>
+          <button type="button" data-filter="active">აქტიური</button>
+          <button type="button" data-filter="done">დასრულებული</button>
+          <button type="button" data-filter="study">სწავლა</button>
+          <button type="button" data-filter="personal">პირადი</button>
+          <button type="button" data-filter="work">სამუშაო</button>
+        </div>
+        <ul id="todo-list"></ul>
+        <p id="todo-empty" hidden>ამ ფილტრით დავალება არ არის 🎉</p>
+        <div class="demo-row">
+          <span id="todo-count"></span>
+          <button type="button" id="todo-clear">დასრულებულების წაშლა</button>
+          <button type="button" id="todo-import">☁️ მაგალითების იმპორტი (fetch)</button>
+        </div>
+        <div id="todo-status" role="status" aria-live="polite"></div>
+      </div>
+
+      <h3>რომელი გაკვეთილი სად გამოვიყენეთ?</h3>
+      <div class="l20-table-wrap">
+      <table class="l20-table">
+        <thead><tr><th>გაკვეთილი</th><th>პროექტში</th></tr></thead>
+        <tbody>
+          <tr><td>1–3 HTML</td><td>სემანტიკური სტრუქტურა: <code>form</code>, <code>label</code>/<code>aria-label</code>, <code>input</code>, <code>select</code>, <code>ul</code>/<code>li</code>, <code>button</code></td></tr>
+          <tr><td>4–8 CSS</td><td>Flexbox (<code>demo-row</code>), pseudo-classes/attribute selectors (<code>[aria-pressed="true"]</code>), <code>.done</code> სტილი, responsive <code>flex-wrap</code></td></tr>
+          <tr><td>9 CSS Grid / AI</td><td>განლაგება Grid-ითაც შეიძლება; AI-ს გამოყენება — კოდის review-სა და ტესტ-იდეებისთვის</td></tr>
+          <tr><td>10–11 სინტაქსი, ლუპები</td><td><code>const/let</code>, template literals, <code>for...of</code>, <code>===</code>, <code>??</code>, ტიპების კონტროლი</td></tr>
+          <tr><td>12 მასივები/ობიექტები</td><td><code>filter</code>, <code>find</code>, <code>map</code>, <code>unshift</code>, ფილტრების ობიექტი-ლექსიკონი</td></tr>
+          <tr><td>13 ფუნქციები/Closure</td><td>ფილტრების predicate ფუნქციები, closure-ში <code>$</code> helper</td></tr>
+          <tr><td>14 ES6+</td><td>destructuring, default params, spread, optional chaining, <code>class</code> ველები</td></tr>
+          <tr><td>15 DOM</td><td><code>createElement</code>, <code>DocumentFragment</code>, <code>replaceChildren</code>, <code>textContent</code>, <code>dataset</code></td></tr>
+          <tr><td>16 Events</td><td>event delegation, <code>submit</code> + <code>preventDefault</code>, <code>AbortController</code> + <code>signal</code></td></tr>
+          <tr><td>17 ARIA, HOF</td><td><code>aria-pressed</code>, <code>aria-live</code>, <code>aria-label</code>; <code>map/filter/find</code> როგორც HOF</td></tr>
+          <tr><td>18 Promises</td><td><code>async/await</code>, <code>try/catch/finally</code>, timeout</td></tr>
+          <tr><td>19 Fetch/JSON</td><td><code>fetch</code>, <code>res.ok</code>, <code>res.json()</code>, <code>JSON.stringify/parse</code></td></tr>
+          <tr><td>20 OOP/Storage</td><td><code>Task</code> კლასი (private, static, getter/setter, <code>toJSON</code>), <code>localStorage</code>, <code>sessionStorage</code>, cookie, <code>storage</code> event</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>HTML ჩონჩხი</h3>
+<pre><code>&lt;div id="todo-app"&gt;
+  &lt;form id="todo-form"&gt; &lt;input id="todo-input"&gt; &lt;select id="todo-category"&gt;...&lt;/select&gt; &lt;button&gt;დამატება&lt;/button&gt; &lt;/form&gt;
+  &lt;div id="todo-filters"&gt; &lt;button data-filter="all"&gt;ყველა&lt;/button&gt; ... &lt;/div&gt;
+  &lt;ul id="todo-list"&gt;&lt;/ul&gt;
+  &lt;span id="todo-count"&gt;&lt;/span&gt;
+  &lt;button id="todo-clear"&gt;&lt;/button&gt; &lt;button id="todo-import"&gt;&lt;/button&gt;
+  &lt;div id="todo-status" role="status" aria-live="polite"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+      <h3>სრული JavaScript</h3>
+      <pre><code id="todo-code">// იტვირთება...</code></pre>
+
+      <div class="l20-tip">
+        <strong>როგორ გავყოთ ფაილებად (გაკვეთილი 14, ES Modules):</strong> <code>task.js</code> (class Task),
+        <code>storage.js</code> (Store, cookies), <code>app.js</code> (TodoApp) → <code>export</code> / <code>import</code>,
+        და <code>&lt;script type="module" src="app.js"&gt;</code>. ეს იქნება შემდეგი ნაბიჯი React-ზე გადასვლამდე.
+      </div>
+
+      <h3>გაკვეთილზე სასაუბრო კითხვები</h3>
+      <ol style="padding-left: 20px;">
+        <li>რატომ ვიყენებთ <code>textContent</code>-ს და არა <code>innerHTML</code>-ს დავალების სათაურისთვის?</li>
+        <li>რატომ არის <code>Task</code>-ის <code>id</code> private და getter-ით მხოლოდ იკითხება?</li>
+        <li>რატომ ვინახავთ draft-ს <code>sessionStorage</code>-ში, ხოლო დავალებებს — <code>localStorage</code>-ში?</li>
+        <li>რა მოხდება, თუ localStorage-ში დაზიანებულ JSON-ს ჩავწერთ ხელით? (სცადე DevTools-ში)</li>
+        <li>რისთვის გვჭირდება <code>AbortController</code> და როდის გამოვიძახებთ <code>destroy()</code>-ს?</li>
+      </ol>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://javascript.info/class" target="_blank" rel="noopener">JavaScript.info — Class basics</a></li>
           <li><a href="https://javascript.info/class-inheritance" target="_blank" rel="noopener">JavaScript.info — Class inheritance</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank" rel="noopener">MDN — Web Storage API (localStorage/sessionStorage)</a></li>
+          <li><a href="https://javascript.info/prototype-inheritance" target="_blank" rel="noopener">JavaScript.info — Prototypal inheritance</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes" target="_blank" rel="noopener">MDN — Classes (private, static, static blocks)</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank" rel="noopener">MDN — Web Storage API</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria" target="_blank" rel="noopener">MDN — Storage quotas and eviction criteria</a></li>
           <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank" rel="noopener">MDN — Using HTTP Cookies</a></li>
         </ul>
       </div>
@@ -222,11 +635,14 @@ render(products); <span class="cmt">// საწყისი მდგომა�
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>დაწერე <code>Book</code> class (title, author, isRead) და <code>introduce()</code> მეთოდი, რომელიც აღწერს წიგნს.</li>
-          <li>შექმენი <code>EBook extends Book</code>, დაამატე <code>fileSize</code> თვისება და გადაწერე <code>introduce()</code>, <code>super.introduce()</code>-ის გამოყენებით.</li>
-          <li>დაამატე <code>Book</code> class-ს getter/setter <code>rating</code>-ისთვის, რომელიც ვალიდაციას უკეთებს (1-დან 5-მდე).</li>
-          <li>შეინახე მარტივი ობიექტი <code>localStorage</code>-ში, გადატვირთე გვერდი და <code>getItem</code>-ის გამოყენებით აჩვენე, რომ მონაცემი შენარჩუნებულია.</li>
-          <li><em>(რთული)</em> ააწყვე პროდუქტების ფილტრი (ზემოთ ნაჩვენები მაგალითის მსგავსი) — მინიმუმ 3 კატეგორიის ღილაკით — და დაამატე, რომ არჩეული ფილტრი ინახებოდეს <code>localStorage</code>-ში, რომ გვერდის ხელახლა გახსნისას ბოლო არჩეული ფილტრი ავტომატურად აქტიური იყოს.</li>
+          <li>დაწერე <code>Book</code> class (title, author, isRead) და <code>introduce()</code> მეთოდი.</li>
+          <li>შექმენი <code>EBook extends Book</code>, დაამატე <code>fileSize</code> და გადაწერე <code>introduce()</code> <code>super.introduce()</code>-ით.</li>
+          <li>დაამატე <code>Book</code>-ს getter/setter <code>rating</code>-ისთვის (1–5, ვალიდაციით) და private <code>#isbn</code>.</li>
+          <li>დაამატე <code>static</code> მეთოდი <code>Book.compare(a, b)</code> რეიტინგით დასალაგებლად (<code>sort</code>-ში გამოსაყენებლად).</li>
+          <li>შეინახე ობიექტი <code>localStorage</code>-ში, გადატვირთე გვერდი და აჩვენე, რომ შენარჩუნებულია; დაამატე try/catch.</li>
+          <li>ააწყვე პროდუქტების ფილტრი მინიმუმ 3 კატეგორიით, ბოლო არჩეული ფილტრის შენახვით.</li>
+          <li><em>(რთული)</em> გააფართოვე To-Do: <strong>რედაქტირება</strong> (ორჯერ დაწკაპუნება), <strong>ვადა</strong> (<code>dueDate</code> + <code>input type="date"</code>), <strong>დახარისხება</strong>, და <strong>სია "სულ/გაკეთებული" პროცენტი</strong>.</li>
+          <li><em>(რთული)</em> გადაიტანე To-Do ES მოდულებად (<code>task.js</code>, <code>storage.js</code>, <code>app.js</code>) და გამოაქვეყნე GitHub Pages-ზე (გაკვეთილი 8).</li>
         </ol>
       </div>
 
@@ -241,11 +657,306 @@ render(products); <span class="cmt">// საწყისი მდგომა�
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <div class="brand"><span class="brand-dot"></span> front-end-course</div>
+      <div class="brand"><span class="brand-dot"></span></div>
       <div>HTML · CSS · JavaScript · React — 24 გაკვეთილი</div>
     </div>
   </footer>
 
+  <!-- ===== To-Do აპის წყარო: ერთი და იგივე კოდი ჩანს და სრულდება ===== -->
+  <script type="text/plain" id="todo-src">
+// ===== 1. მოდელი: Task (class, private, static, getter/setter, toJSON) =====
+class Task {
+  static #counter = 0;
+  #id;
+  #title = "";
+
+  constructor(title, { category = "personal", done = false, id, createdAt } = {}) {
+    this.#id = id ?? `t${Date.now()}-${++Task.#counter}`;
+    this.title = title;                 // setter → ვალიდაცია
+    this.category = category;
+    this.done = done;
+    this.createdAt = createdAt ?? Date.now();
+  }
+
+  get id() { return this.#id; }         // მხოლოდ წაკითხვა
+  get title() { return this.#title; }
+  set title(value) {
+    const v = String(value ?? "").trim();
+    if (v.length < 2) throw new RangeError("დავალება მინიმუმ 2 სიმბოლოს უნდა შეიცავდეს");
+    this.#title = v.slice(0, 80);
+  }
+
+  toggle() { this.done = !this.done; return this; }
+
+  toJSON() {                             // private ველები JSON-ში თავად უნდა ჩავწეროთ
+    return { id: this.#id, title: this.#title, category: this.category, done: this.done, createdAt: this.createdAt };
+  }
+  static from(obj) { return new Task(obj.title, obj); }   // JSON → ისევ Task ინსტანცია
+}
+
+// ===== 2. Storage wrapper (try/catch, JSON) და cookie დამხმარე =====
+class Store {
+  constructor(key, storage = localStorage) { this.key = key; this.storage = storage; }
+  read(fallback) {
+    try {
+      const raw = this.storage.getItem(this.key);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch { return fallback; }
+  }
+  write(value) {
+    try { this.storage.setItem(this.key, JSON.stringify(value)); return true; }
+    catch (err) { console.warn("შენახვა ვერ მოხერხდა:", err.name); return false; }
+  }
+}
+
+const cookies = {
+  set(name, value, days = 30) {
+    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${days * 86400}; path=/; SameSite=Lax`;
+  },
+  get(name) {
+    const hit = document.cookie.split("; ").find(row => row.startsWith(name + "="));
+    return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
+  }
+};
+
+// ===== 3. ფილტრები: ობიექტი predicate ფუნქციებით (HOF) =====
+const CATEGORIES = { study: "სწავლა", personal: "პირადი", work: "სამუშაო" };
+const FILTERS = {
+  all: () => true,
+  active: t => !t.done,
+  done: t => t.done,
+  study: t => t.category === "study",
+  personal: t => t.category === "personal",
+  work: t => t.category === "work",
+};
+
+// ===== 4. აპლიკაცია =====
+class TodoApp {
+  #tasks = [];
+  #filter = "all";
+  #ac = new AbortController();           // ყველა listener-ის ერთად მოსახსნელად
+
+  constructor(root) {
+    this.root = root;
+    this.$ = sel => root.querySelector(sel);
+    this.tasksStore = new Store("todo-app:v2:tasks");              // localStorage
+    this.filterStore = new Store("todo-app:v2:filter");            // localStorage
+    this.draftStore = new Store("todo-app:v2:draft", sessionStorage); // მხოლოდ ამ ტაბში
+
+    this.#tasks = this.#load();
+    const saved = this.filterStore.read("all");
+    this.#filter = saved in FILTERS ? saved : "all";
+    this.#bind();
+    this.render();
+  }
+
+  #load() {
+    const data = this.tasksStore.read([]);
+    if (!Array.isArray(data)) return [];                              // ფორმატის შემოწმება: მონაცემი არასანდოა
+    return data.flatMap(obj => {
+      try { return [Task.from(obj)]; } catch { return []; }          // დაზიანებული ჩანაწერი გამოვტოვოთ
+    });
+  }
+
+  #bind() {
+    const { signal } = this.#ac;
+    const input = this.$("#todo-input");
+    input.value = this.draftStore.read("");                          // ნახევრადდაწერილი ტექსტის აღდგენა
+    input.addEventListener("input", () => this.draftStore.write(input.value), { signal });
+
+    this.$("#todo-form").addEventListener("submit", e => {
+      e.preventDefault();
+      this.add(input.value, this.$("#todo-category").value);
+    }, { signal });
+
+    this.$("#todo-filters").addEventListener("click", e => {          // event delegation
+      const btn = e.target.closest("[data-filter]");
+      if (btn) this.setFilter(btn.dataset.filter);
+    }, { signal });
+
+    this.$("#todo-list").addEventListener("click", e => {
+      const li = e.target.closest("li[data-id]");
+      const action = e.target.closest("[data-action]")?.dataset.action;
+      if (!li || !action) return;
+      if (action === "toggle") this.toggle(li.dataset.id);
+      if (action === "remove") this.remove(li.dataset.id);
+    }, { signal });
+
+    this.$("#todo-clear").addEventListener("click", () => this.clearDone(), { signal });
+    this.$("#todo-import").addEventListener("click", () => this.importRemote(), { signal });
+
+    window.addEventListener("storage", e => {                         // სხვა ტაბში ცვლილება → განახლება
+      if (e.key === this.tasksStore.key) { this.#tasks = this.#load(); this.render(); }
+    }, { signal });
+  }
+
+  // --- მოქმედებები ---
+  add(title, category) {
+    try {
+      this.#tasks.unshift(new Task(title, { category }));             // setter-ის შეცდომა აქ გაჩერდება
+      this.$("#todo-input").value = "";
+      this.draftStore.write("");
+      this.commit(`დაემატა: ${title.trim()}`);
+    } catch (err) { this.say(err.message, true); }
+  }
+  toggle(id) { this.#tasks.find(t => t.id === id)?.toggle(); this.commit(); }
+  remove(id) { this.#tasks = this.#tasks.filter(t => t.id !== id); this.commit("წაიშალა"); }
+  clearDone() {
+    const before = this.#tasks.length;
+    this.#tasks = this.#tasks.filter(t => !t.done);
+    this.commit(`წაიშალა ${before - this.#tasks.length} დავალება`);
+  }
+  setFilter(name) {
+    if (!(name in FILTERS)) return;
+    this.#filter = name;
+    this.filterStore.write(name);
+    this.render();
+  }
+
+  // --- async: fetch + AbortController timeout ---
+  async importRemote() {
+    const btn = this.$("#todo-import");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    btn.disabled = true;
+    this.say("იტვირთება…");
+    try {
+      const res = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=5", { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const known = new Set(this.#tasks.map(t => t.title));
+      const fresh = data
+        .filter(r => !known.has(r.title))
+        .map(r => new Task(r.title, { category: "study", done: r.completed }));
+      this.#tasks.push(...fresh);
+      this.commit(`იმპორტირებულია ${fresh.length} დავალება`);
+    } catch (err) {
+      this.say(err.name === "AbortError" ? "დრო ამოიწურა" : `შეცდომა: ${err.message}`, true);
+    } finally {
+      clearTimeout(timer);
+      btn.disabled = false;
+    }
+  }
+
+  // --- შენახვა + ხატვა ---
+  commit(message) {
+    const saved = this.tasksStore.write(this.#tasks);   // JSON.stringify თავად იძახებს Task.toJSON()-ს
+    this.render();                                      // ჩავარდნის შემთხვევაშიც ეკრანი მუშაობს (მეხსიერებაში)
+    if (!saved) this.say("⚠️ ვერ შეინახა (საცავი სავსეა ან დაბლოკილია). მონაცემი მხოლოდ ამ გვერდზეა.", true);
+    else if (message) this.say(message);
+  }
+
+  say(text, isError = false) {
+    const el = this.$("#todo-status");
+    el.textContent = text;
+    el.classList.toggle("is-error", isError);
+  }
+
+  render() {
+    const visible = this.#tasks.filter(FILTERS[this.#filter]);
+    const frag = document.createDocumentFragment();
+    for (const t of visible) {
+      const li = document.createElement("li");
+      li.dataset.id = t.id;
+      li.classList.toggle("done", t.done);
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = t.done;
+      cb.dataset.action = "toggle";
+      cb.setAttribute("aria-label", `დასრულებულად მონიშვნა: ${t.title}`);
+
+      const text = document.createElement("span");
+      text.textContent = t.title;                // textContent → XSS-ისგან დაცვა
+
+      const tag = document.createElement("small");
+      tag.textContent = CATEGORIES[t.category] ?? t.category;
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.dataset.action = "remove";
+      del.textContent = "✕";
+      del.setAttribute("aria-label", `წაშლა: ${t.title}`);
+
+      li.append(cb, text, tag, del);
+      frag.append(li);
+    }
+    this.$("#todo-list").replaceChildren(frag);   // ერთჯერადი DOM ცვლილება (Performance)
+
+    this.root.querySelectorAll("[data-filter]").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.filter === this.#filter)));
+
+    const left = this.#tasks.filter(t => !t.done).length;
+    this.$("#todo-count").textContent = `დარჩენილია: ${left} / ${this.#tasks.length}`;
+    this.$("#todo-empty").hidden = visible.length > 0;
+  }
+
+  destroy() { this.#ac.abort(); }           // ყველა listener ერთბაშად მოიხსნა
+}
+
+// ===== 5. გაშვება + cookie: ბოლო ვიზიტი =====
+const app = new TodoApp(document.querySelector("#todo-app"));
+const lastVisit = cookies.get("todoLastVisit");
+document.querySelector("#todo-visit").textContent = lastVisit
+  ? `ბოლო ვიზიტი: ${new Date(lastVisit).toLocaleString("ka-GE")}`
+  : "მოგესალმებით პირველად! 👋";
+cookies.set("todoLastVisit", new Date().toISOString());
+  </script>
+
   <script src="script.js"></script>
+  <script>
+    // --- To-Do: წყაროს ჩვენება + გაშვება ---
+    (function () {
+      const src = document.getElementById("todo-src").textContent.trim();
+      document.getElementById("todo-code").textContent = src;
+      try { new Function(src)(); }
+      catch (err) { console.error("To-Do შეცდომა:", err); }
+    })();
+
+    // --- Storage Inspector ---
+    (function () {
+      const $ = id => document.getElementById(id);
+      const out = $("st-out"), msg = $("st-msg"), PFX = "demo:";
+      function cookieMap() {
+        return document.cookie ? document.cookie.split("; ").map(c => c.split("=")) : [];
+      }
+      function show() {
+        const rows = [];
+        try { for (const [k, v] of Object.entries(localStorage)) if (k.startsWith(PFX)) rows.push(["localStorage", k.slice(PFX.length), v]); } catch {}
+        try { for (const [k, v] of Object.entries(sessionStorage)) if (k.startsWith(PFX)) rows.push(["sessionStorage", k.slice(PFX.length), v]); } catch {}
+        for (const [k, v] of cookieMap()) if (k.startsWith("demo_")) rows.push(["cookie", k.slice(5), decodeURIComponent(v ?? "")]);
+        out.replaceChildren(...rows.map(([where, k, v]) => {
+          const li = document.createElement("li");
+          li.textContent = `${where}: ${k} = ${v}`;
+          return li;
+        }));
+        if (!rows.length) out.textContent = "ჯერ არაფერი შენახულა.";
+      }
+      $("st-demo").addEventListener("click", e => {
+        const mode = e.target.dataset.st;
+        if (!mode) return;
+        const k = $("st-key").value.trim(), v = $("st-val").value;
+        try {
+          if (mode === "clear") {
+            Object.keys(localStorage).filter(x => x.startsWith(PFX)).forEach(x => localStorage.removeItem(x));
+            Object.keys(sessionStorage).filter(x => x.startsWith(PFX)).forEach(x => sessionStorage.removeItem(x));
+            cookieMap().filter(([n]) => n.startsWith("demo_")).forEach(([n]) => document.cookie = `${n}=; max-age=0; path=/`);
+            msg.textContent = "წაიშალა.";
+          } else {
+            if (!k) { msg.textContent = "ჩაწერე key."; return; }
+            if (mode === "local") localStorage.setItem(PFX + k, v);
+            if (mode === "session") sessionStorage.setItem(PFX + k, v);
+            if (mode === "cookie") {
+              document.cookie = `demo_${k}=${encodeURIComponent(v)}; max-age=3600; path=/; SameSite=Lax`;
+              if (!document.cookie.includes(`demo_${k}=`)) msg.textContent = "cookie ვერ ჩაიწერა (სცადე http://localhost-ზე).";
+              else msg.textContent = "შენახულია.";
+            } else msg.textContent = "შენახულია.";
+          }
+        } catch (err) { msg.textContent = `შეცდომა: ${err.name}`; }
+        show();
+      });
+      show();
+    })();
+  </script>
 </body>
 </html>
