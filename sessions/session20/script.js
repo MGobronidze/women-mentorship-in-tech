@@ -1,1 +1,1 @@
-localStorage.clea()
+localStorage.clear();  

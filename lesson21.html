@@ -4,11 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>გაკვეთილი 21 — React შესავალი: SPA, Vite, Babel, JSX</title>
-  <meta name="description" content="რა არის React და SPA, React გარემოს შექმნა Vite-ით, Babel, ფუნქციური კომპონენტები, JSX და react.createElement." />
+  <meta name="description" content="რა არის React და SPA, React გარემოს შექმნა Vite-ით, Babel და Oxc, ფუნქციური კომპონენტები, JSX, react/jsx-runtime და createElement. პრაქტიკული პროექტი: პორტფოლიოს გვერდი." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* დამატებითი სტილები ამ გაკვეთილისთვის (იყენებს style.css-ის ცვლადებს, სათადარიგო მნიშვნელობებით) */
+    .toc { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+    .toc h3 { margin-top: 0; }
+    .toc ol { padding-left: 20px; margin: 0; }
+    .toc li { margin: 4px 0; }
+    .callout { border-left: 4px solid var(--mod-react, #0ea5e9); background: color-mix(in srgb, var(--mod-react, #0ea5e9) 12%, transparent); padding: 14px 18px; border-radius: 10px; margin: 20px 0; }
+    .callout > :first-child { margin-top: 0; }
+    .callout > :last-child { margin-bottom: 0; }
+    .callout-warn { border-left-color: #e08a00; background: color-mix(in srgb, #e08a00 13%, transparent); }
+    .callout-title { font-weight: 800; margin: 0 0 6px; }
+    .table-wrap { overflow-x: auto; margin: 18px 0; }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .tbl th, .tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); vertical-align: top; }
+    .tbl th { font-weight: 800; }
+    .file-tree { line-height: 1.6; }
+    .project-step { margin: 28px 0 8px; padding-top: 6px; }
+    .qa details { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 10px; padding: 10px 16px; margin: 10px 0; }
+    .qa summary { cursor: pointer; font-weight: 700; }
+    .meta-line { font-size: 14px; color: var(--ink-soft); }
+    .article-nav-anchor { scroll-margin-top: 90px; }
+    h2[id], h3[id] { scroll-margin-top: 90px; }
+  </style>
 </head>
 <body>
 
@@ -50,84 +73,275 @@
 
     <article class="lesson-article">
 
-      <h2>1. რა არის React და SPA კონცეფცია</h2>
+      <nav class="toc" aria-label="გაკვეთილის სარჩევი">
+        <h3>გაკვეთილის გეგმა</h3>
+        <ol>
+          <li><a href="#react-spa">რა არის React და SPA კონცეფცია</a></li>
+          <li><a href="#vite">React გარემოს შექმნა Vite-ით</a></li>ფ
+          <li><a href="#jsx">JSX და React.createElement</a></li>
+          <li><a href="#components">ფუნქციური კომპონენტები</a></li>
+          <li><a href="#render">კომპონენტების მენეჯმენტი და რენდერი</a></li>
+          <li><a href="#mistakes">ყველაზე ხშირი შეცდომები</a></li>
+          <li><a href="#project">რეალური პროექტი: პორტფოლიოს გვერდი</a></li>
+          <li><a href="#selfcheck">თვითშემოწმება</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========================= 1. REACT & SPA ========================= -->
+      <h2 id="react-spa">1. რა არის React და SPA კონცეფცია</h2>
+
+      <h3>React — რა არის და რატომ არსებობს</h3>
       <p>
-        <strong>React</strong> არის JavaScript ბიბლიოთეკა (Meta-ს მიერ შექმნილი) UI-ის
-        კომპონენტებად აწყობისთვის. მისი მთავარი იდეა: ინტერფეისი აიწყოს პატარა, ხელახლა
-        გამოსაყენებელი „ბლოკებისგან" (კომპონენტები), რომლებიც საკუთარ მდგომარეობას (state) მართავენ.
+        <strong>React</strong> არის JavaScript ბიბლიოთეკა (შექმნილია Meta-ში, 2013 წელს გამოქვეყნდა
+        open source-ად) მომხმარებლის ინტერფეისის (UI) ასაგებად. მისი მთავარი იდეა:
+        ინტერფეისი აიწყოს პატარა, ხელახლა გამოსაყენებელი „ბლოკებისგან“ — <strong>კომპონენტებისგან</strong>,
+        რომლებიც საკუთარ მდგომარეობას (state) მართავენ.
       </p>
       <p>
-        React ჩვეულებრივ გამოიყენება <strong>SPA</strong>-ს (Single Page Application) ასაწყობად —
-        აპლიკაცია, სადაც თავდაპირველად ერთი HTML ფაილი იტვირთება, შემდეგ კი JavaScript-ი
-        <em>დინამიურად</em> ცვლის გვერდის შემცველობას, სრული გვერდის ხელახლა ჩატვირთვის გარეშე
-        (განსხვავებით ჩვენ მიერ აქამდე აწყობილი, „მრავალგვერდიანი" საიტისგან, სადაც თითოეული
-        <code>lessonX.html</code> ცალკე ფაილია).
+        ჩვენ აქამდე ვიყენებდით <em>იმპერატიულ</em> მიდგომას: JavaScript-ში ბრძანებებით ვეუბნებოდით
+        ბრაუზერს, <em>როგორ</em> შეეცვალა DOM (<code>querySelector</code>, <code>createElement</code>,
+        <code>textContent = ...</code>). React-ში გამოიყენება <strong>დეკლარაციული</strong> მიდგომა: აღვწერთ,
+        <em>როგორ უნდა გამოიყურებოდეს UI მოცემული მონაცემებისთვის</em>, დანარჩენს (რა უნდა შეიცვალოს DOM-ში)
+        React თვითონ გაარკვევს.
       </p>
 
-      <h2>2. React გარემოს შექმნა Vite-ის გამოყენებით</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>იმპერატიული (Vanilla JS)</th><th>დეკლარაციული (React)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>„იპოვე ელემენტი, შეცვალე ტექსტი, დაამატე კლასი, წაშალე შვილობილი...“</td>
+              <td>„თუ <code>count</code> არის 5, UI ასე გამოიყურება“</td>
+            </tr>
+            <tr>
+              <td>DOM-ს ხელით ვმართავთ, ადვილია სინქრონიზაციის შეცდომები</td>
+              <td>UI ყოველთვის არის მონაცემების ფუნქცია: <code>UI = f(state)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>React-ის ძირითადი პრინციპები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>კომპონენტებზე დაფუძნებულობა</strong> — გვერდი იყოფა დამოუკიდებელ ნაწილებად (Header, Card, Button...), რომლებიც ერთმანეთში ჩაიდგმება.</li>
+        <li><strong>ცალმხრივი მონაცემთა ნაკადი</strong> — მონაცემები მშობელი კომპონენტიდან შვილისკენ მიედინება <em>props</em>-ების საშუალებით (შემდეგ გაკვეთილებზე დეტალურად).</li>
+        <li><strong>Virtual DOM და reconciliation</strong> — React ინახავს UI-ის მსუბუქ აღწერას მეხსიერებაში, ცვლილებისას ადარებს ძველ და ახალ აღწერას და რეალურ DOM-ში მხოლოდ საჭირო ნაწილს ცვლის.</li>
+        <li><strong>„Learn once, write anywhere“</strong> — იგივე მიდგომა მუშაობს ვებზე (React DOM), მობილურზე (React Native) და სერვერზეც (Server Components).</li>
+      </ul>
+
+      <!-- <div class="callout">
+        <p class="callout-title">რა ვერსიაზე ვართ დღეს? (2026 წლის ოქტომბერი)</p>
+        <p>
+          React-ის მიმდინარე მთავარი ვერსიაა <strong>19</strong> (stable — 2024 წლის 5 დეკემბერი).
+          ბოლო მინორული გამოშვება <strong>19.3</strong> გამოვიდა 2026 წლის 9 სექტემბერს; npm-ზე ამჟამად
+          უახლესი ვერსიაა <strong>19.3.1</strong> (14 ოქტომბერი). 19.3-ში stable გახდა <code>&lt;ViewTransition&gt;</code>
+          (ელემენტების ბუნებრივი ანიმაცია ბრაუზერის View Transition API-ზე დაყრდნობით) და Fragment Refs,
+          დაემატა <code>browser()</code> API და Trusted Types-ის მხარდაჭერა. React 20 ჯერ არ გამოცხადებულა.
+          ეს გაკვეთილი React 19-ის სინტაქსს იყენებს — ბაზისური მასალა (კომპონენტი, JSX, render) წლებია არ შეცვლილა.
+        </p>
+      </div> -->
+
+      <h3>SPA — Single Page Application</h3>
       <p>
-        <strong>Vite</strong> არის თანამედროვე build tool, რომელიც სწრაფად ქმნის და უშვებს React
-        (და სხვა framework-ების) პროექტებს development რეჟიმში:
+        <strong>SPA</strong> (Single Page Application) არის აპლიკაცია, რომელიც ერთხელ იტვირთება ერთ HTML ფაილად,
+        ხოლო შემდეგი „გვერდები“ და ცვლილებები JavaScript-ით, <em>სრული გვერდის ხელახლა ჩატვირთვის გარეშე</em> ჩნდება.
+        განსხვავებით ჩვენი, „მრავალგვერდიანი“ (MPA, Multi-Page Application) საიტისგან, სადაც ყოველი
+        <code>lessonX.html</code> ცალკე ფაილია და ბმულზე დაჭერა ბრაუზერს ახალ გვერდს ატვირთვინებს.
       </p>
-      <pre><code><span class="cmt"># ახალი React + Vite პროექტის შექმნა</span>
+
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr><th></th><th>MPA (ჩვენი კურსის საიტი)</th><th>SPA (React + Vite)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>ნავიგაცია</strong></td><td>ყოველი ბმული — სრული გვერდის ჩატვირთვა</td><td>ბრაუზერი არ იტვირთება; JS ცვლის შიგთავსს</td></tr>
+            <tr><td><strong>შეგრძნება</strong></td><td>კლასიკური ვებ-საიტი</td><td>ახლოს არის დესკტოპ/მობილურ აპლიკაციასთან</td></tr>
+            <tr><td><strong>პირველი ჩატვირთვა</strong></td><td>სწრაფია — HTML უკვე მზადაა</td><td>შეიძლება ნელი იყოს — ჯერ JS უნდა ჩაიტვირთოს და შეასრულოს</td></tr>
+            <tr><td><strong>SEO</strong></td><td>მარტივია — შიგთავსი HTML-შია</td><td>უფრო რთულია — საწყისი HTML თითქმის ცარიელია</td></tr>
+            <tr><td><strong>საუკეთესოა</strong></td><td>ბლოგი, საინფორმაციო საიტი, მარტივი ვიტრინა</td><td>დაფები (dashboard), ადმინ-პანელი, ჩატი, task-manager, რედაქტორი</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>კლიენტ-მხარის რუტინგი</h3>
+      <p>
+        SPA-ში URL-ის შეცვლა ხდება JavaScript-ით (<code>History API</code>), ხოლო „რომელი გვერდი ვაჩვენოთ“ —
+        რუტერი წყვეტს. პრაქტიკაში ამისთვის იყენებენ ბიბლიოთეკას (მაგ. <strong>React Router</strong>) —
+        ამას ბოლო მოდულის შემდეგ გაკვეთილებზე შევხვდებით.
+      </p>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">მნიშვნელოვანი კონტექსტი: SPA არ არის ერთადერთი გზა</p>
+        <p>
+          2025 წლის თებერვალში React-ის გუნდმა ოფიციალურად <strong>გააუქმა Create React App (CRA)</strong>
+          ახალი პროექტებისთვის (ის დიდი ხანია აღარ არის აქტიურად მხარდაჭერილი). თუ ძველ ტუტორიალში ნახავთ
+          <code>npx create-react-app</code> — ეს მოძველებული გზაა.
+          React-ის გუნდის რეკომენდაცია: რეალური, production აპლიკაციებისთვის გამოიყენეთ
+          <strong>ფრეიმვორქი</strong> (მაგ. Next.js, React Router framework mode, Expo მობილურისთვის), რომელიც
+          რუტინგს, მონაცემთა მიღებას, კოდის დაყოფას და SEO-ს უკვე ამოხსნილს გაძლევთ.
+          მაგრამ სწავლისთვის და მცირე პროექტებისთვის <strong>Vite + React</strong> — პირდაპირი, გამჭვირვალე
+          და უმარტივესი გზაა, რადგან ხედავთ, როგორ მუშაობს ყველაფერი „კედლის უკან“. სწორედ ამიტომ ვიწყებთ მისით.
+        </p>
+      </div>
+
+      <!-- ========================= 2. VITE ========================= -->
+      <h2 id="vite">2. React გარემოს შექმნა Vite-ის გამოყენებით</h2>
+      <p>
+        <strong>Vite</strong> (ფრანგ. „სწრაფი“, წარმოითქმის „ვით“) არის თანამედროვე build tool და development
+        სერვერი. ის ორ რამეს აკეთებს: (1) development-ის დროს მყისიერად უშვებს პროექტს და ცვლილებებს ბრაუზერში
+        ავტომატურად აჩვენებს (<strong>HMR — Hot Module Replacement</strong>, გვერდის სრული გადატვირთვის გარეშე);
+        (2) production-ისთვის აგებს ოპტიმიზებულ, შეკუმშულ ფაილებს (<code>build</code>).
+      </p>
+
+      <!-- <div class="callout">
+        <p class="callout-title">Vite 8 — რა შეიცვალა (2026 წლის მარტიდან)</p>
+        <p>
+          Vite 8-მა (stable — 2026 წლის 12 მარტი) ერთმანეთს ჩაანაცვლა ორი ძველი ინსტრუმენტი: ადრე
+          development-ში <em>esbuild</em> მუშაობდა, production build-ში კი <em>Rollup</em>.
+          ახლა ორივეს ადგილას არის ერთი Rust-ზე დაწერილი bundler — <strong>Rolldown</strong>, ხოლო კოდის
+          გარდაქმნას (JSX, TypeScript და ა.შ.) ასრულებს კომპილატორი <strong>Oxc</strong>. შედეგი — production build
+          აშკარად უფრო სწრაფია (Vite-ის გუნდის ბენჩმარკებით 10–30-ჯერ სწრაფია Rollup-თან შედარებით; Linear-მა
+          build დროის 46 წამიდან 6 წამამდე შემცირება დააფიქსირა). ჩვენს, დამწყებთა დონეზე, ბრძანებები იგივე რჩება.
+        </p>
+      </div> -->
+
+      <h3>წინაპირობები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Node.js 20.19+ ან 22.12+</strong> (Vite 8-ის მოთხოვნა; ძველი Node 18 აღარ ეყოფა). შეამოწმე: <code>node -v</code></li>
+        <li><strong>npm</strong> (Node-თან ერთად დგება): <code>npm -v</code>. ალტერნატივები: pnpm, yarn, bun.</li>
+        <li>კოდის რედაქტორი (VS Code) და ბრაუზერი.</li>
+      </ul>
+
+      <h3>პროექტის შექმნა და გაშვება</h3>
+      <pre><code><span class="cmt"># ახალი React + Vite პროექტის შექმნა (JavaScript)</span>
 npm create vite@latest my-react-app -- --template react
+
+<span class="cmt"># ან TypeScript-ით (რეკომენდებულია კურსის შემდეგ ეტაპზე)</span>
+npm create vite@latest my-react-app -- --template react-ts
 
 <span class="cmt"># პროექტში შესვლა და დამოკიდებულებების დაყენება</span>
 cd my-react-app
 npm install
 
-<span class="cmt"># development სერვერის გაშვება</span>
+<span class="cmt"># development სერვერის გაშვება (ჩვეულებრივ http://localhost:5173)</span>
 npm run dev</code></pre>
       <p>
-        ეს ქმნის საწყის პროექტის სტრუქტურას — <code>src/</code> საქაღალდეს კომპონენტებით,
-        <code>App.jsx</code>-ს, <code>main.jsx</code>-ს (შესვლის წერტილი) და <code>index.html</code>-ს.
+        <code>--</code> ორმაგი ტირე აუცილებელია: ის <code>--template react</code>-ს Vite-ის დამგენერირებელ
+        ხელსაწყომდე აწვდის (npm 7+). შეგიძლია ბრძანება უპარამეტროდაც გაუშვა — <code>npm create vite@latest</code>
+        — და ინტერაქტიულად აირჩიო ფრეიმვორქი (React) და ვარიანტი (JavaScript / TypeScript). ახალი ვერსიები
+        შეიძლება დამატებით გკითხონ, გინდა თუ არა რომელიმე ექსპერიმენტული ოპცია (მაგ. rolldown-vite), ან დაუყოვნებლივ
+        გაუშვან <code>npm install</code> 
       </p>
 
-      <h3>რა არის Babel</h3>
+      <h3>რა ფაილები შეიქმნა</h3>
+      <pre><code class="file-tree">my-react-app/
+├── index.html          <span class="cmt"># ერთადერთი HTML ფაილი — სწორედ აქ არის &lt;div id="root"&gt;</span>
+├── package.json        <span class="cmt"># დამოკიდებულებები და ბრძანებები (scripts)</span>
+├── vite.config.js      <span class="cmt"># Vite-ის კონფიგურაცია (იქ არის React plugin)</span>
+├── public/             <span class="cmt"># სტატიკური ფაილები, პირდაპირ ისე გადაეცემა (მაგ. favicon)</span>
+└── src/
+    ├── main.jsx        <span class="cmt"># შესვლის წერტილი: აქ იქმნება React root</span>
+    ├── App.jsx         <span class="cmt"># მთავარი (root) კომპონენტი</span>
+    ├── App.css
+    ├── index.css
+    └── assets/         <span class="cmt"># სურათები, რომლებსაც import-ით ვიყენებთ</span></code></pre>
       <p>
-        <strong>Babel</strong> არის JavaScript-ის „მთარგმნელი" (transpiler) — ის გარდაქმნის ახალ,
-        თანამედროვე სინტაქსს (JSX-ის ჩათვლით, რომელსაც ახლა ვნახავთ) იმ ფორმაში, რომელსაც ყველა
-        ბრაუზერი გაიგებს. Vite-ის კონფიგურაცია ავტომატურად აწესრიგებს Babel-ის (ან მისი
-        ალტერნატივის) გამოძახებას — დეველოპერს ხელით არაფრის კეთება არ სჭირდება.
+        ყურადღება მიაქციე განსხვავებას ძველი მიდგომისგან: Vite-ში <code>index.html</code> პროექტის
+        <em>ძირეულ</em> საქაღალდეშია (არა <code>public/</code>-ში) და მასში პირდაპირ არის JS-ის ჩართვა:
+        <code>&lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;</code>. ბრაუზერი ES მოდულებს უშუალოდ
+        იგებს, ამიტომ development-ში Vite ფაილებს საჭიროებისამებრ, ცალ-ცალკე აწვდის — ამიტომაც არის სტარტი ასე სწრაფი.
       </p>
 
-      <h2>3. JSX — HTML-ის მსგავსი სინტაქსი JavaScript-ში</h2>
+      <h3>package.json-ის ბრძანებები</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ბრძანება</th><th>რას აკეთებს</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm run dev</code></td><td>განვითარების სერვერი + HMR. ამას ვიყენებთ ყოველდღიურად.</td></tr>
+            <tr><td><code>npm run build</code></td><td>აგებს production ვერსიას <code>dist/</code> საქაღალდეში (შეკუმშული, ოპტიმიზებული).</td></tr>
+            <tr><td><code>npm run preview</code></td><td>ლოკალურად უშვებს უკვე აგებულ <code>dist/</code>-ს — რათა გადაამოწმო, როგორ იმუშავებს რეალურად.</td></tr>
+            <tr><td><code>npm run lint</code></td><td>ESLint-ის შემოწმება (თუ შაბლონში ჩართულია).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    
+      <!-- ========================= 3. JSX ========================= -->
+      <h2 id="jsx">3. JSX — HTML-ის მსგავსი სინტაქსი JavaScript-ში</h2>
       <p>
         <strong>JSX</strong> (JavaScript XML) საშუალებას გვაძლევს, HTML-ის მსგავსი სინტაქსი
-        პირდაპირ JavaScript ფაილში დავწეროთ:
+        პირდაპირ JavaScript ფაილში დავწეროთ. ის არ არის არც სტრიქონი, არც HTML —
+        ეს არის <em>JavaScript-ის სინტაქსური გაფართოება</em>, რომელიც build-ის დროს ჩვეულებრივ JS-ად გარდაიქმნება.
       </p>
       <pre><code><span class="cmt">// JSX მაგალითი</span>
 <span class="attr">const</span> element = &lt;<span class="tag">h1</span> <span class="attr">className</span>=<span class="str">"title"</span>&gt;გამარჯობა, React!&lt;/<span class="tag">h1</span>&gt;;</code></pre>
       <p>
-        ეს არ არის ნამდვილი HTML — ბრაუზერი მას პირდაპირ ვერ გაიგებს. Babel „ბრაწავს" (transpile)
-        JSX-ს ჩვეულებრივ JavaScript ფუნქციის გამოძახებად:
+        ეს არ არის ნამდვილი HTML — ბრაუზერი მას პირდაპირ ვერ გაიგებს. build-ის ეტაპზე (Oxc ან Babel) JSX
+        გარდაიქმნება ჩვეულებრივ JavaScript ფუნქციის გამოძახებად.
       </p>
+
+      <h3>react.createElement — რაშიც JSX „კულისებში“ გარდაიქმნება</h3>
       <pre><code><span class="cmt">// JSX (რასაც ვწერთ)</span>
 <span class="attr">const</span> element = &lt;<span class="tag">h1</span> <span class="attr">className</span>=<span class="str">"title"</span>&gt;გამარჯობა, React!&lt;/<span class="tag">h1</span>&gt;;
 
-<span class="cmt">// react.createElement (რაშიც JSX ტრანსფორმირდება "კულისებში")</span>
+<span class="cmt">// React.createElement — ხელით დაწერილი ექვივალენტი</span>
 <span class="attr">const</span> element = React.createElement(
-  "h1",
-  { className: "title" },
-  "გამარჯობა, React!"
+  "h1",                       <span class="cmt">// 1. ტიპი: HTML ტეგის სახელი, ან კომპონენტი</span>
+  { className: "title" },     <span class="cmt">// 2. props (ატრიბუტები), ან null</span>
+  "გამარჯობა, React!"          <span class="cmt">// 3+. შვილები (children)</span>
 );</code></pre>
       <p>
-        <code>createElement</code> ქმნის ჩვეულებრივ JavaScript ობიექტს, რომელსაც React
-        „აღწერილობად" (React element) იყენებს — მისგან ის ცოდნის ამომდინარე, რეალურ DOM-ს ააგებს.
+        <code>createElement</code> ქმნის ჩვეულებრივ JavaScript ობიექტს — <strong>React element-ს</strong>,
+        რომელიც UI-ის „აღწერილობაა“ (არ არის ნამდვილი DOM ელემენტი!). გამარტივებით ასე გამოიყურება:
       </p>
+      <pre><code><span class="cmt">// console.log(element) დაახლოებით ამას დაგანახებს:</span>
+{
+  type: "h1",
+  props: { className: "title", children: "გამარჯობა, React!" },
+  key: null,
+  <span class="cmt">// ... React-ის შიდა ველები</span>
+}</code></pre>
+      <p>
+        React ამ ობიექტების ხეს აგროვებს, ადარებს წინა ხეს და მხოლოდ საჭირო ცვლილებებს ახორციელებს რეალურ DOM-ში.
+        ჩადგმული ელემენტების შემთხვევაში <code>createElement</code> ბუდობრივად იწერება:
+      </p>
+      <pre><code><span class="cmt">// JSX</span>
+&lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
+  &lt;<span class="tag">h2</span>&gt;ლანა&lt;/<span class="tag">h2</span>&gt;
+  &lt;<span class="tag">p</span>&gt;Front-end სტუდენტი&lt;/<span class="tag">p</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+
+<span class="cmt">// იგივე createElement-ით — ხედავ, რატომ ვწერთ JSX-ს</span>
+React.createElement(
+  "div",
+  { className: "card" },
+  React.createElement("h2", null, "ლანა"),
+  React.createElement("p", null, "Front-end სტუდენტი")
+);</code></pre>
+
+      <h3>JSX-ის წესები და შესაძლებლობები</h3>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li>JSX-ში <code>class</code> ხდება <code>className</code> (რადგან <code>class</code> JavaScript-ის დაცული სიტყვაა).</li>
-        <li>JavaScript გამოსახულების ჩასმა შესაძლებელია ფიგურული ფრჩხილებით: <code>&#123; }</code>.</li>
-        <li>ყოველ კომპონენტს უნდა ჰქონდეს ერთი „root" ელემენტი (ან <code>&lt;&gt;...&lt;/&gt;</code> fragment).</li>
+        <li><strong>ერთი root ელემენტი.</strong> კომპონენტმა უნდა დააბრუნოს ერთი ძირითადი ელემენტი, ან fragment: <code>&lt;&gt;...&lt;/&gt;</code> (არ ამატებს ზედმეტ <code>&lt;div&gt;</code>-ს DOM-ში).</li>
+        <li><strong>ყველა ტეგი უნდა დაიხუროს.</strong> HTML-ში <code>&lt;img&gt;</code> ან <code>&lt;br&gt;</code> ისედაც მუშაობს, JSX-ში აუცილებელია <code>&lt;img /&gt;</code>, <code>&lt;br /&gt;</code>, <code>&lt;input /&gt;</code>.</li>
+        <li><strong>camelCase ატრიბუტები.</strong> <code>class</code> → <code>className</code> (რადგან <code>class</code> JS-ის დაცული სიტყვაა), <code>for</code> → <code>htmlFor</code>, <code>onclick</code> → <code>onClick</code>, <code>tabindex</code> → <code>tabIndex</code>.</li>
+        <li><strong>JS გამოსახულება ფიგურული ფრჩხილებით:</strong> <code>&#123;studentName&#125;</code>, <code>&#123;2 + 2&#125;</code>, <code>&#123;user.name.toUpperCase()&#125;</code>. ფრჩხილებში <em>გამოსახულება</em> (expression) დაიშვება, ოპერატორი (<code>if</code>, <code>for</code>) — არა.</li>
+        <li><strong>ატრიბუტში JS ან სტრიქონი:</strong> <code>src="a.png"</code> (სტრიქონი), <code>src=&#123;imageUrl&#125;</code> (ცვლადი). ორივე ერთდროულად არ შეიძლება: <code>src="&#123;x&#125;"</code> გამოვა სიტყვასიტყვითი ტექსტი.</li>
+        <li><strong>inline style — ობიექტია:</strong> <code>style=&#123;&#123; backgroundColor: "teal", fontSize: 18 &#125;&#125;</code> (გარე ფრჩხილები — JSX-ის, შიდა — JS ობიექტის; თვისებები camelCase).</li>
+        <li><strong>კომენტარი JSX-ში:</strong> <code>&#123;/* ასე */&#125;</code>.</li>
+        <li><strong>უსაფრთხოება:</strong> JSX-ში ჩასმული მნიშვნელობები ავტომატურად ექრანირდება, ამიტომ მომხმარებლის ტექსტი თავისით ვერ გადაიქცევა HTML/სკრიპტად (დაცვა XSS-ისგან). ზუსტად ამ დაცვას ეუბნებიან მიზანმიმართულად გამორთვას, როცა იყენებენ ისეთ API-ს, რომლის სახელშიც სიტყვა „dangerously“ წერია.</li>
       </ul>
 
-      <h2>4. ფუნქციური კომპონენტები</h2>
+      <!-- ========================= 4. COMPONENTS ========================= -->
+      <h2 id="components">4. ფუნქციური კომპონენტები</h2>
       <p>
         დღეს React-ის კომპონენტები თითქმის ყოველთვის იწერება ჩვეულებრივ JavaScript ფუნქციად,
-        რომელიც აბრუნებს JSX-ს:
+        რომელიც აბრუნებს JSX-ს. (ძველი <em>კლასზე დაფუძნებული</em> კომპონენტები ჯერ კიდევ მუშაობს და ძველ
+        კოდში შეგხვდება, მაგრამ ახალ კოდში მათ აღარ ვწერთ.)
       </p>
       <pre><code><span class="attr">function</span> Welcome() {
-  <span class="attr">const</span> studentName = "ანა";
+  <span class="attr">const</span> studentName = "ლანა";
 
   <span class="attr">return</span> (
     &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"welcome"</span>&gt;
@@ -141,13 +355,85 @@ npm run dev</code></pre>
       <p>
         კომპონენტის სახელი <strong>ყოველთვის</strong> იწყება დიდი ასოთი (<code>Welcome</code>, არა
         <code>welcome</code>) — ეს არის React-ის წესი, რომლითაც ის ცნობს, კომპონენტს იყენებ თუ
-        ჩვეულებრივ HTML ტეგს.
+        ჩვეულებრივ HTML ტეგს: <code>&lt;div&gt;</code> → ჩაშენებული ტეგი, <code>&lt;Welcome /&gt;</code> → შენი კომპონენტი.
       </p>
 
-      <h2>5. კომპონენტების მენეჯმენტი და რენდერი</h2>
+      <h3>Props — კომპონენტის „პარამეტრები“</h3>
       <p>
-        კომპონენტები „ერთვის" ერთმანეთს, ისევე როგორც ჩვეულებრივი HTML ტეგები — ერთი კომპონენტი
-        შეიძლება მეორეს „შიგნით" გამოვიძახოთ:
+        კომპონენტი ერთი და იგივე რჩება, მაგრამ სხვადასხვა მონაცემით შეგვიძლია გამოვიძახოთ.
+        მონაცემები გადაეცემა <strong>props</strong>-ით (properties) — ატრიბუტების სახით; ფუნქცია კი მათ პირველ
+        არგუმენტად იღებს ობიექტის სახით. ყველაზე ხშირად ობიექტს დაუყოვნებლივ ვშლით (destructuring):
+      </p>
+      <pre><code><span class="cmt">// Greeting.jsx</span>
+<span class="attr">function</span> Greeting({ name, role = "სტუდენტი" }) {   <span class="cmt">// role-ს აქვს ნაგულისხმევი მნიშვნელობა</span>
+  <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;გამარჯობა, &#123;name&#125;! შენ ხარ &#123;role&#125;.&lt;/<span class="tag">p</span>&gt;;
+}
+
+<span class="cmt">// გამოყენება:</span>
+&lt;<span class="tag">Greeting</span> <span class="attr">name</span>=<span class="str">"ლანა"</span> /&gt;
+&lt;<span class="tag">Greeting</span> <span class="attr">name</span>=<span class="str">"ნათია"</span> <span class="attr">role</span>=<span class="str">"მენტორი"</span> /&gt;</code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>props-ები <strong>მხოლოდ წასაკითხია</strong> — კომპონენტი საკუთარ props-ს არ ცვლის.</li>
+        <li>სტრიქონი გადაეცემა ბრჭყალებით (<code>name="ლანა"</code>), სხვა ყველაფერი — ფიგურული ფრჩხილებით (<code>age=&#123;25&#125;</code>, <code>skills=&#123;["HTML","CSS"]&#125;</code>, <code>onClick=&#123;handle&#125;</code>).</li>
+        
+      </ul>
+
+      <h3>პირობითი რენდერი და სიების გამოტანა</h3>
+      <p>
+        JSX-ში <code>if</code> ბლოკს პირდაპირ ვერ ჩავსვამთ, ამიტომ გამოიყენება JS გამოსახულებები:
+        სამადგილიანი ოპერატორი (<code>? :</code>), <code>&amp;&amp;</code> და <code>.map()</code>:
+      </p>
+      <pre><code><span class="attr">function</span> Profile() {
+  <span class="attr">const</span> isOnline = true;
+  <span class="attr">const</span> skills = ["HTML", "CSS", "JavaScript", "React"];
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">section</span>&gt;
+      &lt;<span class="tag">p</span>&gt;&#123;isOnline ? "🟢 ონლაინ" : "⚪ ოფლაინ"&#125;&lt;/<span class="tag">p</span>&gt;
+
+      &#123;isOnline &amp;&amp; &lt;<span class="tag">button</span>&gt;message&lt;/<span class="tag">button</span>&gt;&#125;
+
+      &lt;<span class="tag">ul</span>&gt;
+        &#123;skills.map((skill) =&gt; (
+          &lt;<span class="tag">li</span> <span class="attr">key</span>=&#123;skill&#125;&gt;&#123;skill&#125;&lt;/<span class="tag">li</span>&gt;
+        ))&#125;
+      &lt;/<span class="tag">ul</span>&gt;
+    &lt;/<span class="tag">section</span>&gt;
+  );
+}</code></pre>
+      <div class="callout callout-warn">
+        <p class="callout-title">key — აუცილებელი ატრიბუტი სიებში</p>
+        <p>
+          სიის თითოეულ ელემენტს უნდა ჰქონდეს უნიკალური და სტაბილური <code>key</code> (იდეალურად — მონაცემის
+          <code>id</code>). ის React-ს ეხმარება გაიგოს, რომელი ელემენტი დაემატა, წაიშალა ან გადაადგილდა.
+          მასივის ინდექსის გამოყენება key-დ მხოლოდ იმ შემთხვევაშია დასაშვები, თუ სია არასოდეს ცვლის რიგს და არ
+          იშლება/ემატება. <code>&amp;&amp;</code>-ის გამოყენებისას გაუფრთხილდი რიცხვებს: <code>&#123;0 &amp;&amp; ...&#125;</code>
+          ეკრანზე „0“-ს გამოსახავს.
+        </p>
+      </div>
+
+      <h3>კომპონენტის „სისუფთავე“ (pure components)</h3>
+      <p>
+        კარგი React კომპონენტი ისევე იქცევა, როგორც წმინდა ფუნქცია: <strong>ერთი და იგივე შესატანისთვის (props, state)
+        ყოველთვის ერთსა და იმავე JSX-ს აბრუნებს</strong> და რენდერის დროს გარეთ არაფერს ცვლის
+        (არ ცვლის გლობალურ ცვლადებს, არ აგზავნის მოთხოვნას, არ ცვლის DOM-ს ხელით). გვერდითი ეფექტებისთვის
+        არსებობს event handler-ები და <code>useEffect</code> — ამას შემდეგ გაკვეთილებზე გავივლით.
+      </p>
+
+      <h3>ფაილების ორგანიზება</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ერთი კომპონენტი — ერთი ფაილი, ფაილის სახელი = კომპონენტის სახელი (<code>ProjectCard.jsx</code>).</li>
+        <li><code>export default</code> — ერთი მთავარი ექსპორტი; <code>import ProjectCard from "./ProjectCard"</code>.</li>
+        <li>Vite-ში JSX შემცველი ფაილის გაფართოება <code>.jsx</code> (ან <code>.tsx</code>) უნდა იყოს, არა <code>.js</code>.</li>
+        <li>React 19-ში კომპონენტის სახელი და გაფართოება — აუცილებლად დიდი ასოთი და <code>.jsx</code>, ხოლო მონაცემთა ფაილები (მაგ. <code>data.js</code>) JSX-ს არ შეიცავს.</li>
+      </ul>
+
+      <!-- ========================= 5. RENDER ========================= -->
+      <h2 id="render">5. კომპონენტების მენეჯმენტი და რენდერი</h2>
+      <p>
+        კომპონენტები „ერთვის“ ერთმანეთს, ისევე როგორც ჩვეულებრივი HTML ტეგები — ერთი კომპონენტი
+        შეიძლება მეორეს „შიგნით“ გამოვიძახოთ. შედეგად ვიღებთ <strong>კომპონენტების ხეს</strong>,
+        სადაც ზედა კომპონენტი (<code>App</code>) მშობელია, ქვედები — შვილები.
       </p>
       <pre><code><span class="cmt">// App.jsx</span>
 <span class="attr">import</span> Welcome <span class="attr">from</span> "./Welcome";
@@ -162,36 +448,472 @@ npm run dev</code></pre>
 }
 
 <span class="attr">export default</span> App;</code></pre>
+
       <pre><code><span class="cmt">// main.jsx — "root"-ის შექმნა და მთელი აპლიკაციის რენდერი DOM-ში</span>
+<span class="attr">import</span> { StrictMode } <span class="attr">from</span> "react";
 <span class="attr">import</span> { createRoot } <span class="attr">from</span> "react-dom/client";
 <span class="attr">import</span> App <span class="attr">from</span> "./App";
+<span class="attr">import</span> "./index.css";
 
 <span class="attr">const</span> root = createRoot(document.getElementById("root"));
-root.render(&lt;<span class="tag">App</span> /&gt;);</code></pre>
+root.render(
+  &lt;<span class="tag">StrictMode</span>&gt;
+    &lt;<span class="tag">App</span> /&gt;
+  &lt;/<span class="tag">StrictMode</span>&gt;
+);</code></pre>
       <p>
-        <code>createRoot</code> + <code>render</code> არის ის „ხიდი", სადაც React პირველად
-        ეხება ნამდვილ DOM-ს — ყოველი <code>index.html</code> ფაილში აუცილებელია ერთი ცარიელი
-        <code>&lt;div id="root"&gt;&lt;/div&gt;</code>, სადაც React-ი მთელ აპლიკაციას „ჩაამონტაჟებს".
+        <code>createRoot</code> + <code>render</code> არის ის „ხიდი“, სადაც React პირველად
+        ეხება ნამდვილ DOM-ს — <code>index.html</code> ფაილში აუცილებელია ერთი ცარიელი
+        <code>&lt;div id="root"&gt;&lt;/div&gt;</code>, სადაც React-ი მთელ აპლიკაციას ჩააშენებს.
+        
       </p>
+
+      <h3>რა არის &lt;StrictMode&gt;</h3>
+      <p>
+        <code>StrictMode</code> მხოლოდ development-ში მუშაობს და დამატებით შემოწმებებს ამატებს: კომპონენტს
+        <strong>ორჯერ</strong> არენდერებს და ეფექტებს ორჯერ უშვებს, რომ გამოაჩინოს "ხარვეზიანი" კოდი და
+        ამოუხსნელი შეცდომები. თუ <code>console.log</code>-ს ორჯერ ხედავ — ეს ნორმალურია და production-ში
+        აღარ მოხდება. ნუ ამოიღებ StrictMode-ს ამ მიზეზით.
+      </p>
+
+      <h3>როგორ „ფიქრობს“ React: ტრიგერი → რენდერი → commit</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>ტრიგერი</strong> — პირველადი რენდერი (<code>root.render</code>) ან state-ის ცვლილება.</li>
+        <li><strong>რენდერი</strong> — React ეძახის შენს კომპონენტებს (ფუნქციებს) და იღებს ახალ React element-ების ხეს.</li>
+        <li><strong>Commit</strong> — React ადარებს ახალ და ძველ ხეს და რეალურ DOM-ს მხოლოდ იმ ადგილებში ცვლის, სადაც სხვაობაა.</li>
+      </ol>
+
+      <h3>React DevTools</h3>
+      <p>
+        დააინსტალირე ბრაუზერის გაფართოება <strong>React Developer Tools</strong> (Chrome / Firefox / Edge).
+        გამოჩნდება ორი ახალი ჩანართი: <em>Components</em> (კომპონენტების ხე, props და state რეალურ დროში) და
+        <em>Profiler</em> (რენდერის ანალიზი). ეს არის ძირითადი ხელსაწყო დებაგისთვის.
+      </p>
+
+      <!-- ========================= 6. MISTAKES ========================= -->
+      <h2 id="mistakes">6. ყველაზე ხშირი შეცდომები დამწყებებისთვის</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>შეცდომა</th><th>სიმპტომი</th><th>გამოსწორება</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>კომპონენტის სახელი პატარა ასოთი (<code>function welcome()</code>)</td>
+              <td>React მას HTML ტეგად მიიჩნევს; <code>&lt;welcome /&gt;</code> არაფერს აჩვენებს</td>
+              <td>ყოველთვის დიდი ასო: <code>Welcome</code></td>
+            </tr>
+            <tr>
+              <td><code>class="..."</code> <code>className</code>-ის ნაცვლად</td>
+              <td>კონსოლში გაფრთხილება, სტილი შეიძლება არ გამოჩნდეს</td>
+              <td><code>className</code>, <code>htmlFor</code>, <code>onClick</code></td>
+            </tr>
+            <tr>
+              <td>ორი ძირეული ელემენტი დაბრუნებულია</td>
+              <td>შეცდომა: „Adjacent JSX elements must be wrapped“</td>
+              <td>გარშემო <code>&lt;div&gt;</code> ან <code>&lt;&gt;...&lt;/&gt;</code></td>
+            </tr>
+            <tr>
+              <td>ტეგი არ არის დახურული (<code>&lt;img&gt;</code>, <code>&lt;input&gt;</code>)</td>
+              <td>კომპილაციის შეცდომა</td>
+              <td><code>&lt;img /&gt;</code>, <code>&lt;input /&gt;</code></td>
+            </tr>
+            <tr>
+              <td>სიაში <code>key</code>-ის გარეშე</td>
+              <td>გაფრთხილება „Each child in a list should have a unique key“</td>
+              <td><code>key=&#123;item.id&#125;</code></td>
+            </tr>
+            <tr>
+              <td>JSX ფაილი <code>.js</code> გაფართოებით</td>
+              <td>Vite-ის შეცდომა JSX სინტაქსზე</td>
+              <td>გადაარქვი <code>.jsx</code></td>
+            </tr>
+            <tr>
+              <td>ობიექტის პირდაპირ ჩასმა <code>&#123;user&#125;</code>-ში</td>
+              <td>„Objects are not valid as a React child“</td>
+              <td>გამოიტანე კონკრეტული ველი: <code>&#123;user.name&#125;</code></td>
+            </tr>
+            <tr>
+              <td>კომპონენტის გამოძახება ფუნქციად: <code>&#123;Welcome()&#125;</code></td>
+              <td>ბაგები მოგვიანებით, როცა კომპონენტი სარგებლობს hooks-ით</td>
+              <td>JSX-ით: <code>&lt;Welcome /&gt;</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 7. PROJECT ========================= -->
+      <h2 id="project">7. რეალური პროექტი: პორტფოლიოს გვერდი React-ში</h2>
+      <p>
+        ახლა ყველაფერს გავაერთიანებთ ერთ პრაქტიკულ პროექტში: ავაწყობთ პირად
+        <strong>პორტფოლიოს გვერდს</strong> კომპონენტებისგან. პროექტი ზუსტად ამ გაკვეთილის თემებს ეყრდნობა —
+        Vite, JSX, ფუნქციური კომპონენტები, props, <code>children</code>, სიები <code>.map()</code>-ით და
+        <code>createRoot</code> — და საჭირო არაა state ან hooks. ბოლოს დასრულებულ პროექტს გამოაქვეყნებ GitHub Pages-ზე.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 1. პროექტის შექმნა</h3>
+      <pre><code>npm create vite@latest my-portfolio -- --template react
+cd my-portfolio
+npm install
+npm run dev</code></pre>
+      <p>
+        გახსენი <code>http://localhost:5173</code>. შემდეგ წაშალე ნაგულისხმევი შაბლონის ზედმეტი შიგთავსი:
+        <code>src/App.css</code> გაასუფთავე, <code>src/assets/react.svg</code> და <code>public/vite.svg</code> შეგიძლია
+        წაშალო, ხოლო <code>App.jsx</code>-ში დატოვე მხოლოდ ცარიელი <code>App</code> ფუნქცია.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 2. სტრუქტურის დაგეგმვა</h3>
+      <p>
+        სანამ კოდს დავწერთ, გვერდს „კომპონენტებად ვშლით" — ეს არის React-ით აზროვნების მთავარი უნარი:
+      </p>
+      <pre><code class="file-tree">src/
+├── main.jsx                  <span class="cmt"># შესვლის წერტილი</span>
+├── App.jsx                   <span class="cmt"># აწყობს მთელ გვერდს</span>
+├── index.css                 <span class="cmt"># გლობალური სტილები</span>
+├── data.js                   <span class="cmt"># უნარები და პროექტები (მხოლოდ მონაცემები)</span>
+└── components/
+    ├── Header.jsx            <span class="cmt"># ზედა ნავიგაცია</span>
+    ├── Hero.jsx              <span class="cmt"># სახელი, აღწერა</span>
+    ├── Section.jsx           <span class="cmt"># განმეორებადი "სექციის" შეფუთვა (children!)</span>
+    ├── SkillList.jsx         <span class="cmt"># უნარების სია (.map)</span>
+    ├── ProjectCard.jsx       <span class="cmt"># ერთი პროექტის ბარათი (props)</span>
+    ├── ProjectList.jsx       <span class="cmt"># ბარათების სია (.map + key)</span>
+    └── Footer.jsx</code></pre>
+
+      <h3 class="project-step">ნაბიჯი 3. მონაცემები — data.js</h3>
+      <p>
+        UI-სა და მონაცემებს ვაცალკევებთ. ეს ჩვეულებრივი JavaScript ფაილია (JSX არ არის, ამიტომ <code>.js</code> გაფართოება
+        საკმარისია):
+      </p>
+      <pre><code><span class="cmt">// src/data.js</span>
+<span class="attr">export const</span> profile = {
+  name: "ლანა ბერიძე",
+  title: "Front-end დეველოპერი (დამწყები)",
+  about: "ვსწავლობ HTML-ს, CSS-ს, JavaScript-სა და React-ს. მიყვარს სუფთა და მარტივი ინტერფეისები.",
+  email: "lanа@example.com",
+};
+
+<span class="attr">export const</span> skills = ["HTML", "CSS", "JavaScript", "React", "Git", "Vite"];
+
+<span class="attr">export const</span> projects = [
+  {
+    id: 1,
+    title: "ლენდინგ გვერდი",
+    description: "რესპონსიული ლენდინგი HTML-ითა და CSS-ით.",
+    tags: ["HTML", "CSS"],
+    link: "https://example.com/landing",
+  },
+  {
+    id: 2,
+    title: "კალკულატორი",
+    description: "მარტივი კალკულატორი სუფთა JavaScript-ით.",
+    tags: ["JavaScript", "DOM"],
+    link: "https://example.com/calculator",
+  },
+  {
+    id: 3,
+    title: "ამინდის აპლიკაცია",
+    description: "ამინდის მონაცემების ჩვენება API-დან.",
+    tags: ["JavaScript", "API"],
+    link: "https://example.com/weather",
+  },
+];</code></pre>
+
+      <h3 class="project-step">ნაბიჯი 4. პატარა კომპონენტები</h3>
+      <p><strong>Header</strong> — ნავიგაცია, ბმულები გვერდის სექციებზე:</p>
+      <pre><code><span class="cmt">// src/components/Header.jsx</span>
+<span class="attr">function</span> Header({ name }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">header</span> <span class="attr">className</span>=<span class="str">"site-header"</span>&gt;
+      &lt;<span class="tag">strong</span>&gt;&#123;name&#125;&lt;/<span class="tag">strong</span>&gt;
+      &lt;<span class="tag">nav</span>&gt;
+        &lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#skills"</span>&gt;უნარები&lt;/<span class="tag">a</span>&gt;
+        &lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#projects"</span>&gt;პროექტები&lt;/<span class="tag">a</span>&gt;
+        &lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"#contact"</span>&gt;კონტაქტი&lt;/<span class="tag">a</span>&gt;
+      &lt;/<span class="tag">nav</span>&gt;
+    &lt;/<span class="tag">header</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> Header;</code></pre>
+
+      <p><strong>Hero</strong> — props-ებით:</p>
+      <pre><code><span class="cmt">// src/components/Hero.jsx</span>
+<span class="attr">function</span> Hero({ name, title, about }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">section</span> <span class="attr">className</span>=<span class="str">"hero"</span>&gt;
+      &lt;<span class="tag">h1</span>&gt;გამარჯობა, მე ვარ &#123;name&#125;&lt;/<span class="tag">h1</span>&gt;
+      &lt;<span class="tag">h2</span>&gt;&#123;title&#125;&lt;/<span class="tag">h2</span>&gt;
+      &lt;<span class="tag">p</span>&gt;&#123;about&#125;&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">section</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> Hero;</code></pre>
+
+      <p>
+        <strong>Section</strong> — განმეორებადი შეფუთვა. აქ გამოიყენება სპეციალური prop <code>children</code>:
+        ყველაფერი, რაც <code>&lt;Section&gt;...&lt;/Section&gt;</code> ტეგებს შორის ჩავწერეთ, ჩაჯდება
+        <code>&#123;children&#125;</code>-ის ადგილას:
+      </p>
+      <pre><code><span class="cmt">// src/components/Section.jsx</span>
+<span class="attr">function</span> Section({ id, title, children }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">section</span> <span class="attr">id</span>=&#123;id&#125; <span class="attr">className</span>=<span class="str">"section"</span>&gt;
+      &lt;<span class="tag">h2</span>&gt;&#123;title&#125;&lt;/<span class="tag">h2</span>&gt;
+      &#123;children&#125;
+    &lt;/<span class="tag">section</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> Section;</code></pre>
+
+      <p><strong>SkillList</strong> — სია <code>.map()</code>-ით:</p>
+      <pre><code><span class="cmt">// src/components/SkillList.jsx</span>
+<span class="attr">function</span> SkillList({ skills }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">ul</span> <span class="attr">className</span>=<span class="str">"skills"</span>&gt;
+      &#123;skills.map((skill) =&gt; (
+        &lt;<span class="tag">li</span> <span class="attr">key</span>=&#123;skill&#125;&gt;&#123;skill&#125;&lt;/<span class="tag">li</span>&gt;
+      ))&#125;
+    &lt;/<span class="tag">ul</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> SkillList;</code></pre>
+
+      <p><strong>ProjectCard</strong> — ერთი ბარათი; <strong>ProjectList</strong> — ბარათების სია:</p>
+      <pre><code><span class="cmt">// src/components/ProjectCard.jsx</span>
+<span class="attr">function</span> ProjectCard({ title, description, tags, link }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">article</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
+      &lt;<span class="tag">h3</span>&gt;&#123;title&#125;&lt;/<span class="tag">h3</span>&gt;
+      &lt;<span class="tag">p</span>&gt;&#123;description&#125;&lt;/<span class="tag">p</span>&gt;
+
+      &lt;<span class="tag">ul</span> <span class="attr">className</span>=<span class="str">"tags"</span>&gt;
+        &#123;tags.map((tag) =&gt; &lt;<span class="tag">li</span> <span class="attr">key</span>=&#123;tag&#125;&gt;&#123;tag&#125;&lt;/<span class="tag">li</span>&gt;)&#125;
+      &lt;/<span class="tag">ul</span>&gt;
+
+      &lt;<span class="tag">a</span> <span class="attr">href</span>=&#123;link&#125; <span class="attr">target</span>=<span class="str">"_blank"</span> <span class="attr">rel</span>=<span class="str">"noopener noreferrer"</span>&gt;
+        ნახე პროექტი
+      &lt;/<span class="tag">a</span>&gt;
+    &lt;/<span class="tag">article</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> ProjectCard;
+
+
+<span class="cmt">// src/components/ProjectList.jsx</span>
+<span class="attr">import</span> ProjectCard <span class="attr">from</span> "./ProjectCard";
+
+<span class="attr">function</span> ProjectList({ projects }) {
+  <span class="attr">return</span> (
+    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"cards"</span>&gt;
+      &#123;projects.map((project) =&gt; (
+        &lt;<span class="tag">ProjectCard</span>
+          <span class="attr">key</span>=&#123;project.id&#125;
+          <span class="attr">title</span>=&#123;project.title&#125;
+          <span class="attr">description</span>=&#123;project.description&#125;
+          <span class="attr">tags</span>=&#123;project.tags&#125;
+          <span class="attr">link</span>=&#123;project.link&#125;
+        /&gt;
+      ))&#125;
+    &lt;/<span class="tag">div</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> ProjectList;</code></pre>
+      <p>
+        ყურადღება: <code>key</code> ეწერება იმ ელემენტზე, რომელსაც <code>.map()</code> აბრუნებს (აქ — <code>&lt;ProjectCard&gt;</code>),
+        არა ბარათის შიგნით. გარდა ამისა, <code>key</code> ბარათს props-ად არ ებარება — ის React-ისთვისაა. ფუტერიც
+        მარტივია:
+      </p>
+      <pre><code><span class="cmt">// src/components/Footer.jsx</span>
+<span class="attr">function</span> Footer({ name }) {
+  <span class="attr">const</span> year = new Date().getFullYear();   <span class="cmt">// JS გამოსახულება კომპონენტის შიგნით</span>
+
+  <span class="attr">return</span> (
+    &lt;<span class="tag">footer</span> <span class="attr">className</span>=<span class="str">"site-footer"</span>&gt;
+      &lt;<span class="tag">p</span>&gt;© &#123;year&#125; &#123;name&#125;. აგებულია React-ით.&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">footer</span>&gt;
+  );
+}
+
+<span class="attr">export default</span> Footer;</code></pre>
+
+      <h3 class="project-step">ნაბიჯი 5. App.jsx — ყველაფრის აწყობა</h3>
+      <pre><code><span class="cmt">// src/App.jsx</span>
+<span class="attr">import</span> Header from "./components/Header";
+<span class="attr">import</span> Hero from "./components/Hero";
+<span class="attr">import</span> Section from "./components/Section";
+<span class="attr">import</span> SkillList from "./components/SkillList";
+<span class="attr">import</span> ProjectList from "./components/ProjectList";
+<span class="attr">import</span> Footer from "./components/Footer";
+<span class="attr">import</span> { profile, skills, projects } from "./data";
+
+<span class="attr">function</span> App() {
+  <span class="attr">return</span> (
+    &lt;&gt;
+      &lt;<span class="tag">Header</span> <span class="attr">name</span>=&#123;profile.name&#125; /&gt;
+
+      &lt;<span class="tag">main</span>&gt;
+        &lt;<span class="tag">Hero</span>
+          <span class="attr">name</span>=&#123;profile.name&#125;
+          <span class="attr">title</span>=&#123;profile.title&#125;
+          <span class="attr">about</span>=&#123;profile.about&#125;
+        /&gt;
+
+        &lt;<span class="tag">Section</span> <span class="attr">id</span>=<span class="str">"skills"</span> <span class="attr">title</span>=<span class="str">"უნარები"</span>&gt;
+          &lt;<span class="tag">SkillList</span> <span class="attr">skills</span>=&#123;skills&#125; /&gt;
+        &lt;/<span class="tag">Section</span>&gt;
+
+        &lt;<span class="tag">Section</span> <span class="attr">id</span>=<span class="str">"projects"</span> <span class="attr">title</span>=<span class="str">"პროექტები"</span>&gt;
+          &lt;<span class="tag">ProjectList</span> <span class="attr">projects</span>=&#123;projects&#125; /&gt;
+        &lt;/<span class="tag">Section</span>&gt;
+
+        &lt;<span class="tag">Section</span> <span class="attr">id</span>=<span class="str">"contact"</span> <span class="attr">title</span>=<span class="str">"კონტაქტი"</span>&gt;
+          &lt;<span class="tag">p</span>&gt;
+            მომწერე: &lt;<span class="tag">a</span> <span class="attr">href</span>=&#123;`mailto:${profile.email}`&#125;&gt;&#123;profile.email&#125;&lt;/<span class="tag">a</span>&gt;
+          &lt;/<span class="tag">p</span>&gt;
+        &lt;/<span class="tag">Section</span>&gt;
+      &lt;/<span class="tag">main</span>&gt;
+
+      &lt;<span class="tag">Footer</span> <span class="attr">name</span>=&#123;profile.name&#125; /&gt;
+    &lt;/&gt;
+  );
+}
+
+<span class="attr">export default</span> App;</code></pre>
+      <p>
+        ნახე, რამდენად „წაიკითხება“ <code>App</code> — თითქმის ისე, როგორც გვერდის გეგმა. ეს არის კომპონენტებად
+        დაყოფის მთავარი სარგებელი. <code>main.jsx</code> იგივე რჩება, რაც წინა სექციაში ვნახეთ.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 6. სტილები — index.css</h3>
+      <p>
+        CSS-ს ჩვეულებრივ ვწერთ — ის React-ზე დამოკიდებული არაა. ერთადერთი განსხვავება: HTML-ის
+        <code>class</code>-ის ნაცვლად JSX-ში <code>className</code> გვაქვს (როგორც ზემოთ ბარათებში ვქენით).
+        მინიმალური მაგალითი (შენი დიზაინის მიხედვით გააფართოვე):
+      </p>
+      <pre><code><span class="cmt">/* src/index.css */</span>
+:root { font-family: "Noto Sans Georgian", system-ui, sans-serif; line-height: 1.6; }
+body { margin: 0; }
+
+.site-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; }
+.site-header nav { display: flex; gap: 16px; }
+
+.hero, .section { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+
+.skills, .tags { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.skills li, .tags li { padding: 4px 12px; border: 1px solid currentColor; border-radius: 999px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.card { border: 1px solid #8884; border-radius: 12px; padding: 20px; }
+
+.site-footer { text-align: center; padding: 32px 24px; }</code></pre>
+
+      <h3 class="project-step">ნაბიჯი 7. გამოქვეყნება GitHub Pages-ზე</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li>დაამატე <code>vite.config.js</code>-ში <code>base: '/my-portfolio/'</code> (შენი რეპოზიტორიის სახელი):
+          <pre><code><span class="attr">export default</span> defineConfig({
+  plugins: [react()],
+  base: <span class="str">'/my-portfolio/'</span>,
+})</code></pre>
+        </li>
+        <li><code>npm run build</code> — შეიქმნება <code>dist/</code>.</li>
+        <li><code>dist/</code>-ის შიგთავსის გამოქვეყნება ორი გზით შეიძლება: GitHub Actions-ით (რეკომენდებულია — ავტომატურად ააგებს და გამოაქვეყნებს ყოველ push-ზე; GitHub Pages-ის პარამეტრებში აირჩიე „GitHub Actions“ წყაროდ) ან <code>gh-pages</code> პაკეტით.</li>
+        <li>გადაამოწმე ლოკალურად გამოქვეყნებამდე: <code>npm run preview</code>.</li>
+      </ol>
+      <p>
+        ალტერნატივა, რომელსაც <code>base</code> არ სჭირდება: <strong>Netlify</strong> ან <strong>Vercel</strong> —
+        უბრალოდ შეაერთე GitHub რეპოზიტორია, build ბრძანება: <code>npm run build</code>, გამოსატანი საქაღალდე: <code>dist</code>.
+      </p>
+
+      <h3 class="project-step">რას გვასწავლის ეს პროექტი — შეჯამება</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ცნება</th><th>სად გამოვიყენეთ</th></tr></thead>
+          <tbody>
+            <tr><td>Vite + პროექტის სტრუქტურა</td><td><code>npm create vite</code>, <code>src/</code>, <code>index.html</code>, <code>npm run build</code></td></tr>
+            <tr><td>ფუნქციური კომპონენტები</td><td><code>Header</code>, <code>Hero</code>, <code>Footer</code>, <code>ProjectCard</code>...</td></tr>
+            <tr><td>JSX და JS გამოსახულებები</td><td><code>&#123;name&#125;</code>, <code>&#123;year&#125;</code>, <code>href=&#123;`mailto:...`&#125;</code></td></tr>
+            <tr><td>Props</td><td><code>&lt;Hero name=... title=... /&gt;</code></td></tr>
+            <tr><td><code>children</code> prop</td><td><code>Section</code></td></tr>
+            <tr><td>სიები და <code>key</code></td><td><code>SkillList</code>, <code>ProjectList</code></td></tr>
+            <tr><td>Fragment</td><td><code>&lt;&gt;...&lt;/&gt;</code> <code>App</code>-ში</td></tr>
+            <tr><td><code>createRoot</code>, <code>StrictMode</code></td><td><code>main.jsx</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= SELF CHECK ========================= -->
+      <h2 id="selfcheck">8. თვითშემოწმება</h2>
+      <div class="qa">
+        <details>
+          <summary>1. რით განსხვავდება SPA MPA-სგან?</summary>
+          <p>SPA ერთხელ იტვირთება ერთ HTML ფაილად, შემდეგ JavaScript დინამიურად ცვლის შიგთავსს გვერდის სრული გადატვირთვის გარეშე. MPA-ში ყოველი ბმული ახალ HTML გვერდს ტვირთავს.</p>
+        </details>
+        <details>
+          <summary>2. რატომ არ გამოიყენება ახალ პროექტებში Create React App?</summary>
+          <p>2025 წლის თებერვალში React-ის გუნდმა ის ახალი პროექტებისთვის გააუქმა — მას აქტიური მომვლელები აღარ ჰყავდა. ალტერნატივები: ფრეიმვორქი (Next.js, React Router და სხვ.) ან build tool, მაგალითად Vite.</p>
+        </details>
+        <details>
+          <summary>3. რა მინიმალური ვერსიის Node.js გჭირდება Vite 8-ისთვის?</summary>
+          <p>Node.js 20.19+ ან 22.12+.</p>
+        </details>
+        <details>
+          <summary>4. რა ხდება JSX-თან build-ის დროს და ვინ აკეთებს ამას Vite 8-ში?</summary>
+          <p>JSX გარდაიქმნება ჩვეულებრივ JavaScript-ად (<code>jsx()</code> გამოძახებად <code>react/jsx-runtime</code>-იდან ან ძველ სტილში — <code>React.createElement</code>-ად). Vite 8-ში ამას ასრულებს Oxc, არა Babel; Babel საჭიროა მხოლოდ დამატებით პლაგინებისთვის (მაგ. React Compiler).</p>
+        </details>
+        <details>
+          <summary>5. რატომ არის <code>className</code> და არა <code>class</code>?</summary>
+          <p><code>class</code> JavaScript-ის დაცული სიტყვაა, JSX კი JavaScript-ში იწერება.</p>
+        </details>
+        <details>
+          <summary>6. რას აკეთებს <code>createRoot(...).render(&lt;App /&gt;)</code>?</summary>
+          <p>ქმნის React root-ს <code>index.html</code>-ის <code>#root</code> ელემენტზე და იქ ამონტაჟებს მთელ აპლიკაციას — ეს არის წერტილი, სადაც React პირველად ეხება რეალურ DOM-ს.</p>
+        </details>
+        <details>
+          <summary>7. რატომ იწყება კომპონენტის სახელი დიდი ასოთი?</summary>
+          <p>ასე React არჩევს, რომ <code>&lt;Welcome /&gt;</code> არის კომპონენტი, ხოლო <code>&lt;div&gt;</code> — ჩვეულებრივი HTML ტეგი.</p>
+        </details>
+        <details>
+          <summary>8. რისთვის არის <code>key</code> სიებში?</summary>
+          <p>ეხმარება React-ს ზუსტად გაიგოს, რომელი ელემენტი დაემატა, წაიშალა ან გადაადგილდა; უნდა იყოს უნიკალური და სტაბილური (ჩვეულებრივ <code>id</code>).</p>
+        </details>
+      </div>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://react.dev/learn" target="_blank" rel="noopener">React — ოფიციალური დოკუმენტაცია (Learn React)</a></li>
           <li><a href="https://react.dev/learn/writing-markup-with-jsx" target="_blank" rel="noopener">React — Writing Markup with JSX</a></li>
-          <li><a href="https://vite.dev/guide/" target="_blank" rel="noopener">Vite — ოფიციალური გზამკვლევი</a></li>
+          <li><a href="https://react.dev/learn/javascript-in-jsx-with-curly-braces" target="_blank" rel="noopener">React — JavaScript in JSX with Curly Braces</a></li>
           <li><a href="https://react.dev/learn/your-first-component" target="_blank" rel="noopener">React — Your First Component</a></li>
+          <li><a href="https://react.dev/learn/importing-and-exporting-components" target="_blank" rel="noopener">React — Importing and Exporting Components</a></li>
+          <li><a href="https://react.dev/learn/passing-props-to-a-component" target="_blank" rel="noopener">React — Passing Props to a Component</a></li>
+          <li><a href="https://react.dev/learn/rendering-lists" target="_blank" rel="noopener">React — Rendering Lists</a></li>
+          <li><a href="https://react.dev/learn/build-a-react-app-from-scratch" target="_blank" rel="noopener">React — Build a React App from Scratch</a></li>
+          <li><a href="https://react.dev/blog/2025/02/14/sunsetting-create-react-app" target="_blank" rel="noopener">React Blog — Sunsetting Create React App</a></li>
+          <li><a href="https://react.dev/link/new-jsx-transform" target="_blank" rel="noopener">React — Introducing the New JSX Transform</a></li>
+          <li><a href="https://react.dev/versions" target="_blank" rel="noopener">React — Versions (მიმდინარე ვერსიები და ცვლილებების ისტორია)</a></li>
+          <li><a href="https://vite.dev/guide/" target="_blank" rel="noopener">Vite — ოფიციალური გზამკვლევი</a></li>
+          <li><a href="https://vite.dev/blog/announcing-vite8" target="_blank" rel="noopener">Vite — „Vite 8.0 is out!“ (Rolldown და Oxc)</a></li>
+          <li><a href="https://babeljs.io/repl" target="_blank" rel="noopener">Babel REPL — ნახე, როგორ გარდაიქმნება JSX (აირჩიე React preset)</a></li>
+          <li><a href="https://react.dev/learn/react-compiler" target="_blank" rel="noopener">React Compiler — დოკუმენტაცია</a></li>
         </ul>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>დააინსტალირე Node.js (თუ ჯერ არ გაქვს) და შექმენი ახალი React პროექტი <code>npm create vite@latest</code>-ის გამოყენებით.</li>
-          <li>გაუშვი <code>npm run dev</code> და გახსენი პროექტი ბრაუზერში — შეცვალე <code>App.jsx</code>-ში ტექსტი და დააკვირდი, როგორ ცვლილება ავტომატურად ჩანს ბრაუზერში.</li>
-          <li>შექმენი ახალი ფაილი <code>Greeting.jsx</code> ერთი მარტივი ფუნქციური კომპონენტით და import-ის გამოყენებით ჩასვი ის <code>App.jsx</code>-ში.</li>
+          <li>შეამოწმე <code>node -v</code> (უნდა იყოს 20.19+ ან 22.12+), დააინსტალირე Node.js (თუ ჯერ არ გაქვს) და შექმენი ახალი React პროექტი <code>npm create vite@latest</code>-ის გამოყენებით.</li>
+          <li>გაუშვი <code>npm run dev</code> და გახსენი პროექტი ბრაუზერში — შეცვალე <code>App.jsx</code>-ში ტექსტი და დააკვირდი, როგორ ცვლილება ავტომატურად ჩანს ბრაუზერში (HMR). შემდეგ გაუშვი <code>npm run build</code> და შეხედე, რა გაჩნდა <code>dist/</code>-ში.</li>
+          <li>შექმენი ახალი ფაილი <code>Greeting.jsx</code> ერთი მარტივი ფუნქციური კომპონენტით და import-ის გამოყენებით ჩასვი ის <code>App.jsx</code>-ში. გამოიძახე ის სამჯერ, სხვადასხვა <code>name</code> prop-ით.</li>
           <li>დაწერე JSX ელემენტი, რომელშიც ჩასმულია JS ცვლადი (<code>{}</code>-ის გამოყენებით) და JS გამოსახულება (მაგ. <code>{2 + 2}</code>).</li>
-          <li><em>(რთული)</em> დაწერე ერთი და იგივე მარტივი კომპონენტი ორივე ფორმით — JSX-ით და <code>React.createElement()</code>-ის პირდაპირი გამოძახებით — შეადარე კოდის წაკითხვადობა.</li>
+          <li>დაწერე ორი მცირე გამოცდა JSX-ზე: (ა) <code>isLoggedIn</code> ცვლადის მიხედვით აჩვენე „გამარჯობა“ ან „გთხოვთ შეხვიდეთ“ სამადგილიანი ოპერატორით; (ბ) გამოიტანე შენი 5 საყვარელი წიგნის სია <code>.map()</code>-ითა და <code>key</code>-ით.</li>
+          <li><strong>ძირითადი:</strong> ააწყვე გაკვეთილში აღწერილი <strong>პორტფოლიოს გვერდი</strong> შენი მონაცემებით (სახელი, უნარები, მინიმუმ 3 პროექტი), მიამატე საკუთარი სტილი და გამოაქვეყნე GitHub Pages-ზე, Netlify-ზე ან Vercel-ზე.</li>
+          <li><em>(რთული)</em> დაწერე ერთი და იგივე მარტივი კომპონენტი ორივე ფორმით — JSX-ით და <code>React.createElement()</code>-ის პირდაპირი გამოძახებით — შეადარე კოდის წაკითხვადობა. შემდეგ ჩასვი შენი JSX Babel REPL-ში (react preset, „Automatic“ runtime) და შეადარე შედეგი: როგორ გამოიყურება <code>_jsx</code>?</li>
+          <li><em>(ბონუსი)</em> დაამატე პორტფოლიოს ბოლოს <code>TodoDemo</code> კომპონენტი და ჩამოწერე, რა არის შენთვის გაუგებარი — ეს იქნება შემდეგი გაკვეთილის შეკითხვების სია.</li>
         </ol>
       </div>
 
