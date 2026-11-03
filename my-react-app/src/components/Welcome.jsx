@@ -1,4 +1,3 @@
-
 function Welcome() {
   const studentName = "ლანა";
 
