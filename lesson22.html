@@ -4,11 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>გაკვეთილი 22 — React State/Props, List & Keys, Hooks</title>
-  <meta name="description" content="React state და props, List & Keys, React Hooks — useState, useEffect, useRef და lifecycle კონცეფცია." />
+  <meta name="description" content="React props და state, List & Keys, Hooks — useState, useEffect, useRef, lifecycle კონცეფცია, Hooks-ის წესები, custom hooks და რეალური პროექტი: To-Do აპლიკაცია." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* დამატებითი სტილები ამ გაკვეთილისთვის (იყენებს style.css-ის ცვლადებს, სათადარიგო მნიშვნელობებით) */
+    .toc { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+    .toc h3 { margin-top: 0; }
+    .toc ol { padding-left: 20px; margin: 0; }
+    .toc li { margin: 4px 0; }
+    .callout { border-left: 4px solid var(--mod-react, #0ea5e9); background: color-mix(in srgb, var(--mod-react, #0ea5e9) 12%, transparent); padding: 14px 18px; border-radius: 10px; margin: 20px 0; }
+    .callout > :first-child { margin-top: 0; }
+    .callout > :last-child { margin-bottom: 0; }
+    .callout-warn { border-left-color: #e08a00; background: color-mix(in srgb, #e08a00 13%, transparent); }
+    .callout-title { font-weight: 800; margin: 0 0 6px; }
+    .table-wrap { overflow-x: auto; margin: 18px 0; }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .tbl th, .tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); vertical-align: top; }
+    .tbl th { font-weight: 800; }
+    .project-step { margin: 28px 0 8px; padding-top: 6px; }
+    .qa details { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 10px; padding: 10px 16px; margin: 10px 0; }
+    .qa summary { cursor: pointer; font-weight: 700; }
+    .meta-line { font-size: 14px; color: var(--ink-soft); }
+    h2[id], h3[id] { scroll-margin-top: 90px; }
+  </style>
 </head>
 <body>
 
@@ -43,6 +64,9 @@
         წინა გაკვეთილში კომპონენტები „სტატიკური" იყო. ახლა ვასწავლით მათ, დაიმახსოვრონ მონაცემები
         და შეიცვალონ დროთა განმავლობაში — ეს არის React-ის ნამდვილი ძალა.
       </p>
+      <p class="meta-line">
+        გაკვეთილის მასალა განახლებულია 2026 წლის ოქტომბრისთვის: React 19.3 (მათ შორის <code>useEffectEvent</code>, stable 19.2-იდან).
+      </p>
       <div class="lesson-progress" data-lesson="22">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
       </div>
@@ -50,72 +74,248 @@
 
     <article class="lesson-article">
 
-      <h2>1. Props — მონაცემები „მშობლიდან შვილზე"</h2>
+      <nav class="toc" aria-label="გაკვეთილის სარჩევი">
+        <h3>გაკვეთილის გეგმა</h3>
+        <ol>
+          <li><a href="#props">Props — მონაცემები „მშობლიდან შვილზე"</a></li>
+          <li><a href="#state">State — useState Hook</a></li>
+          <li><a href="#lists">List & Keys</a></li>
+          <li><a href="#effect">useEffect Hook და lifecycle</a></li>
+          <li><a href="#ref">useRef Hook</a></li>
+          <li><a href="#rules">Hooks-ის წესები და custom hooks</a></li>
+          <li><a href="#mistakes">ყველაზე ხშირი შეცდომები</a></li>
+          <li><a href="#project">რეალური პროექტი: To-Do აპლიკაცია</a></li>
+          <li><a href="#selfcheck">თვითშემოწმება</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========================= 1. PROPS ========================= -->
+      <h2 id="props">1. Props — მონაცემები „მშობლიდან შვილზე"</h2>
       <p>
         <strong>Props</strong> (properties) არის ის გზა, რომლითაც მშობელი კომპონენტი მონაცემებს
         გადასცემს შვილ კომპონენტს — ისევე, როგორც HTML ატრიბუტს ვწერთ:
       </p>
-      <pre><code><span class="cmt">// Card.jsx — იღებს props-ს, როგორც პარამეტრს (ჩვეულებრივ, destructuring-ით)</span>
-<span class="attr">function</span> Card({ title, price }) {
-  <span class="attr">return</span> (
-    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
-      &lt;<span class="tag">h3</span>&gt;{title}&lt;/<span class="tag">h3</span>&gt;
-      &lt;<span class="tag">p</span>&gt;{price}₾&lt;/<span class="tag">p</span>&gt;
-    &lt;/<span class="tag">div</span>&gt;
+      <pre><code>// Card.jsx — იღებს props-ს, როგორც პარამეტრს (ჩვეულებრივ, destructuring-ით)
+function Card({ title, price }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+      &lt;p&gt;{price}₾&lt;/p&gt;
+    &lt;/div&gt;
   );
 }
 
-<span class="cmt">// App.jsx — props-ის გადაცემა, ატრიბუტების მსგავსად</span>
-&lt;<span class="tag">Card</span> <span class="attr">title</span>=<span class="str">"React წიგნი"</span> <span class="attr">price</span>={35} /&gt;</code></pre>
+// App.jsx — props-ის გადაცემა, ატრიბუტების მსგავსად
+&lt;Card title="React წიგნი" price={35} /&gt;</code></pre>
       <p>
-        <strong>props არის read-only</strong> — შვილ კომპონენტს არასდროს არ შეუძლია საკუთარი
+        <strong>props არის read-only</strong> — შვილ კომპონენტს არ შეუძლია საკუთარი
         props-ის უშუალო შეცვლა. ეს არის React-ის ერთ-ერთი ფუნდამენტური წესი (ცალმხრივი მონაცემთა
-        ნაკადი — one-way data flow).
+        ნაკადი — one-way data flow). მონაცემი მიედინება ზემოდან ქვემოთ; თუ შვილს მშობლისთვის რაიმეს
+        „თქმა" უნდა, მშობელი მას <em>ფუნქციას</em> გადასცემს (იხ. ქვემოთ).
       </p>
 
-      <h2>2. State — useState Hook</h2>
+      <h3>რა შეიძლება გადაეცეს prop-ად</h3>
+      <p>სტრიქონი ბრჭყალებით, ყველაფერი დანარჩენი — ფიგურული ფრჩხილებით:</p>
+      <pre><code>&lt;Product
+  name="ყურსასმენი"            // სტრიქონი
+  price={89.9}                  // რიცხვი
+  inStock={true}                // boolean (მოკლედ: უბრალოდ  inStock )
+  tags={["აუდიო", "უსადენო"]}   // მასივი
+  seller={{ id: 7, name: "ლანა" }}  // ობიექტი (გარე {} — JSX, შიდა {} — ობიექტი)
+  onBuy={() =&gt; alert("ნაყიდია!")}  // ფუნქცია
+/&gt;</code></pre>
+
+      <h3>ნაგულისხმევი მნიშვნელობა და children</h3>
+      <pre><code>function Button({ children, variant = "primary", ...rest }) {
+  return (
+    &lt;button className={"btn btn-" + variant} {...rest}&gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+
+// გამოყენება:
+&lt;Button&gt;შენახვა&lt;/Button&gt;
+&lt;Button variant="danger" onClick={handleDelete}&gt;წაშლა&lt;/Button&gt;</code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>children</code> — ის, რაც ტეგებს შორის ჩავწერეთ; კომპონენტებს საშუალებას აძლევს „შეფუთონ" სხვა შიგთავსი (ბარათი, მოდალი, განლაგება).</li>
+        <li><code>...rest</code> და <code>{"{...rest}"}</code> — დანარჩენი props-ის „გადაგზავნა" ჩაშენებულ ელემენტზე (<code>onClick</code>, <code>disabled</code>, <code>aria-*</code> და ა.შ.).</li>
+        <li><strong>ნაგულისხმევი მნიშვნელობა</strong> — destructuring-ში (<code>variant = "primary"</code>). ეს თანამედროვე წესია; <code>defaultProps</code> ფუნქციურ კომპონენტებში React 19-ში ამოღებულია.</li>
+        <li>React 19-ში <code>ref</code> ჩვეულებრივი prop-ია ფუნქციურ კომპონენტში (<code>forwardRef</code> აღარ არის საჭირო).</li>
+      </ul>
+
+      <h3>Props-ის ტიპების შემოწმება</h3>
+      <p>
+        ძველი <code>PropTypes</code> შემოწმება React 19-ში აღარ მუშაობს (ბიბლიოთეკის პაკეტი ჯერ არსებობს, მაგრამ React მას
+        აღარ ამოწმებს). ტიპებისთვის დღეს ჩვეულებრივ <strong>TypeScript</strong> გამოიყენება (<code>--template react-ts</code>);
+        ჩვენს JavaScript პროექტებში მნიშვნელოვანია კარგი სახელები და კონსოლის გაფრთხილებებზე ყურადღება.
+      </p>
+
+      <h3>ფუნქციის გადაცემა: შვილიდან მშობლისკენ „კომუნიკაცია"</h3>
+      <p>
+        მონაცემი ქვემოთ მიედინება, ივენთი — ზემოთ. მშობელი გადასცემს ფუნქციას, შვილი კი მას საჭირო მომენტში იძახებს:
+      </p>
+      <pre><code>function Parent() {
+  const [message, setMessage] = useState("");
+
+  return (
+    &lt;&gt;
+      &lt;p&gt;შეტყობინება: {message}&lt;/p&gt;
+      &lt;Child onSend={(text) =&gt; setMessage(text)} /&gt;
+    &lt;/&gt;
+  );
+}
+
+function Child({ onSend }) {
+  return &lt;button onClick={() =&gt; onSend("გამარჯობა მშობელო!")}&gt;გაგზავნა&lt;/button&gt;;
+}</code></pre>
+      <p>
+        ამ პრინციპს ჰქვია <strong>state-ის ამაღლება</strong> (lifting state up): როცა ორ ან მეტ კომპონენტს ერთი და იგივე
+        მონაცემი სჭირდება, state-ს მათ უახლოეს საერთო მშობელში ვინახავთ და props-ებით ვუზიარებთ.
+      </p>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">Prop drilling</p>
+        <p>
+          თუ props-ს ბევრ დონეზე გადასცემ იმ კომპონენტებს, რომლებსაც თვითონ არ სჭირდებათ, ამას ჰქვია <em>prop drilling</em>.
+          მცირე აპლიკაციებში ეს ნორმალურია. როცა გაუსაძლისი გახდება, გამოიყენება <code>useContext</code> (ან state მენეჯმენტის
+          ბიბლიოთეკა) — ეს ბოლო გაკვეთილზე გვექნება; ახლა ორი-სამი დონე საკმარისია.
+        </p>
+      </div>
+
+      <h3>Props და State — შედარება</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th></th><th>Props</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td><strong>საიდან მოდის</strong></td><td>მშობლისგან</td><td>თვით კომპონენტში (<code>useState</code>)</td></tr>
+            <tr><td><strong>იცვლება?</strong></td><td>კომპონენტის შიგნით — არა (read-only)</td><td>დიახ, setter ფუნქციით</td></tr>
+            <tr><td><strong>ცვლილება იწვევს re-render-ს?</strong></td><td>როცა მშობელი ახალ მნიშვნელობას გადასცემს — დიახ</td><td>დიახ</td></tr>
+            <tr><td><strong>ანალოგია</strong></td><td>ფუნქციის არგუმენტები</td><td>ფუნქციის „მეხსიერება"</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 2. STATE ========================= -->
+      <h2 id="state">2. State — useState Hook</h2>
       <p>
         <strong>State</strong> არის მონაცემი, რომელსაც კომპონენტი <em>თავად</em> ფლობს და
         <em>თავად</em> ცვლის დროთა განმავლობაში (მაგ. მომხმარებლის მოქმედების პასუხად).
         <code>useState</code> არის React-ის Hook, რომელიც კომპონენტს state-ის დამატების საშუალებას აძლევს:
       </p>
-      <pre><code><span class="attr">import</span> { useState } <span class="attr">from</span> "react";
+      <pre><code>import { useState } from "react";
 
-<span class="attr">function</span> Counter() {
-  <span class="attr">const</span> [count, setCount] = useState(0); <span class="cmt">// [მიმდინარე მნიშვნელობა, განახლების ფუნქცია]</span>
+function Counter() {
+  const [count, setCount] = useState(0); // [მიმდინარე მნიშვნელობა, განახლების ფუნქცია]
 
-  <span class="attr">return</span> (
-    &lt;<span class="tag">div</span>&gt;
-      &lt;<span class="tag">p</span>&gt;დაწკაპუნებულია: {count} ჯერ&lt;/<span class="tag">p</span>&gt;
-      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => setCount(count + 1)}&gt;
+  return (
+    &lt;div&gt;
+      &lt;p&gt;დაწკაპუნებულია: {count} ჯერ&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
         დაწკაპუნება
-      &lt;/<span class="tag">button</span>&gt;
-    &lt;/<span class="tag">div</span>&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
   );
 }</code></pre>
       <p>
         <strong>მნიშვნელოვანი წესი:</strong> state არასდროს არ იცვლება პირდაპირ (<code>count = count + 1</code>
         ❌) — ყოველთვის <code>setCount</code>-ის მსგავსი „setter" ფუნქციით. სწორედ ეს გამოძახება
-        ეუბნება React-ს, ხელახლა გამოსახოს (re-render) კომპონენტი ახალი მონაცემით.
+        ეუბნება React-ს, ხელახლა გამოსახოს (re-render) კომპონენტი ახალი მონაცემით. რჩევა: ჩვეულებრივ
+        ცვლადს (<code>let count</code>) კომპონენტი რენდერებს შორის ვერ დაიმახსოვრებს — ფუნქცია ყოველ რენდერზე თავიდან სრულდება.
+        state კი React-ის „მეხსიერებაშია".
       </p>
 
-      <h2>3. List & Keys</h2>
+      <h3>State არის „სნეპშოტი" ყოველი რენდერისთვის</h3>
+      <p>
+        ერთ რენდერში <code>count</code>-ის მნიშვნელობა <em>უცვლელია</em> — setter-ის გამოძახება <strong>ახალ</strong>
+        რენდერს აგეგმავს და ახალ ცვლადს ქმნის. ამიტომ შემდეგი კოდი მხოლოდ +1-ს იძლევა და არა +3-ს:
+      </p>
+      <pre><code>function handleClick() {
+  setCount(count + 1); // count = 0 → დაგეგმილია 1
+  setCount(count + 1); // count ისევ 0-ია → დაგეგმილია 1
+  setCount(count + 1); // count ისევ 0-ია → დაგეგმილია 1
+}                      // შედეგი: 1
+
+// გამოსწორება — updater (განახლების) ფუნქცია: იღებს ყველაზე ახალ მნიშვნელობას
+function handleClick() {
+  setCount((c) =&gt; c + 1);
+  setCount((c) =&gt; c + 1);
+  setCount((c) =&gt; c + 1);
+}                      // შედეგი: 3</code></pre>
+      <p>
+        <strong>წესი:</strong> როცა ახალი state წინაზეა დამოკიდებული (<code>+1</code>, სიაში დამატება, toggle),
+        გამოიყენე updater ფორმა: <code>setX(prev =&gt; ...)</code>. React ერთ event handler-ში მრავალ განახლებას
+        <strong>ერთ რენდერად აჯგუფებს</strong> (batching) და თუ ახალი მნიშვნელობა იგივეა (<code>Object.is</code>-ით), არც ახლიდან
+        ხატავს.
+      </p>
+
+      <h3>ობიექტები და მასივები — არასდროს „მუტაცია"</h3>
+      <p>
+        React ადარებს <em>მიმართვას</em> (reference), არა შიგთავსს. ამიტომ ობიექტი ან მასივი state-ში
+        <strong>არ უნდა შეიცვალოს</strong> (push, splice, <code>obj.x = 1</code>) — ყოველთვის ახალი ასლი შექმენი:
+      </p>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>მოქმედება</th><th>❌ არ გააკეთო (მუტაცია)</th><th>✅ გააკეთე (ახალი ასლი)</th></tr></thead>
+          <tbody>
+            <tr><td>მასივში დამატება</td><td><code>arr.push(x)</code></td><td><code>setArr(prev =&gt; [...prev, x])</code></td></tr>
+            <tr><td>წაშლა</td><td><code>arr.splice(i, 1)</code></td><td><code>setArr(prev =&gt; prev.filter(i =&gt; i.id !== id))</code></td></tr>
+            <tr><td>ელემენტის შეცვლა</td><td><code>arr[i].done = true</code></td><td><code>setArr(prev =&gt; prev.map(i =&gt; i.id === id ? { ...i, done: true } : i))</code></td></tr>
+            <tr><td>ობიექტის ველის შეცვლა</td><td><code>user.name = "..."</code></td><td><code>setUser(prev =&gt; ({ ...prev, name: "..." }))</code></td></tr>
+            <tr><td>დახარისხება</td><td><code>arr.sort()</code></td><td><code>setArr(prev =&gt; [...prev].sort(...))</code> ან <code>toSorted()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>კონტროლირებადი input (controlled component)</h3>
+      <p>
+        ფორმის ველი „კონტროლირებადია", როცა მისი მნიშვნელობა state-ში ინახება და ყოველი ცვლილება state-ს ანახლებს —
+        React ხდება „ჭეშმარიტების ერთადერთი წყარო":
+      </p>
+      <pre><code>function NameForm() {
+  const [name, setName] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();               // გვერდის გადატვირთვის შეჩერება
+    alert("გამარჯობა, " + name);
+    setName("");                      // ველის გასუფთავება
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={name} onChange={(e) =&gt; setName(e.target.value)} /&gt;
+      &lt;button type="submit" disabled={name.trim() === ""}&gt;გაგზავნა&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <h3>ზოგადი რჩევები state-ზე</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>ნუ შეინახავ იმას, რაც გამოითვლება.</strong> თუ შეგიძლია <code>tasks</code>-იდან გამოთვალო <code>doneCount</code>, ცალკე state არ გჭირდება — უბრალოდ გამოთვალე რენდერისას (<code>const doneCount = tasks.filter(t =&gt; t.done).length</code>). ორი state-ის სინქრონიზაცია ბაგების ნაყოფიერი წყაროა.</li>
+        <li><strong>State-ს იკავებს მინიმუმი.</strong> იფიქრე: რა არის ის უმცირესი მონაცემი, რომლიდანაც მთელი UI აიგება.</li>
+        <li><strong>თითოეულ კომპონენტის ეგზემპლარს საკუთარი state აქვს.</strong> ორი <code>&lt;Counter /&gt;</code> ერთმანეთისგან დამოუკიდებელია.</li>
+        <li><strong>ლენივი (lazy) საწყისი მნიშვნელობა:</strong> თუ საწყისი მნიშვნელობის გამოთვლა „ძვირია", გადაეცი ფუნქცია: <code>useState(() =&gt; readFromStorage())</code> — ის მხოლოდ პირველ რენდერზე გაეშვება.</li>
+        <li><strong>state-ის გადატვირთვა <code>key</code>-ით:</strong> <code>&lt;Profile key={userId} /&gt;</code> — როცა <code>key</code> იცვლება, React კომპონენტს თავიდან ქმნის და მისი state ნულდება.</li>
+      </ul>
+
+      <!-- ========================= 3. LISTS ========================= -->
+      <h2 id="lists">3. List & Keys</h2>
       <p>
         მასივის რენდერისთვის ვიყენებთ <code>map()</code>-ს (მე-12 გაკვეთილიდან უკვე ნაცნობი) —
         JSX-ში პირდაპირ ჩასმით:
       </p>
-      <pre><code><span class="attr">const</span> products = [
+      <pre><code>const products = [
   { id: 1, name: "წიგნი" },
   { id: 2, name: "ყურსასმენი" },
 ];
 
-<span class="attr">function</span> ProductList() {
-  <span class="attr">return</span> (
-    &lt;<span class="tag">ul</span>&gt;
-      {products.map(product => (
-        &lt;<span class="tag">li</span> <span class="attr">key</span>={product.id}&gt;{product.name}&lt;/<span class="tag">li</span>&gt;
+function ProductList() {
+  return (
+    &lt;ul&gt;
+      {products.map(product =&gt; (
+        &lt;li key={product.id}&gt;{product.name}&lt;/li&gt;
       ))}
-    &lt;/<span class="tag">ul</span>&gt;
+    &lt;/ul&gt;
   );
 }</code></pre>
       <p>
@@ -124,25 +324,64 @@
         გამოვიყენოთ მონაცემის უნიკალური ID (არა მასივის index, თუ სია დინამიურად იცვლება).
       </p>
 
-      <h2>4. useEffect Hook</h2>
+      <h3>key-ის წესები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>უნიკალური „და-ძმებს" შორის</strong> (სიის ფარგლებში; გლობალურად უნიკალური არ არის საჭირო).</li>
+        <li><strong>სტაბილური</strong> — ერთი და იგივე მონაცემი ყოველთვის ერთი და იგივე key-ით. <code>key={Math.random()}</code> ცუდია: ყოველ რენდერზე ყველა ელემენტი თავიდან იქმნება და state იკარგება.</li>
+        <li><code>key</code> იწერება <strong>.map()-დან დაბრუნებულ გარე ელემენტზე</strong>, არა მის შიგნით.</li>
+        <li><code>key</code> კომპონენტს <code>props</code>-ად არ ეგზავნება; თუ შვილს ID სჭირდება, ცალკე გადაეცი (<code>id={"{item.id}"}</code>).</li>
+        <li>ID-ის გენერირება სჯობს მონაცემის შექმნისას (<code>crypto.randomUUID()</code>, ან ბაზის ID), არა რენდერისას.</li>
+        <li>როცა ერთ იტერაციაზე რამდენიმე ელემენტია, გამოიყენე <code>&lt;Fragment key={"{id}"}&gt;...&lt;/Fragment&gt;</code> (მოკლე <code>&lt;&gt;</code> key-ს ვერ იღებს).</li>
+      </ul>
+
+      <h3>რატომ არ გამოდგება index (ინდექსი) key-ად?</h3>
+      <p>
+        თუ სიას დაამატებ დასაწყისში, წაშლი შუიდან ან დაალაგებ, ინდექსები „გადაინაცვლებს" მონაცემებისგან დამოუკიდებლად — React
+        შეცდომით მიიჩნევს, რომ პირველი <code>&lt;li&gt;</code> იგივეა, რაც იყო, და მას თავისი state (მაგ. ჩაწერილი ტექსტი
+        input-ში, ჩეკბოქსი) „შერჩება". შედეგი: ბაგები, რომლებიც ძნელი საპოვნელია. index მისაღებია მხოლოდ სტატიკური სიისთვის,
+        რომელიც არასდროს იცვლება.
+      </p>
+
+      <h3>სიების გაფილტვრა, დახარისხება, ცარიელი მდგომარეობა</h3>
+      <pre><code>function TaskList({ tasks, filter }) {
+  // გამოთვლა რენდერისას — არ არის საჭირო ცალკე state
+  const visible = tasks.filter((t) =&gt;
+    filter === "all" ? true : filter === "done" ? t.done : !t.done
+  );
+
+  if (visible.length === 0) {
+    return &lt;p&gt;დავალებები არ არის.&lt;/p&gt;;   // ცარიელი მდგომარეობა
+  }
+
+  return (
+    &lt;ul&gt;
+      {visible.map((t) =&gt; &lt;li key={t.id}&gt;{t.text}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+      <!-- ========================= 4. EFFECT ========================= -->
+      <h2 id="effect">4. useEffect Hook</h2>
       <p>
         <code>useEffect</code> გამოსადეგია „გვერდითი ეფექტებისთვის" (side effects) — მოქმედებები,
         რომლებიც კომპონენტის რენდერის მიღმა ხდება: API მოთხოვნები, ტაიმერები, event listener-ები.
+        უფრო ზუსტად, <code>useEffect</code> კომპონენტს <strong>გარე სისტემასთან ასინქრონიზებს</strong> (ბრაუზერის API,
+        ქსელი, ტაიმერი, ბიბლიოთეკა), როცა ეს სინქრონიზაცია გამოწვეულია იმით, რომ კომპონენტი ეკრანზეა.
       </p>
-      <pre><code><span class="attr">import</span> { useState, useEffect } <span class="attr">from</span> "react";
+      <pre><code>import { useState, useEffect } from "react";
 
-<span class="attr">function</span> UserProfile({ userId }) {
-  <span class="attr">const</span> [user, setUser] = useState(null);
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    <span class="cmt">// ეს კოდი სრულდება კომპონენტის რენდერის შემდეგ</span>
+  useEffect(() =&gt; {
+    // ეს კოდი სრულდება კომპონენტის რენდერის შემდეგ
     fetch(`/api/users/${userId}`)
-      .then(res => res.json())
-      .then(data => setUser(data));
-  }, [userId]); <span class="cmt">// dependency მასივი — ეფექტი ხელახლა სრულდება, თუ userId შეიცვალა</span>
+      .then(res =&gt; res.json())
+      .then(data =&gt; setUser(data));
+  }, [userId]); // dependency მასივი — ეფექტი ხელახლა სრულდება, თუ userId შეიცვალა
 
-  <span class="attr">if</span> (!user) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
-  <span class="attr">return</span> &lt;<span class="tag">h2</span>&gt;{user.name}&lt;/<span class="tag">h2</span>&gt;;
+  if (!user) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  return &lt;h2&gt;{user.name}&lt;/h2&gt;;
 }</code></pre>
       <p>
         <strong>Lifecycle კონცეფცია Hooks-ის კონტექსტში:</strong> ძველ, class-კომპონენტებში
@@ -156,48 +395,792 @@
         <li><code>useEffect(fn)</code> (მასივის გარეშე) — სრულდება ყოველი რენდერის შემდეგ (იშვიათად გამოსადეგია).</li>
       </ul>
 
-      <h2>5. useRef Hook</h2>
+      <h3>Cleanup (გასუფთავების) ფუნქცია</h3>
+      <p>
+        ეფექტმა შეიძლება დააბრუნოს ფუნქცია — ის გაეშვება <strong>ეფექტის შემდეგ გაშვებამდე</strong> და
+        <strong>კომპონენტის მოხსნისას</strong> (unmount). იქ ვაუქმებთ ყველაფერს, რაც ეფექტმა დააყენა:
+      </p>
+      <pre><code>function Clock() {
+  const [now, setNow] = useState(() =&gt; new Date());
+
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; setNow(new Date()), 1000); // setup
+    return () =&gt; clearInterval(id);                          // cleanup
+  }, []);
+
+  return &lt;p&gt;{now.toLocaleTimeString("ka-GE")}&lt;/p&gt;;
+}
+
+function WindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() =&gt; {
+    const onResize = () =&gt; setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);               // setup
+    return () =&gt; window.removeEventListener("resize", onResize); // cleanup
+  }, []);
+
+  return &lt;p&gt;ფანჯრის სიგანე: {width}px&lt;/p&gt;;
+}</code></pre>
+      <p>
+        წესი: ყოველ „დაყენებას" (<code>setInterval</code>, <code>addEventListener</code>, ბმა, გამოწერა) უნდა ჰქონდეს
+        „მოხსნა" cleanup-ში.
+      </p>
+
+      <h3>რატომ ეშვება ეფექტი ორჯერ development-ში?</h3>
+      <p>
+        თუ პროექტში <code>&lt;StrictMode&gt;</code> ჩართულია (Vite-ის შაბლონში ჩართულია), development-ში React
+        კომპონენტს „დაამონტაჟებს → გაასუფთავებს → ხელახლა დაამონტაჟებს". ეს განზრახ ხდება, რომ აღმოჩნდეს ეფექტები,
+        რომლებსაც cleanup აკლიათ. <strong>production-ში ეფექტი ერთხელ სრულდება.</strong> ნუ ებრძვი ამას რეფით ან
+        „flag-ით" — სწორი გამოსავალი არის კარგი cleanup, რომ „setup → cleanup → setup" ისე იმუშაოს, როგორც ერთი setup.
+      </p>
+
+      <h3>მონაცემების წამოღება: race condition და cleanup</h3>
+      <p>
+        როცა <code>userId</code> სწრაფად იცვლება, ორი მოთხოვნა „ეჯიბრება" ერთმანეთს და ნელი, ძველი პასუხი შეიძლება ახალს გადააწეროს.
+        გამოსავალი — ძველი პასუხის იგნორირება cleanup-ში (ოფიციალური მიდგომა) ან მოთხოვნის გაუქმება
+        <code>AbortController</code>-ით:
+      </p>
+      <pre><code>function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    fetch(`https://jsonplaceholder.typicode.com/users/${userId}`, { signal: controller.signal })
+      .then((res) =&gt; {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then((data) =&gt; setUser(data))
+      .catch((err) =&gt; {
+        if (err.name !== "AbortError") setError(err.message); // გაუქმება შეცდომად არ ითვლება
+      })
+      .finally(() =&gt; {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () =&gt; controller.abort(); // cleanup: ძველი მოთხოვნის გაუქმება
+  }, [userId]);
+
+  if (loading) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return &lt;p&gt;შეცდომა: {error}&lt;/p&gt;;
+  return &lt;h2&gt;{user.name}&lt;/h2&gt;;
+}</code></pre>
+      <p>
+        ალტერნატიული, უფრო მარტივი ვარიანტი: <code>let ignore = false;</code> ეფექტში, <code>ignore = true</code> cleanup-ში და
+        <code>if (!ignore) setUser(...)</code> პასუხის მიღებისას. რეალურ პროექტებში მონაცემების წამოღებას ხშირად
+        ბიბლიოთეკები (TanStack Query, SWR) ან ფრეიმვორქები ერთვებიან — ისინი იზოლირებულად ხსნიან ქეშირების, განმეორების და race
+        condition-ის პრობლემებს; ახლა კი ვსწავლობთ საფუძველს.
+      </p>
+      <div class="callout callout-warn">
+        <p class="callout-title"><code>async</code> ფუნქცია პირდაპირ ეფექტად არ გადაეცემა</p>
+        <p>
+          <code>useEffect(async () =&gt; {...})</code> არასწორია: async ფუნქცია Promise-ს აბრუნებს, React კი მოელის ან არაფერს,
+          ან cleanup ფუნქციას. დააწერე async ფუნქცია ეფექტის <em>შიგნით</em> და გამოიძახე იქვე:
+          <code>useEffect(() =&gt; { async function load() {...} load(); }, [])</code>.
+        </p>
+      </div>
+
+      <h3>dependency მასივი: წესები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ჩამოთვალე <strong>ყველა</strong> რეაქტიული მნიშვნელობა, რომელსაც ეფექტი კითხულობს (props, state, მათგან გამოთვლილი ცვლადები). React-ის ESLint პლაგინი (<code>eslint-plugin-react-hooks</code>, შაბლონში უკვე ჩართულია) ამას გაჩვენებს.</li>
+        <li>ნუ „დაჩუმებ" ლინტერს, თუ მასივს არასწორად ამოკლებ — ეფექტი „ძველ" მნიშვნელობებს დაინახავს (stale closure).</li>
+        <li><strong>ობიექტი ან ფუნქცია, რომელიც რენდერში იქმნება</strong>, ყოველ ჯერზე ახალი მიმართვაა → ეფექტი ყოველ რენდერზე გაეშვება. გადაიტანე ეფექტის შიგნით ან დაამუშავე პრიმიტიულ მნიშვნელობამდე (<code>user.id</code> და არა <code>user</code>).</li>
+        <li><strong>უსასრულო ციკლი:</strong> ეფექტი ანახლებს state-ს, რომელიც თავად არის dependency → ახალი რენდერი → ისევ ეფექტი... შეამოწმე, უნდა ანახლებდეს თუ არა ეფექტი ამ state-ს საერთოდ.</li>
+      </ul>
+
+      <h3>useEffectEvent (React 19.2+)</h3>
+      <p>
+        ხანდახან ეფექტს ესაჭიროება მიმდინარე მნიშვნელობის „წაკითხვა", მაგრამ ამ მნიშვნელობის ცვლილებამ ეფექტი თავიდან
+        არ უნდა გაუშვას (მაგ. ჩატის ოთახთან კავშირი უნდა გაიხსნას მხოლოდ <code>roomId</code>-ის ცვლილებისას, მაგრამ შეტყობინებაში
+        მიმდინარე <code>theme</code>-ი უნდა გამოვიყენოთ). ამისთვის React 19.2-ში stable გახდა <code>useEffectEvent</code>:
+      </p>
+      <pre><code>import { useEffect, useEffectEvent } from "react";
+
+function ChatRoom({ roomId, theme }) {
+  const onConnected = useEffectEvent(() =&gt; {
+    showNotification("დაკავშირებულია!", theme); // ყოველთვის მიმდინარე theme-ს ხედავს
+  });
+
+  useEffect(() =&gt; {
+    const connection = createConnection(roomId);
+    connection.on("connected", () =&gt; onConnected());
+    connection.connect();
+    return () =&gt; connection.disconnect();
+  }, [roomId]); // theme dependency არ არის
+}</code></pre>
+      <p>
+        ეს გაკვეთილისთვის „ბონუს-ცნებაა" — მთავარია გესმოდეს, რომ ასეთი ხელსაწყო არსებობს. ესენი <code>createConnection</code> და
+        <code>showNotification</code> პირობითი ფუნქციებია მაგალითისთვის.
+      </p>
+
+      <h3>გახსოვდეს: „You Might Not Need an Effect"</h3>
+      <p>
+        ეფექტი ხშირად ზედმეტია. React-ის დოკუმენტაცია აკონკრეტებს, რომ ეფექტი არ გჭირდება, როცა:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>მონაცემს გამოთვლი props-ებიდან ან state-იდან</strong> — გამოთვალე პირდაპირ რენდერისას (არა <code>useEffect</code> + <code>setState</code>).</li>
+        <li><strong>მომხმარებლის ქმედებას ამუშავებ</strong> (დაჭერა, გაგზავნა) — ეს event handler-ში ხდება, არა ეფექტში.</li>
+        <li><strong>state-ის გადატვირთვა გინდა prop-ის შეცვლისას</strong> — გამოიყენე <code>key</code>.</li>
+      </ul>
+      <p>
+        კარგი წესი: <strong>თუ რაღაც გამოწვეულია <em>ქმედებით</em> — event handler; თუ იმით, რომ კომპონენტი <em>ეკრანზეა</em>
+        და გარე სისტემასთან უნდა იყოს სინქრონში — <code>useEffect</code>.</strong>
+      </p>
+
+      <h3>Class lifecycle ↔ useEffect — ცხრილი</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Class (ძველი)</th><th>Hooks (დღევანდელი)</th></tr></thead>
+          <tbody>
+            <tr><td><code>componentDidMount</code></td><td><code>useEffect(() =&gt; {...}, [])</code></td></tr>
+            <tr><td><code>componentDidUpdate</code></td><td><code>useEffect(() =&gt; {...}, [dep])</code></td></tr>
+            <tr><td><code>componentWillUnmount</code></td><td>ეფექტის cleanup: <code>return () =&gt; {...}</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        ეს შესაბამისობა მიახლოებითია: Hooks-ში ფიქრობენ არა „როდის", არამედ „რასთან სინქრონიზაცია": ეფექტი აღწერს,
+        როგორ <em>დაიწყოს</em> და როგორ <em>შეწყვიტოს</em> სინქრონიზაცია, ხოლო React გადაწყვეტს, როდის გაუშვას. ასევე
+        არსებობს <code>useLayoutEffect</code> — ის ეკრანის დახატვამდე სრულდება და DOM-ის გაზომვისთვის გამოიყენება; იშვიათია.
+      </p>
+
+      <!-- ========================= 5. REF ========================= -->
+      <h2 id="ref">5. useRef Hook</h2>
       <p>
         <code>useRef</code> ქმნის „კონტეინერს", რომლის მნიშვნელობის შეცვლა <strong>არ</strong>
         იწვევს ხელახალ რენდერს (განსხვავებით <code>useState</code>-ისგან). ორი ძირითადი გამოყენებაა:
       </p>
-      <pre><code><span class="attr">import</span> { useRef, useEffect } <span class="attr">from</span> "react";
+      <pre><code>import { useRef, useEffect } from "react";
 
-<span class="attr">function</span> SearchInput() {
-  <span class="attr">const</span> inputRef = useRef(null); <span class="cmt">// 1. პირდაპირი წვდომა DOM ელემენტზე</span>
+function SearchInput() {
+  const inputRef = useRef(null); // 1. პირდაპირი წვდომა DOM ელემენტზე
 
-  useEffect(() => {
-    inputRef.current.focus(); <span class="cmt">// კომპონენტის ჩატვირთვისას, input ავტომატურად ფოკუსირდება</span>
+  useEffect(() =&gt; {
+    inputRef.current.focus(); // კომპონენტის ჩატვირთვისას, input ავტომატურად ფოკუსირდება
   }, []);
 
-  <span class="attr">return</span> &lt;<span class="tag">input</span> <span class="attr">ref</span>={inputRef} <span class="attr">type</span>=<span class="str">"text"</span> /&gt;;
+  return &lt;input ref={inputRef} type="text" /&gt;;
 }</code></pre>
-      <pre><code><span class="cmt">// 2. მნიშვნელობის შენახვა რენდერებს შორის, ხელახალი რენდერის გამოწვევის გარეშე</span>
-<span class="attr">function</span> Timer() {
-  <span class="attr">const</span> renderCount = useRef(0);
-  renderCount.current++; <span class="cmt">// იზრდება, მაგრამ არ იწვევს ხელახალ რენდერს</span>
-  <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;ეს კომპონენტი გამოისახა {renderCount.current} ჯერ&lt;/<span class="tag">p</span>&gt;;
+      <pre><code>// 2. მნიშვნელობის შენახვა რენდერებს შორის, ხელახალი რენდერის გამოწვევის გარეშე
+function Timer() {
+  const renderCount = useRef(0);
+  renderCount.current++; // იზრდება, მაგრამ არ იწვევს ხელახალ რენდერს
+  return &lt;p&gt;ეს კომპონენტი გამოისახა {renderCount.current} ჯერ&lt;/p&gt;;
 }</code></pre>
+      <p>
+        <strong>ყურადღება:</strong> ზემოთ <code>Timer</code>-ის მაგალითი მხოლოდ ილუსტრაციაა. React-ის რეკომენდაციით
+        <code>ref.current</code> რენდერისას არ უნდა <em>იკითხებოდეს ან იწერებოდეს</em> (გარდა საწყისი ინიციალიზაციისა) — ეს რენდერს
+        „არასუფთას" ხდის და StrictMode-ში მნიშვნელობა „ორჯერ" გაიზრდება. რეფის ცვლილებები ეფექტებში ან event handler-ებში
+        უნდა მოხდეს.
+      </p>
+
+      <h3>useRef-ის ტიპური გამოყენებები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>DOM-ზე წვდომა:</strong> <code>focus()</code>, <code>scrollIntoView()</code>, ვიდეოს <code>play()</code>, ზომის გაზომვა.</li>
+        <li><strong>ტაიმერის ID-ის შენახვა:</strong> <code>timerRef.current = setTimeout(...)</code>, რომ შემდეგ <code>clearTimeout</code> გამოვიძახოთ.</li>
+        <li><strong>წინა მნიშვნელობის დამახსოვრება</strong> (ეფექტში განახლებით).</li>
+        <li><strong>არაკონტროლირებადი input-ები და ფაილის ველი</strong> (<code>input type="file"</code>).</li>
+      </ul>
+
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th></th><th><code>useState</code></th><th><code>useRef</code></th></tr></thead>
+          <tbody>
+            <tr><td><strong>ცვლილება იწვევს re-render-ს</strong></td><td>დიახ</td><td>არა</td></tr>
+            <tr><td><strong>როგორ იცვლება</strong></td><td>setter ფუნქციით</td><td><code>ref.current = ...</code> (პირდაპირ)</td></tr>
+            <tr><td><strong>გამოიყენე, როცა</strong></td><td>მნიშვნელობა ეკრანზე ჩანს</td><td>მნიშვნელობა ეკრანზე <em>არ</em> ჩანს (DOM, ტაიმერი)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        React 19-ში ref callback-ებს შეუძლიათ cleanup ფუნქციის დაბრუნება (ისევე, როგორც ეფექტებს), ხოლო ფუნქციურ
+        კომპონენტს <code>ref</code> ჩვეულებრივი prop-ის სახით გადაეცემა — <code>forwardRef</code> აღარ არის საჭირო.
+      </p>
+
+      <!-- ========================= 6. RULES ========================= -->
+      <h2 id="rules">6. Hooks-ის წესები და custom hooks</h2>
+      <h3>Hooks-ის ორი წესი</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>გამოიძახე Hooks მხოლოდ უმაღლეს დონეზე</strong> — არა ციკლში, არა პირობაში (<code>if</code>), არა ჩადგმულ ფუნქციაში. React Hooks-ს მათი <em>გამოძახების რიგით</em> ცნობს; რიგი ყველა რენდერზე ერთნაირი უნდა იყოს.</li>
+        <li><strong>გამოიძახე Hooks მხოლოდ React კომპონენტებიდან ან სხვა Hooks-იდან</strong> (custom hook-ებიდან), არა ჩვეულებრივი JS ფუნქციებიდან.</li>
+      </ol>
+      <pre><code>function Bad({ show }) {
+  if (show) {
+    const [x, setX] = useState(0);   // ❌ პირობაში
+  }
+  // ...
+}
+
+function Good({ show }) {
+  const [x, setX] = useState(0);     // ✅ ყოველთვის, ზედა დონეზე
+  if (!show) return null;
+  // ...
+}</code></pre>
+      <p>
+        <code>eslint-plugin-react-hooks</code> (Vite-ის React შაბლონში ჩართულია) ამ წესებს ავტომატურად გაკონტროლებს —
+        არ დააიგნორო მისი გაფრთხილებები.
+      </p>
+
+      <h3>Custom hook — შენი საკუთარი Hook</h3>
+      <p>
+        როცა ერთი და იგივე ლოგიკა (state + ეფექტი) რამდენიმე კომპონენტში მეორდება, მას ცალკე ფუნქციად გამოვიტანთ.
+        სახელი <strong>აუცილებლად იწყება <code>use</code>-თი</strong>:
+      </p>
+      <pre><code>// src/hooks/useLocalStorage.js
+import { useState, useEffect } from "react";
+
+export function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() =&gt; {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved !== null ? JSON.parse(saved) : initialValue;
+    } catch {
+      return initialValue;       // დაზიანებული ან მიუწვდომელი მეხსიერება
+    }
+  });
+
+  useEffect(() =&gt; {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* მეხსიერება სავსეა ან დაბლოკილია — ჩუმად გავაგრძელებთ */
+    }
+  }, [key, value]);
+
+  return [value, setValue];
+}</code></pre>
+      <p>
+        გამოყენება — ზუსტად <code>useState</code>-ივით, მაგრამ მონაცემი ბრაუზერის გადატვირთვის შემდეგაც რჩება:
+        <code>const [theme, setTheme] = useLocalStorage("theme", "light");</code>
+      </p>
+
+      <h3>სხვა Hooks — რა გველოდება</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Hook</th><th>რისთვის</th></tr></thead>
+          <tbody>
+            <tr><td><code>useReducer</code></td><td>რთული state-ის ლოგიკა ერთ ფუნქციაში (<code>useState</code>-ის ალტერნატივა)</td></tr>
+            <tr><td><code>useContext</code></td><td>მონაცემის გაზიარება ხეში prop drilling-ის გარეშე (თემა, მომხმარებელი)</td></tr>
+            <tr><td><code>useMemo</code>, <code>useCallback</code></td><td>გამოთვლებისა და ფუნქციების დამახსოვრება ოპტიმიზაციისთვის. React Compiler-ით უმეტესად ავტომატურდება, ამიტომ დამწყებს აუცილებლად არ სჭირდება</td></tr>
+            <tr><td><code>useId</code></td><td>უნიკალური ID ფორმის ველებისა და ლეიბლების დასაკავშირებლად</td></tr>
+            <tr><td><code>useActionState</code>, <code>useOptimistic</code>, <code>use</code></td><td>React 19-ის ახალი Hooks/API ფორმებისთვის და ასინქრონული მონაცემებისთვის — უფრო მოწინავე თემა</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 7. MISTAKES ========================= -->
+      <h2 id="mistakes">7. ყველაზე ხშირი შეცდომები</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>შეცდომა</th><th>სიმპტომი</th><th>გამოსწორება</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>state-ის პირდაპირი შეცვლა: <code>tasks.push(x)</code></td>
+              <td>UI არ განახლდა</td>
+              <td>ახალი მასივი: <code>setTasks(prev =&gt; [...prev, x])</code></td>
+            </tr>
+            <tr>
+              <td><code>setCount(count + 1)</code> რამდენჯერმე ზედიზედ</td>
+              <td>მხოლოდ +1 მატება</td>
+              <td>updater: <code>setCount(c =&gt; c + 1)</code></td>
+            </tr>
+            <tr>
+              <td>state-ის წაკითხვა setter-ის შემდეგ</td>
+              <td><code>console.log(count)</code> ძველ მნიშვნელობას აჩვენებს</td>
+              <td>ახალ მნიშვნელობას მხოლოდ შემდეგ რენდერში ნახავ; დამოკიდებული ლოგიკა — ეფექტში ან უშუალოდ გამოთვალე</td>
+            </tr>
+            <tr>
+              <td><code>onClick={"{handle()}"}</code> (გამოძახებით)</td>
+              <td>ფუნქცია რენდერისას გაეშვა; უსასრულო ციკლი</td>
+              <td><code>onClick={"{handle}"}</code> ან <code>onClick={"{() => handle(id)}"}</code></td>
+            </tr>
+            <tr>
+              <td><code>key</code>-ის გარეშე ან <code>key={"{index}"}</code> დინამიურ სიაში</td>
+              <td>გაფრთხილება ან „აცდენილი" state</td>
+              <td>უნიკალური, სტაბილური <code>id</code></td>
+            </tr>
+            <tr>
+              <td>ეფექტში cleanup არ არის</td>
+              <td>ორმაგი ტაიმერი/listener, მეხსიერების გაჟონვა, ეფექტი ორჯერ ეშვება dev-ში</td>
+              <td>დააბრუნე cleanup ფუნქცია</td>
+            </tr>
+            <tr>
+              <td>ობიექტი ან ფუნქცია dependency-ში, რომელიც რენდერში იქმნება</td>
+              <td>ეფექტი ყოველ რენდერზე ეშვება; უსასრულო ციკლი</td>
+              <td>გადაიტანე ეფექტის შიგნით ან გამოიყენე პრიმიტივი</td>
+            </tr>
+            <tr>
+              <td>Hook პირობაში ან ციკლში</td>
+              <td>შეცდომა „Rendered more hooks than during the previous render"</td>
+              <td>Hooks-ი ყოველთვის ზედა დონეზე</td>
+            </tr>
+            <tr>
+              <td>ორი state, რომლებიც ერთმანეთისგან გამოითვლება</td>
+              <td>სინქრონიზაციის ბაგები</td>
+              <td>შეინახე ერთი, მეორე გამოთვალე რენდერისას</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 8. PROJECT ========================= -->
+      <h2 id="project">8. რეალური პროექტი: To-Do აპლიკაცია</h2>
+      <p>
+        ახლა ყველაფერს ერთ პროექტში ვაერთიანებთ: ავაწყობთ <strong>დავალებების მენეჯერს</strong>. ის ერთდროულად
+        იყენებს გაკვეთილის ყველა თემას: props, state, სიები და key-ები, <code>useEffect</code>, <code>useRef</code> და
+        custom hook. პროექტი ისეთია, რომლის ჩვენებაც პორტფოლიოში შეიძლება.
+      </p>
+
+      <div class="callout">
+        <p class="callout-title">ფუნქციონალი</p>
+        <ul style="padding-left: 20px; list-style: disc; margin: 0;">
+          <li>დავალების დამატება (Enter ან ღილაკი), ცარიელი ტექსტის დაცვა</li>
+          <li>შესრულებულად მონიშვნა (checkbox), წაშლა და რედაქტირება (ორმაგი დაწკაპუნება)</li>
+          <li>ფილტრი: ყველა / აქტიური / შესრულებული</li>
+          <li>მთვლელი: „დარჩენილია X დავალება", ბრაუზერის ტაბის სათაურშიც</li>
+          <li>დავალებები ინახება <code>localStorage</code>-ში — გვერდის განახლების შემდეგაც რჩება</li>
+          <li>ღილაკი „ნიმუშის ჩატვირთვა" — დავალებებს აიღებს გარე API-დან (loading/error მდგომარეობებით)</li>
+        </ul>
+      </div>
+
+      <h3 class="project-step">ნაბიჯი 1. პროექტის შექმნა და სტრუქტურა</h3>
+      <pre><code>npm create vite@latest todo-app -- --template react
+cd todo-app
+npm install
+npm run dev</code></pre>
+      <p>გაასუფთავე შაბლონის ზედმეტი ფაილები (როგორც წინა გაკვეთილზე) და შექმენი სტრუქტურა:</p>
+      <pre><code>src/
+├── main.jsx
+├── App.jsx                  # მთავარი state და ლოგიკა
+├── index.css
+├── hooks/
+│   └── useLocalStorage.js   # custom hook (იხ. ზემოთ, მე-6 სექცია)
+└── components/
+    ├── TaskForm.jsx         # input + ღილაკი (useRef, კონტროლირებადი input)
+    ├── TaskList.jsx         # სიის რენდერი (map + key)
+    ├── TaskItem.jsx         # ერთი დავალება (საკუთარი state: რედაქტირების რეჟიმი)
+    └── Filters.jsx          # ფილტრის ღილაკები</code></pre>
+      <p>
+        <strong>დაგეგმვა — „მთავარი“ state სად ცხოვრობს?</strong> დავალებების სია და ფილტრი სჭირდება რამდენიმე კომპონენტს
+        (სიას, ფილტრს, მთვლელს), ამიტომ ისინი <code>App</code>-ში ვინახავთ და შვილებს props-ებით ვუზიარებთ (lifting state up).
+        კომპონენტები მოქმედებებს ფუნქციებით (<code>onAdd</code>, <code>onToggle</code>...) აცნობებენ <code>App</code>-ს.
+        რედაქტირების რეჟიმი მხოლოდ ერთ <code>TaskItem</code>-ს ეხება, ამიტომ ის მისსავე ლოკალურ state-შია.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 2. App.jsx — მთავარი state და ლოგიკა</h3>
+      <pre><code>// src/App.jsx
+import { useState, useEffect } from "react";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import TaskForm from "./components/TaskForm";
+import Filters from "./components/Filters";
+import TaskList from "./components/TaskList";
+
+function App() {
+  const [tasks, setTasks] = useLocalStorage("tasks", []);
+  const [filter, setFilter] = useState("all");      // "all" | "active" | "done"
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // ── გამოთვლილი მნიშვნელობები (არა state!) ──
+  const remaining = tasks.filter((t) =&gt; !t.done).length;
+  const visibleTasks = tasks.filter((t) =&gt;
+    filter === "all" ? true : filter === "done" ? t.done : !t.done
+  );
+
+  // ── ეფექტი: ბრაუზერის ტაბის სათაური მიჰყვება მთვლელს ──
+  useEffect(() =&gt; {
+    document.title = remaining === 0 ? "To-Do" : `(${remaining}) To-Do`;
+  }, [remaining]);
+
+  // ── მოქმედებები (ყველა — updater ფორმით, ახალი ასლით) ──
+  function addTask(text) {
+    setTasks((prev) =&gt; [...prev, { id: crypto.randomUUID(), text, done: false }]);
+  }
+
+  function toggleTask(id) {
+    setTasks((prev) =&gt; prev.map((t) =&gt; (t.id === id ? { ...t, done: !t.done } : t)));
+  }
+
+  function editTask(id, text) {
+    setTasks((prev) =&gt; prev.map((t) =&gt; (t.id === id ? { ...t, text } : t)));
+  }
+
+  function deleteTask(id) {
+    setTasks((prev) =&gt; prev.filter((t) =&gt; t.id !== id));
+  }
+
+  function clearDone() {
+    setTasks((prev) =&gt; prev.filter((t) =&gt; !t.done));
+  }
+
+  // ── გარე API-დან ნიმუშის ჩატვირთვა (event handler-ში, არა ეფექტში: მომხმარებლის ქმედებაა) ──
+  async function loadSamples() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=5");
+      if (!res.ok) throw new Error("სერვერის შეცდომა: " + res.status);
+      const data = await res.json();
+      const samples = data.map((item) =&gt; ({
+        id: crypto.randomUUID(),       // ახალი ID, რომ API-ს ID-ები არ დაგვეჯახოს
+        text: item.title,
+        done: item.completed,
+      }));
+      setTasks((prev) =&gt; [...prev, ...samples]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    &lt;main className="app"&gt;
+      &lt;h1&gt;დავალებები&lt;/h1&gt;
+
+      &lt;TaskForm onAdd={addTask} /&gt;
+
+      &lt;Filters current={filter} onChange={setFilter} /&gt;
+
+      &lt;TaskList
+        tasks={visibleTasks}
+        onToggle={toggleTask}
+        onEdit={editTask}
+        onDelete={deleteTask}
+      /&gt;
+
+      &lt;footer className="toolbar"&gt;
+        &lt;span&gt;დარჩენილია {remaining} დავალება&lt;/span&gt;
+        &lt;button onClick={clearDone} disabled={tasks.every((t) =&gt; !t.done)}&gt;
+          შესრულებულების წაშლა
+        &lt;/button&gt;
+        &lt;button onClick={loadSamples} disabled={loading}&gt;
+          {loading ? "იტვირთება..." : "ნიმუშის ჩატვირთვა"}
+        &lt;/button&gt;
+      &lt;/footer&gt;
+
+      {error &amp;&amp; &lt;p role="alert" className="error"&gt;{error}&lt;/p&gt;}
+    &lt;/main&gt;
+  );
+}
+
+export default App;</code></pre>
+      <p>
+        შეამჩნიე: <code>remaining</code> და <code>visibleTasks</code> <strong>state არ არის</strong> — ისინი გამოითვლება ყოველ
+        რენდერზე <code>tasks</code>-იდან და <code>filter</code>-იდან. ამიტომ ისინი არასოდეს გამოვა სინქრონიდან. ასევე ყველა
+        განახლება ახალ მასივს ქმნის (<code>map</code>, <code>filter</code>, spread) — არასდროს <code>push</code>.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 3. TaskForm — კონტროლირებადი input და useRef</h3>
+      <pre><code>// src/components/TaskForm.jsx
+import { useState, useRef, useEffect } from "react";
+
+function TaskForm({ onAdd }) {
+  const [text, setText] = useState("");
+  const inputRef = useRef(null);
+
+  // გვერდის გახსნისას ფოკუსი input-ზე
+  useEffect(() =&gt; {
+    inputRef.current.focus();
+  }, []);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = text.trim();
+    if (trimmed === "") return;       // ცარიელი ტექსტი არ ემატება
+
+    onAdd(trimmed);
+    setText("");
+    inputRef.current.focus();         // დამატების შემდეგ ფოკუსი ისევ input-ზე
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="task-form"&gt;
+      &lt;input
+        ref={inputRef}
+        value={text}
+        onChange={(e) =&gt; setText(e.target.value)}
+        placeholder="რა უნდა გააკეთო?"
+        aria-label="ახალი დავალება"
+      /&gt;
+      &lt;button type="submit" disabled={text.trim() === ""}&gt;დამატება&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+export default TaskForm;</code></pre>
+      <p>
+        <code>&lt;form onSubmit&gt;</code> იძლევა ბონუსს: Enter-ზე დაჭერა თავისით მუშაობს. <code>e.preventDefault()</code>
+        აჩერებს გვერდის გადატვირთვას. StrictMode-ში <code>focus()</code>-ის ორჯერ გამოძახება უვნებელია — ეს კარგი „სუფთა“ ეფექტია.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 4. Filters, TaskList, TaskItem</h3>
+      <pre><code>// src/components/Filters.jsx
+const FILTERS = [
+  { value: "all", label: "ყველა" },
+  { value: "active", label: "აქტიური" },
+  { value: "done", label: "შესრულებული" },
+];
+
+function Filters({ current, onChange }) {
+  return (
+    &lt;div className="filters" role="group" aria-label="ფილტრი"&gt;
+      {FILTERS.map((f) =&gt; (
+        &lt;button
+          key={f.value}
+          onClick={() =&gt; onChange(f.value)}
+          aria-pressed={current === f.value}
+          className={current === f.value ? "active" : ""}
+        &gt;
+          {f.label}
+        &lt;/button&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+
+export default Filters;
+
+
+// src/components/TaskList.jsx
+import TaskItem from "./TaskItem";
+
+function TaskList({ tasks, onToggle, onEdit, onDelete }) {
+  if (tasks.length === 0) {
+    return &lt;p className="empty"&gt;დავალებები არ არის. დაამატე პირველი! ✨&lt;/p&gt;;
+  }
+
+  return (
+    &lt;ul className="task-list"&gt;
+      {tasks.map((task) =&gt; (
+        &lt;TaskItem
+          key={task.id}            // სტაბილური ID, არა index
+          task={task}
+          onToggle={onToggle}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default TaskList;</code></pre>
+
+      <p>
+        <strong>TaskItem</strong> — ყველაზე საინტერესო კომპონენტი: მას საკუთარი ლოკალური state აქვს (რედაქტირების რეჟიმი) და
+        <code>useRef</code> + <code>useEffect</code> ფოკუსისთვის:
+      </p>
+      <pre><code>// src/components/TaskItem.jsx
+import { useState, useRef, useEffect } from "react";
+
+function TaskItem({ task, onToggle, onEdit, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(task.text);
+  const editRef = useRef(null);
+
+  // როცა რედაქტირების რეჟიმი ირთვება — ფოკუსი და ტექსტის მონიშვნა
+  useEffect(() =&gt; {
+    if (isEditing) {
+      editRef.current.focus();
+      editRef.current.select();
+    }
+  }, [isEditing]);
+
+  function startEditing() {
+    setDraft(task.text);
+    setIsEditing(true);
+  }
+
+  function save() {
+    const trimmed = draft.trim();
+    if (trimmed !== "" &amp;&amp; trimmed !== task.text) {
+      onEdit(task.id, trimmed);
+    }
+    setIsEditing(false);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") save();
+    if (e.key === "Escape") setIsEditing(false);   // გაუქმება
+  }
+
+  return (
+    &lt;li className={task.done ? "task done" : "task"}&gt;
+      &lt;input
+        type="checkbox"
+        checked={task.done}
+        onChange={() =&gt; onToggle(task.id)}
+        aria-label={"მონიშვნა: " + task.text}
+      /&gt;
+
+      {isEditing ? (
+        &lt;input
+          ref={editRef}
+          value={draft}
+          onChange={(e) =&gt; setDraft(e.target.value)}
+          onBlur={save}
+          onKeyDown={handleKeyDown}
+          aria-label="დავალების რედაქტირება"
+        /&gt;
+      ) : (
+        &lt;span onDoubleClick={startEditing}&gt;{task.text}&lt;/span&gt;
+      )}
+
+      &lt;button onClick={() =&gt; onDelete(task.id)} aria-label={"წაშლა: " + task.text}&gt;
+        ✕
+      &lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+
+export default TaskItem;</code></pre>
+      <p>
+        <strong>რატომ მუშაობს ეს სწორად?</strong> თითოეულ <code>TaskItem</code> ეგზემპლარს საკუთარი <code>isEditing</code> აქვს,
+        და რადგან <code>key={"{task.id}"}</code> სტაბილურია, დავალების წაშლა ან გაფილტვრა სხვა ელემენტის რედაქტირების
+        რეჟიმს არ „გადაუწევს". თუ აქ <code>key={"{index}"}</code> გამოგვეყენებინა, წაშლის შემდეგ რედაქტირების state-ი
+        „არასწორ“ დავალებაზე გადავიდოდა — ზუსტად ის ბაგი, რაზეც სიების სექციაში ვილაპარაკეთ.
+      </p>
+
+      <h3 class="project-step">ნაბიჯი 5. სტილები (მინიმალური)</h3>
+      <pre><code>/* src/index.css */
+:root { font-family: "Noto Sans Georgian", system-ui, sans-serif; line-height: 1.5; }
+body { margin: 0; display: flex; justify-content: center; padding: 32px 16px; }
+
+.app { width: 100%; max-width: 520px; }
+.task-form { display: flex; gap: 8px; margin-bottom: 16px; }
+.task-form input { flex: 1; padding: 10px 12px; font: inherit; }
+
+.filters { display: flex; gap: 8px; margin-bottom: 12px; }
+.filters button.active { font-weight: 700; text-decoration: underline; }
+
+.task-list { list-style: none; padding: 0; margin: 0; }
+.task { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #8884; }
+.task span, .task input[type="text"] { flex: 1; }
+.task.done span { text-decoration: line-through; opacity: .6; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 16px; }
+.empty { opacity: .7; }
+.error { color: #c0392b; }</code></pre>
+
+      <h3 class="project-step">ნაბიჯი 6. გამოცდა და გაუმჯობესება</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li>დაამატე რამდენიმე დავალება, განაახლე გვერდი (F5) — მონაცემები უნდა დარჩეს. გახსენი DevTools → Application → Local Storage და ნახე <code>tasks</code> გასაღები.</li>
+        <li>გახსენი React DevTools → Components, მონიშნე <code>App</code> და ნახე, როგორ იცვლება <code>tasks</code> და <code>filter</code> state რეალურ დროში.</li>
+        <li>გამორთე ინტერნეტი (DevTools → Network → Offline) და დააჭირე „ნიმუშის ჩატვირთვა“ — უნდა გამოჩნდეს შეცდომის შეტყობინება.</li>
+        <li>გადაამოწმე ტაბის სათაური: <code>(3) To-Do</code>.</li>
+        <li>სცადე სწრაფად გადააჭერი ფილტრებს და ორმაგი დაწკაპუნება — რედაქტირება სწორ ელემენტზე უნდა მუშაობდეს.</li>
+      </ol>
+
+      <h3 class="project-step">გაფართოების იდეები (დამოუკიდებელი სამუშაო)</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>პრიორიტეტი (დაბალი/საშუალო/მაღალი) და დახარისხება პრიორიტეტით (გაიხსენე: <code>[...tasks].sort(...)</code>).</li>
+        <li>ვადა (<code>input type="date"</code>) და გადავადებული დავალებების გამოყოფა.</li>
+        <li>მუქი/ღია თემა <code>useLocalStorage("theme", "light")</code>-ით და <code>useEffect</code>-ით, რომელიც <code>document.documentElement.dataset.theme</code>-ს ცვლის.</li>
+        <li>ლოგიკის გადატანა <code>useReducer</code>-ში (შემდეგი ეტაპი) და შედარება: რომელი ვარიანტი უფრო მკაფიოა?</li>
+        <li>გამოაქვეყნე Vercel-ზე ან Netlify-ზე (იგივე ნაბიჯები, რაც პორტფოლიოს პროექტში წინა გაკვეთილზე).</li>
+      </ul>
+
+      <h3 class="project-step">რას გვასწავლის ეს პროექტი — შეჯამება</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ცნება</th><th>სად გამოვიყენეთ</th></tr></thead>
+          <tbody>
+            <tr><td>Props (მონაცემები ქვემოთ)</td><td><code>task</code>, <code>tasks</code>, <code>filter</code> → შვილ კომპონენტებში</td></tr>
+            <tr><td>ფუნქცია props-ად (ივენთები ზემოთ)</td><td><code>onAdd</code>, <code>onToggle</code>, <code>onEdit</code>, <code>onDelete</code></td></tr>
+            <tr><td><code>useState</code> + updater</td><td><code>tasks</code>, <code>filter</code>, <code>isEditing</code>, <code>draft</code>, <code>loading</code>, <code>error</code></td></tr>
+            <tr><td>State-ის უცვლელობა</td><td><code>[...prev, x]</code>, <code>map</code>, <code>filter</code></td></tr>
+            <tr><td>გამოთვლილი მნიშვნელობები</td><td><code>remaining</code>, <code>visibleTasks</code></td></tr>
+            <tr><td>State-ის ამაღლება</td><td><code>tasks</code>, <code>filter</code> — <code>App</code>-ში</td></tr>
+            <tr><td>List & Keys</td><td><code>TaskList</code>, <code>Filters</code> (<code>key={"{task.id}"}</code>)</td></tr>
+            <tr><td><code>useEffect</code> + dependency</td><td><code>document.title</code> (<code>[remaining]</code>), ფოკუსი რედაქტირებისას (<code>[isEditing]</code>), <code>localStorage</code> შენახვა</td></tr>
+            <tr><td><code>useRef</code></td><td><code>inputRef</code>, <code>editRef</code> — ფოკუსი და მონიშვნა</td></tr>
+            <tr><td>Custom hook</td><td><code>useLocalStorage</code></td></tr>
+            <tr><td>კონტროლირებადი input და ფორმა</td><td><code>TaskForm</code></td></tr>
+            <tr><td>Loading / Error / Empty მდგომარეობები</td><td><code>loadSamples</code>, <code>TaskList</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= SELF CHECK ========================= -->
+      <h2 id="selfcheck">9. თვითშემოწმება</h2>
+      <div class="qa">
+        <details>
+          <summary>1. რით განსხვავდება props state-ისგან?</summary>
+          <p>Props მშობლისგან მოდის და კომპონენტის შიგნით read-only არის; state კომპონენტის საკუთარი, ცვლადი მონაცემია, რომელსაც setter ფუნქციით ვცვლით და რომლის ცვლილება re-render-ს იწვევს.</p>
+        </details>
+        <details>
+          <summary>2. რატომ არ შეიძლება <code>tasks.push(x)</code> state-ის მასივზე?</summary>
+          <p>React მიმართვებს ადარებს. მასივის შიგნით ცვლილება მიმართვას არ ცვლის, ამიტომ React-ს ცვლილება არ შეატყობს და UI არ განახლდება. ახალი მასივი უნდა შევქმნათ: <code>setTasks(prev =&gt; [...prev, x])</code>.</p>
+        </details>
+        <details>
+          <summary>3. რატომ აძლევს <code>setCount(count+1)</code> სამჯერ მხოლოდ +1-ს და როგორ გამოვასწოროთ?</summary>
+          <p>ერთ რენდერში <code>count</code> სნეპშოტია, სამივე გამოძახება ერთსა და იმავე მნიშვნელობას ხედავს. გამოსწორება: <code>setCount(c =&gt; c + 1)</code>.</p>
+        </details>
+        <details>
+          <summary>4. რისთვის არის <code>key</code> და რატომ არ გვინდა index?</summary>
+          <p>ის React-ს ეხმარება ზუსტად ამოიცნოს ელემენტები დამატებისას, წაშლისას და გადაადგილებისას. დინამიურ სიაში index „გადაინაცვლებს“ მონაცემებისგან და state შეიძლება არასწორ ელემენტს შერჩეს.</p>
+        </details>
+        <details>
+          <summary>5. რას ნიშნავს ცარიელი dependency მასივი <code>[]</code> და რა მნიშვნელობა აქვს cleanup-ს?</summary>
+          <p><code>[]</code> — ეფექტი გაეშვება მხოლოდ mount-ზე (production-ში ერთხელ). cleanup ეშვება ეფექტის შემდეგ გაშვებამდე და unmount-ზე და აუქმებს ეფექტით დაყენებულს (ტაიმერი, listener, მოთხოვნა).</p>
+        </details>
+        <details>
+          <summary>6. რატომ ეშვება ეფექტი ორჯერ development-ში?</summary>
+          <p>StrictMode განზრახ აკეთებს mount → cleanup → mount, რომ გამოააშკარავოს ეფექტები, რომლებსაც cleanup აკლიათ. production-ში ასე არ ხდება.</p>
+        </details>
+        <details>
+          <summary>7. როდის გამოვიყენოთ <code>useRef</code>, როდის <code>useState</code>?</summary>
+          <p>useState — როცა მნიშვნელობა ეკრანზე ჩანს და მისმა ცვლილებამ UI უნდა განაახლოს; useRef — DOM ელემენტთან წვდომისთვის ან ისეთი მნიშვნელობის შესანახად (ტაიმერის ID), რომლის ცვლილება re-render-ს არ უნდა იწვევდეს.</p>
+        </details>
+        <details>
+          <summary>8. რა არის Hooks-ის ორი ძირითადი წესი?</summary>
+          <p>(1) მხოლოდ ზედა დონეზე, არა პირობაში/ციკლში/ჩადგმულ ფუნქციაში; (2) მხოლოდ React კომპონენტებიდან ან custom hook-ებიდან.</p>
+        </details>
+        <details>
+          <summary>9. რატომ არის ზედმეტი <code>useEffect</code>, რომელიც props-იდან გამოთვლილ მნიშვნელობას state-ში წერს?</summary>
+          <p>ასეთი მნიშვნელობა პირდაპირ რენდერისას უნდა გამოითვალოს. ეფექტი + ცალკე state ქმნის დამატებით რენდერს და სინქრონიზაციის ბაგების რისკს.</p>
+        </details>
+      </div>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
           <li><a href="https://react.dev/learn/passing-props-to-a-component" target="_blank" rel="noopener">React — Passing Props to a Component</a></li>
           <li><a href="https://react.dev/learn/state-a-components-memory" target="_blank" rel="noopener">React — State: A Component's Memory</a></li>
+          <li><a href="https://react.dev/learn/state-as-a-snapshot" target="_blank" rel="noopener">React — State as a Snapshot</a></li>
+          <li><a href="https://react.dev/learn/queueing-a-series-of-state-updates" target="_blank" rel="noopener">React — Queueing a Series of State Updates</a></li>
+          <li><a href="https://react.dev/learn/updating-arrays-in-state" target="_blank" rel="noopener">React — Updating Arrays in State</a></li>
+          <li><a href="https://react.dev/learn/choosing-the-state-structure" target="_blank" rel="noopener">React — Choosing the State Structure</a></li>
+          <li><a href="https://react.dev/learn/sharing-state-between-components" target="_blank" rel="noopener">React — Sharing State Between Components</a></li>
           <li><a href="https://react.dev/learn/rendering-lists" target="_blank" rel="noopener">React — Rendering Lists (Keys)</a></li>
           <li><a href="https://react.dev/reference/react/useEffect" target="_blank" rel="noopener">React — useEffect reference</a></li>
+          <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank" rel="noopener">React — You Might Not Need an Effect</a></li>
+          <li><a href="https://react.dev/learn/lifecycle-of-reactive-effects" target="_blank" rel="noopener">React — Lifecycle of Reactive Effects</a></li>
+          <li><a href="https://react.dev/learn/separating-events-from-effects" target="_blank" rel="noopener">React — Separating Events from Effects (useEffectEvent)</a></li>
           <li><a href="https://react.dev/reference/react/useRef" target="_blank" rel="noopener">React — useRef reference</a></li>
+          <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank" rel="noopener">React — Reusing Logic with Custom Hooks</a></li>
+          <li><a href="https://react.dev/reference/rules/rules-of-hooks" target="_blank" rel="noopener">React — Rules of Hooks</a></li>
         </ul>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>შექმენი <code>ProfileCard</code> კომპონენტი, რომელიც props-ით იღებს <code>name</code>-ს და <code>bio</code>-ს, და ორჯერ გამოიძახე ის <code>App.jsx</code>-ში, სხვადასხვა მონაცემით.</li>
-          <li>ააწყვე <code>Counter</code> კომპონენტი <code>useState</code>-ის გამოყენებით — ღილაკებით +1 და -1.</li>
-          <li>შექმენი მასივი 5+ ობიექტით და <code>map()</code>-ის გამოყენებით გამოსახე სია, თითოეულ ელემენტს სწორი <code>key</code>-ით.</li>
-          <li>დაწერე <code>useEffect</code>, რომელიც <code>console.log</code>-ს აკეთებს ყოველთვის, როცა კონკრეტული state ცვლადი იცვლება (dependency მასივის გამოყენებით).</li>
-          <li><em>(რთული)</em> ააწყვე მარტივი to-do აპლიკაცია React-ში: <code>useState</code> მასივისთვის, input დამატებისთვის, <code>map()</code> სიის გამოსახვისთვის (სწორი <code>key</code>-ებით) და ღილაკი წასაშლელად (<code>filter()</code>-ის გამოყენებით).</li>
+          <li>შექმენი <code>ProfileCard</code> კომპონენტი, რომელიც props-ით იღებს <code>name</code>-ს და <code>bio</code>-ს, და ორჯერ გამოიძახე ის <code>App.jsx</code>-ში, სხვადასხვა მონაცემით. დაამატე ნაგულისხმევი მნიშვნელობა <code>bio</code>-სთვის და <code>children</code>-ით ღილაკების ადგილი.</li>
+          <li>ააწყვე <code>Counter</code> კომპონენტი <code>useState</code>-ის გამოყენებით — ღილაკებით +1 და -1. დაამატე „+3“ ღილაკი, რომელიც updater ფუნქციას იყენებს, და „გადატვირთვა“.</li>
+          <li>შექმენი მასივი 5+ ობიექტით და <code>map()</code>-ის გამოყენებით გამოსახე სია, თითოეულ ელემენტს სწორი <code>key</code>-ით. დაამატე ძებნის input (კონტროლირებადი), რომელიც სიას ფილტრავს (გამოთვალე რენდერისას, ცალკე state-ის გარეშე).</li>
+          <li>დაწერე <code>useEffect</code>, რომელიც <code>console.log</code>-ს აკეთებს ყოველთვის, როცა კონკრეტული state ცვლადი იცვლება (dependency მასივის გამოყენებით). შემდეგ დაწერე <code>Clock</code> კომპონენტი cleanup-ით და გადაამოწმე (React DevTools-ში), რომ კომპონენტის მოხსნის შემდეგ ინტერვალი აღარ მუშაობს.</li>
+          <li>დაწერე <code>useRef</code>-ით ფორმა, რომელიც გვერდის გახსნისას ავტომატურად აფოკუსირებს პირველ ველს და ღილაკზე დაჭერისას — მეორეს.</li>
+          <li><strong>ძირითადი:</strong> ააწყვე გაკვეთილში აღწერილი <strong>To-Do აპლიკაცია</strong> (დამატება, მონიშვნა, წაშლა, რედაქტირება, ფილტრი, <code>localStorage</code>, მთვლელი ტაბის სათაურში). გამოაქვეყნე GitHub-ზე და Vercel/Netlify-ზე.</li>
+          <li><em>(რთული)</em> დაწერე საკუთარი custom hook <code>useFetch(url)</code>, რომელიც აბრუნებს <code>{"{ data, loading, error }"}</code>-ს, იყენებს <code>AbortController</code>-ს cleanup-ში და გადაამოწმე, რომ URL-ის სწრაფად შეცვლისას ძველი პასუხი ახალს არ გადააწერს. გამოიყენე ის ნიმუშის ჩატვირთვისთვის.</li>
+          <li><em>(ბონუსი)</em> გადაწერე <code>App</code>-ის ლოგიკა <code>useReducer</code>-ით და შეადარე.</li>
         </ol>
       </div>
 
