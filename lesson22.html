@@ -138,63 +138,11 @@ function Card({ title, price }) {
 &lt;Button&gt;შენახვა&lt;/Button&gt;
 &lt;Button variant="danger" onClick={handleDelete}&gt;წაშლა&lt;/Button&gt;</code></pre>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li><code>children</code> — ის, რაც ტეგებს შორის ჩავწერეთ; კომპონენტებს საშუალებას აძლევს „შეფუთონ" სხვა შიგთავსი (ბარათი, მოდალი, განლაგება).</li>
+        <li><code>children</code> — ის, რაც ტეგებს შორის ჩავწერეთ; კომპონენტებს საშუალებას აძლევს „შეფუთონ" სხვა შიგთავსი (ბარათი, განლაგება...).</li>
         <li><code>...rest</code> და <code>{"{...rest}"}</code> — დანარჩენი props-ის „გადაგზავნა" ჩაშენებულ ელემენტზე (<code>onClick</code>, <code>disabled</code>, <code>aria-*</code> და ა.შ.).</li>
         <li><strong>ნაგულისხმევი მნიშვნელობა</strong> — destructuring-ში (<code>variant = "primary"</code>). ეს თანამედროვე წესია; <code>defaultProps</code> ფუნქციურ კომპონენტებში React 19-ში ამოღებულია.</li>
-        <li>React 19-ში <code>ref</code> ჩვეულებრივი prop-ია ფუნქციურ კომპონენტში (<code>forwardRef</code> აღარ არის საჭირო).</li>
+        
       </ul>
-
-      <h3>Props-ის ტიპების შემოწმება</h3>
-      <p>
-        ძველი <code>PropTypes</code> შემოწმება React 19-ში აღარ მუშაობს (ბიბლიოთეკის პაკეტი ჯერ არსებობს, მაგრამ React მას
-        აღარ ამოწმებს). ტიპებისთვის დღეს ჩვეულებრივ <strong>TypeScript</strong> გამოიყენება (<code>--template react-ts</code>);
-        ჩვენს JavaScript პროექტებში მნიშვნელოვანია კარგი სახელები და კონსოლის გაფრთხილებებზე ყურადღება.
-      </p>
-
-      <h3>ფუნქციის გადაცემა: შვილიდან მშობლისკენ „კომუნიკაცია"</h3>
-      <p>
-        მონაცემი ქვემოთ მიედინება, ივენთი — ზემოთ. მშობელი გადასცემს ფუნქციას, შვილი კი მას საჭირო მომენტში იძახებს:
-      </p>
-      <pre><code>function Parent() {
-  const [message, setMessage] = useState("");
-
-  return (
-    &lt;&gt;
-      &lt;p&gt;შეტყობინება: {message}&lt;/p&gt;
-      &lt;Child onSend={(text) =&gt; setMessage(text)} /&gt;
-    &lt;/&gt;
-  );
-}
-
-function Child({ onSend }) {
-  return &lt;button onClick={() =&gt; onSend("გამარჯობა მშობელო!")}&gt;გაგზავნა&lt;/button&gt;;
-}</code></pre>
-      <p>
-        ამ პრინციპს ჰქვია <strong>state-ის ამაღლება</strong> (lifting state up): როცა ორ ან მეტ კომპონენტს ერთი და იგივე
-        მონაცემი სჭირდება, state-ს მათ უახლოეს საერთო მშობელში ვინახავთ და props-ებით ვუზიარებთ.
-      </p>
-
-      <div class="callout callout-warn">
-        <p class="callout-title">Prop drilling</p>
-        <p>
-          თუ props-ს ბევრ დონეზე გადასცემ იმ კომპონენტებს, რომლებსაც თვითონ არ სჭირდებათ, ამას ჰქვია <em>prop drilling</em>.
-          მცირე აპლიკაციებში ეს ნორმალურია. როცა გაუსაძლისი გახდება, გამოიყენება <code>useContext</code> (ან state მენეჯმენტის
-          ბიბლიოთეკა) — ეს ბოლო გაკვეთილზე გვექნება; ახლა ორი-სამი დონე საკმარისია.
-        </p>
-      </div>
-
-      <h3>Props და State — შედარება</h3>
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead><tr><th></th><th>Props</th><th>State</th></tr></thead>
-          <tbody>
-            <tr><td><strong>საიდან მოდის</strong></td><td>მშობლისგან</td><td>თვით კომპონენტში (<code>useState</code>)</td></tr>
-            <tr><td><strong>იცვლება?</strong></td><td>კომპონენტის შიგნით — არა (read-only)</td><td>დიახ, setter ფუნქციით</td></tr>
-            <tr><td><strong>ცვლილება იწვევს re-render-ს?</strong></td><td>როცა მშობელი ახალ მნიშვნელობას გადასცემს — დიახ</td><td>დიახ</td></tr>
-            <tr><td><strong>ანალოგია</strong></td><td>ფუნქციის არგუმენტები</td><td>ფუნქციის „მეხსიერება"</td></tr>
-          </tbody>
-        </table>
-      </div>
 
       <!-- ========================= 2. STATE ========================= -->
       <h2 id="state">2. State — useState Hook</h2>
@@ -228,7 +176,7 @@ function Counter() {
       <h3>State არის „სნეპშოტი" ყოველი რენდერისთვის</h3>
       <p>
         ერთ რენდერში <code>count</code>-ის მნიშვნელობა <em>უცვლელია</em> — setter-ის გამოძახება <strong>ახალ</strong>
-        რენდერს აგეგმავს და ახალ ცვლადს ქმნის. ამიტომ შემდეგი კოდი მხოლოდ +1-ს იძლევა და არა +3-ს:
+        რენდერს გეგმავს და ახალ ცვლადს ქმნის. ამიტომ შემდეგი კოდი მხოლოდ +1-ს იძლევა და არა +3-ს:
       </p>
       <pre><code>function handleClick() {
   setCount(count + 1); // count = 0 → დაგეგმილია 1
@@ -249,9 +197,9 @@ function handleClick() {
         ხატავს.
       </p>
 
-      <h3>ობიექტები და მასივები — არასდროს „მუტაცია"</h3>
+      <h3>ობიექტები და მასივები </h3>
       <p>
-        React ადარებს <em>მიმართვას</em> (reference), არა შიგთავსს. ამიტომ ობიექტი ან მასივი state-ში
+        React ადარებს <em>მიმართვას</em> (reference) და არა შიგთავსს. ამიტომ ობიექტი ან მასივი state-ში
         <strong>არ უნდა შეიცვალოს</strong> (push, splice, <code>obj.x = 1</code>) — ყოველთვის ახალი ასლი შექმენი:
       </p>
       <div class="table-wrap">
@@ -267,36 +215,6 @@ function handleClick() {
         </table>
       </div>
 
-      <h3>კონტროლირებადი input (controlled component)</h3>
-      <p>
-        ფორმის ველი „კონტროლირებადია", როცა მისი მნიშვნელობა state-ში ინახება და ყოველი ცვლილება state-ს ანახლებს —
-        React ხდება „ჭეშმარიტების ერთადერთი წყარო":
-      </p>
-      <pre><code>function NameForm() {
-  const [name, setName] = useState("");
-
-  function handleSubmit(e) {
-    e.preventDefault();               // გვერდის გადატვირთვის შეჩერება
-    alert("გამარჯობა, " + name);
-    setName("");                      // ველის გასუფთავება
-  }
-
-  return (
-    &lt;form onSubmit={handleSubmit}&gt;
-      &lt;input value={name} onChange={(e) =&gt; setName(e.target.value)} /&gt;
-      &lt;button type="submit" disabled={name.trim() === ""}&gt;გაგზავნა&lt;/button&gt;
-    &lt;/form&gt;
-  );
-}</code></pre>
-
-      <h3>ზოგადი რჩევები state-ზე</h3>
-      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li><strong>ნუ შეინახავ იმას, რაც გამოითვლება.</strong> თუ შეგიძლია <code>tasks</code>-იდან გამოთვალო <code>doneCount</code>, ცალკე state არ გჭირდება — უბრალოდ გამოთვალე რენდერისას (<code>const doneCount = tasks.filter(t =&gt; t.done).length</code>). ორი state-ის სინქრონიზაცია ბაგების ნაყოფიერი წყაროა.</li>
-        <li><strong>State-ს იკავებს მინიმუმი.</strong> იფიქრე: რა არის ის უმცირესი მონაცემი, რომლიდანაც მთელი UI აიგება.</li>
-        <li><strong>თითოეულ კომპონენტის ეგზემპლარს საკუთარი state აქვს.</strong> ორი <code>&lt;Counter /&gt;</code> ერთმანეთისგან დამოუკიდებელია.</li>
-        <li><strong>ლენივი (lazy) საწყისი მნიშვნელობა:</strong> თუ საწყისი მნიშვნელობის გამოთვლა „ძვირია", გადაეცი ფუნქცია: <code>useState(() =&gt; readFromStorage())</code> — ის მხოლოდ პირველ რენდერზე გაეშვება.</li>
-        <li><strong>state-ის გადატვირთვა <code>key</code>-ით:</strong> <code>&lt;Profile key={userId} /&gt;</code> — როცა <code>key</code> იცვლება, React კომპონენტს თავიდან ქმნის და მისი state ნულდება.</li>
-      </ul>
 
       <!-- ========================= 3. LISTS ========================= -->
       <h2 id="lists">3. List & Keys</h2>
@@ -331,7 +249,6 @@ function ProductList() {
         <li><code>key</code> იწერება <strong>.map()-დან დაბრუნებულ გარე ელემენტზე</strong>, არა მის შიგნით.</li>
         <li><code>key</code> კომპონენტს <code>props</code>-ად არ ეგზავნება; თუ შვილს ID სჭირდება, ცალკე გადაეცი (<code>id={"{item.id}"}</code>).</li>
         <li>ID-ის გენერირება სჯობს მონაცემის შექმნისას (<code>crypto.randomUUID()</code>, ან ბაზის ID), არა რენდერისას.</li>
-        <li>როცა ერთ იტერაციაზე რამდენიმე ელემენტია, გამოიყენე <code>&lt;Fragment key={"{id}"}&gt;...&lt;/Fragment&gt;</code> (მოკლე <code>&lt;&gt;</code> key-ს ვერ იღებს).</li>
       </ul>
 
       <h3>რატომ არ გამოდგება index (ინდექსი) key-ად?</h3>
@@ -427,98 +344,6 @@ function WindowWidth() {
         „მოხსნა" cleanup-ში.
       </p>
 
-      <h3>რატომ ეშვება ეფექტი ორჯერ development-ში?</h3>
-      <p>
-        თუ პროექტში <code>&lt;StrictMode&gt;</code> ჩართულია (Vite-ის შაბლონში ჩართულია), development-ში React
-        კომპონენტს „დაამონტაჟებს → გაასუფთავებს → ხელახლა დაამონტაჟებს". ეს განზრახ ხდება, რომ აღმოჩნდეს ეფექტები,
-        რომლებსაც cleanup აკლიათ. <strong>production-ში ეფექტი ერთხელ სრულდება.</strong> ნუ ებრძვი ამას რეფით ან
-        „flag-ით" — სწორი გამოსავალი არის კარგი cleanup, რომ „setup → cleanup → setup" ისე იმუშაოს, როგორც ერთი setup.
-      </p>
-
-      <h3>მონაცემების წამოღება: race condition და cleanup</h3>
-      <p>
-        როცა <code>userId</code> სწრაფად იცვლება, ორი მოთხოვნა „ეჯიბრება" ერთმანეთს და ნელი, ძველი პასუხი შეიძლება ახალს გადააწეროს.
-        გამოსავალი — ძველი პასუხის იგნორირება cleanup-ში (ოფიციალური მიდგომა) ან მოთხოვნის გაუქმება
-        <code>AbortController</code>-ით:
-      </p>
-      <pre><code>function UserProfile({ userId }) {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() =&gt; {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    fetch(`https://jsonplaceholder.typicode.com/users/${userId}`, { signal: controller.signal })
-      .then((res) =&gt; {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      })
-      .then((data) =&gt; setUser(data))
-      .catch((err) =&gt; {
-        if (err.name !== "AbortError") setError(err.message); // გაუქმება შეცდომად არ ითვლება
-      })
-      .finally(() =&gt; {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
-    return () =&gt; controller.abort(); // cleanup: ძველი მოთხოვნის გაუქმება
-  }, [userId]);
-
-  if (loading) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
-  if (error) return &lt;p&gt;შეცდომა: {error}&lt;/p&gt;;
-  return &lt;h2&gt;{user.name}&lt;/h2&gt;;
-}</code></pre>
-      <p>
-        ალტერნატიული, უფრო მარტივი ვარიანტი: <code>let ignore = false;</code> ეფექტში, <code>ignore = true</code> cleanup-ში და
-        <code>if (!ignore) setUser(...)</code> პასუხის მიღებისას. რეალურ პროექტებში მონაცემების წამოღებას ხშირად
-        ბიბლიოთეკები (TanStack Query, SWR) ან ფრეიმვორქები ერთვებიან — ისინი იზოლირებულად ხსნიან ქეშირების, განმეორების და race
-        condition-ის პრობლემებს; ახლა კი ვსწავლობთ საფუძველს.
-      </p>
-      <div class="callout callout-warn">
-        <p class="callout-title"><code>async</code> ფუნქცია პირდაპირ ეფექტად არ გადაეცემა</p>
-        <p>
-          <code>useEffect(async () =&gt; {...})</code> არასწორია: async ფუნქცია Promise-ს აბრუნებს, React კი მოელის ან არაფერს,
-          ან cleanup ფუნქციას. დააწერე async ფუნქცია ეფექტის <em>შიგნით</em> და გამოიძახე იქვე:
-          <code>useEffect(() =&gt; { async function load() {...} load(); }, [])</code>.
-        </p>
-      </div>
-
-      <h3>dependency მასივი: წესები</h3>
-      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
-        <li>ჩამოთვალე <strong>ყველა</strong> რეაქტიული მნიშვნელობა, რომელსაც ეფექტი კითხულობს (props, state, მათგან გამოთვლილი ცვლადები). React-ის ESLint პლაგინი (<code>eslint-plugin-react-hooks</code>, შაბლონში უკვე ჩართულია) ამას გაჩვენებს.</li>
-        <li>ნუ „დაჩუმებ" ლინტერს, თუ მასივს არასწორად ამოკლებ — ეფექტი „ძველ" მნიშვნელობებს დაინახავს (stale closure).</li>
-        <li><strong>ობიექტი ან ფუნქცია, რომელიც რენდერში იქმნება</strong>, ყოველ ჯერზე ახალი მიმართვაა → ეფექტი ყოველ რენდერზე გაეშვება. გადაიტანე ეფექტის შიგნით ან დაამუშავე პრიმიტიულ მნიშვნელობამდე (<code>user.id</code> და არა <code>user</code>).</li>
-        <li><strong>უსასრულო ციკლი:</strong> ეფექტი ანახლებს state-ს, რომელიც თავად არის dependency → ახალი რენდერი → ისევ ეფექტი... შეამოწმე, უნდა ანახლებდეს თუ არა ეფექტი ამ state-ს საერთოდ.</li>
-      </ul>
-
-      <h3>useEffectEvent (React 19.2+)</h3>
-      <p>
-        ხანდახან ეფექტს ესაჭიროება მიმდინარე მნიშვნელობის „წაკითხვა", მაგრამ ამ მნიშვნელობის ცვლილებამ ეფექტი თავიდან
-        არ უნდა გაუშვას (მაგ. ჩატის ოთახთან კავშირი უნდა გაიხსნას მხოლოდ <code>roomId</code>-ის ცვლილებისას, მაგრამ შეტყობინებაში
-        მიმდინარე <code>theme</code>-ი უნდა გამოვიყენოთ). ამისთვის React 19.2-ში stable გახდა <code>useEffectEvent</code>:
-      </p>
-      <pre><code>import { useEffect, useEffectEvent } from "react";
-
-function ChatRoom({ roomId, theme }) {
-  const onConnected = useEffectEvent(() =&gt; {
-    showNotification("დაკავშირებულია!", theme); // ყოველთვის მიმდინარე theme-ს ხედავს
-  });
-
-  useEffect(() =&gt; {
-    const connection = createConnection(roomId);
-    connection.on("connected", () =&gt; onConnected());
-    connection.connect();
-    return () =&gt; connection.disconnect();
-  }, [roomId]); // theme dependency არ არის
-}</code></pre>
-      <p>
-        ეს გაკვეთილისთვის „ბონუს-ცნებაა" — მთავარია გესმოდეს, რომ ასეთი ხელსაწყო არსებობს. ესენი <code>createConnection</code> და
-        <code>showNotification</code> პირობითი ფუნქციებია მაგალითისთვის.
-      </p>
-
       <h3>გახსოვდეს: „You Might Not Need an Effect"</h3>
       <p>
         ეფექტი ხშირად ზედმეტია. React-ის დოკუმენტაცია აკონკრეტებს, რომ ეფექტი არ გჭირდება, როცა:
@@ -531,23 +356,6 @@ function ChatRoom({ roomId, theme }) {
       <p>
         კარგი წესი: <strong>თუ რაღაც გამოწვეულია <em>ქმედებით</em> — event handler; თუ იმით, რომ კომპონენტი <em>ეკრანზეა</em>
         და გარე სისტემასთან უნდა იყოს სინქრონში — <code>useEffect</code>.</strong>
-      </p>
-
-      <h3>Class lifecycle ↔ useEffect — ცხრილი</h3>
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead><tr><th>Class (ძველი)</th><th>Hooks (დღევანდელი)</th></tr></thead>
-          <tbody>
-            <tr><td><code>componentDidMount</code></td><td><code>useEffect(() =&gt; {...}, [])</code></td></tr>
-            <tr><td><code>componentDidUpdate</code></td><td><code>useEffect(() =&gt; {...}, [dep])</code></td></tr>
-            <tr><td><code>componentWillUnmount</code></td><td>ეფექტის cleanup: <code>return () =&gt; {...}</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>
-        ეს შესაბამისობა მიახლოებითია: Hooks-ში ფიქრობენ არა „როდის", არამედ „რასთან სინქრონიზაცია": ეფექტი აღწერს,
-        როგორ <em>დაიწყოს</em> და როგორ <em>შეწყვიტოს</em> სინქრონიზაცია, ხოლო React გადაწყვეტს, როდის გაუშვას. ასევე
-        არსებობს <code>useLayoutEffect</code> — ის ეკრანის დახატვამდე სრულდება და DOM-ის გაზომვისთვის გამოიყენება; იშვიათია.
       </p>
 
       <!-- ========================= 5. REF ========================= -->
