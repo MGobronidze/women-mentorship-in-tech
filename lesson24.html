@@ -4,11 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>გაკვეთილი 24 — React Forms, ავტორიზაცია, E-commerce საბოლოო პროექტი</title>
-  <meta name="description" content="React ფორმები და ვალიდაცია, საბაზისო ავტორიზაციის ლოგიკა, E-commerce აპლიკაცია React-ზე და კურსის შემაჯამებელი საუკეთესო პრაქტიკები." />
+  <meta name="description" content="React ფორმები და ვალიდაცია (controlled, React 19 Actions, React Hook Form + Zod), ავტორიზაციის ლოგიკა, Context API, E-commerce აპლიკაცია React-ზე და კურსის შემაჯამებელი საუკეთესო პრაქტიკები." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* დამატებითი სტილები ამ გაკვეთილისთვის (იყენებს style.css-ის ცვლადებს, სათადარიგო მნიშვნელობებით) */
+    .toc { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+    .toc h3 { margin-top: 0; }
+    .toc ol { padding-left: 20px; margin: 0; }
+    .toc li { margin: 4px 0; }
+    .callout { border-left: 4px solid var(--mod-react, #0ea5e9); background: color-mix(in srgb, var(--mod-react, #0ea5e9) 12%, transparent); padding: 14px 18px; border-radius: 10px; margin: 20px 0; }
+    .callout > :first-child { margin-top: 0; }
+    .callout > :last-child { margin-bottom: 0; }
+    .callout-warn { border-left-color: #e08a00; background: color-mix(in srgb, #e08a00 13%, transparent); }
+    .callout-title { font-weight: 800; margin: 0 0 6px; }
+    .table-wrap { overflow-x: auto; margin: 18px 0; }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .tbl th, .tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); vertical-align: top; }
+    .tbl th { font-weight: 800; }
+    .project-step { margin: 32px 0 8px; padding-top: 6px; }
+    .qa details { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 10px; padding: 10px 16px; margin: 10px 0; }
+    .qa summary { cursor: pointer; font-weight: 700; }
+    .meta-line { font-size: 14px; color: var(--ink-soft); }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li { margin: 6px 0; padding-left: 4px; }
+    h2[id], h3[id] { scroll-margin-top: 90px; }
+  </style>
 </head>
 <body>
 
@@ -43,6 +66,9 @@
         კურსის ბოლო გაკვეთილი აერთიანებს ყველაფერს — HTML-იდან React-მდე — ერთ პრაქტიკულ,
         რეალისტურ პროექტში: მარტივ E-commerce აპლიკაციაში.
       </p>
+      <p class="meta-line">
+        მასალა განახლებულია 2026 წლის ნოემბრისთვის: React 19.3, React Router v8, Material UI v9, Zod 4, React Hook Form 7.
+      </p>
       <div class="lesson-progress" data-lesson="24">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
       </div>
@@ -50,65 +76,281 @@
 
     <article class="lesson-article">
 
-      <h2>1. React Form და ვალიდაცია</h2>
+      <nav class="toc" aria-label="გაკვეთილის სარჩევი">
+        <h3>გაკვეთილის გეგმა</h3>
+        <ol>
+          <li><a href="#forms">React Form და ვალიდაცია</a></li>
+          <li><a href="#auth">ავტორიზაციის ლოგიკა</a></li>
+          <li><a href="#context">Context API და მდგომარეობის გაზიარება</a></li>
+          <li><a href="#architecture">E-commerce აპლიკაციის არქიტექტურა</a></li>
+          <li><a href="#mini">კომპონენტების, როუტინგისა და Material UI შერწყმა (მინი მაგალითი)</a></li>
+          <li><a href="#project">საბოლოო პროექტი: ShopHub</a></li>
+          <li><a href="#practices">კურსის შემაჯამებელი — საუკეთესო პრაქტიკები</a></li>
+          <li><a href="#next">რა არის შემდეგი ნაბიჯი</a></li>
+          <li><a href="#selfcheck">თვითშემოწმება</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========================= 1. FORMS ========================= -->
+      <h2 id="forms">1. React Form და ვალიდაცია</h2>
       <p>
         React-ში ფორმის ველები ჩვეულებრივ არის <strong>controlled</strong> — მათი მნიშვნელობა
         ინახება state-ში, არა თავად DOM-ში (განსხვავებით ჩვეულებრივი HTML ფორმებისგან):
       </p>
-      <pre><code><span class="attr">function</span> ContactForm() {
-  <span class="attr">const</span> [email, setEmail] = useState("");
-  <span class="attr">const</span> [error, setError] = useState("");
+      <pre><code>function ContactForm() {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
-  <span class="attr">function</span> handleSubmit(event) {
-    event.preventDefault(); <span class="cmt">// ისევე, როგორც vanilla JS-ში (მე-16 გაკვეთილი)</span>
+  function handleSubmit(event) {
+    event.preventDefault(); // ისევე, როგორც vanilla JS-ში (მე-16 გაკვეთილი)
 
-    <span class="attr">if</span> (!email.includes("@")) {
+    if (!email.includes("@")) {
       setError("გთხოვთ, მიუთითოთ ვალიდური ელფოსტა");
-      <span class="attr">return</span>;
+      return;
     }
     setError("");
     console.log("იგზავნება:", email);
   }
 
-  <span class="attr">return</span> (
-    &lt;<span class="tag">form</span> <span class="attr">onSubmit</span>={handleSubmit}&gt;
-      &lt;<span class="tag">input</span>
-        <span class="attr">type</span>=<span class="str">"email"</span>
-        <span class="attr">value</span>={email}
-        <span class="attr">onChange</span>={(e) => setEmail(e.target.value)}
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="email"
+        value={email}
+        onChange={(e) =&gt; setEmail(e.target.value)}
       /&gt;
-      {error && &lt;<span class="tag">p</span> <span class="attr">className</span>=<span class="str">"error"</span>&gt;{error}&lt;/<span class="tag">p</span>&gt;}
-      &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;გაგზავნა&lt;/<span class="tag">button</span>&gt;
-    &lt;/<span class="tag">form</span>&gt;
+      {error &amp;&amp; &lt;p className="error"&gt;{error}&lt;/p&gt;}
+      &lt;button type="submit"&gt;გაგზავნა&lt;/button&gt;
+    &lt;/form&gt;
   );
 }</code></pre>
       <p>
-        <code>value={email}</code> + <code>onChange</code> წყვილი — ეს არის „controlled input"-ის
+        <code>value={"{email}"}</code> + <code>onChange</code> წყვილი — ეს არის „controlled input"-ის
         ფორმულა: React state ყოველთვის „წყაროა ჭეშმარიტებისა" (source of truth) input-ის
         მიმდინარე მნიშვნელობისთვის.
       </p>
 
-      <h2>2. საბაზისო ავტორიზაციის ლოგიკა</h2>
+      <h3>რამდენიმე ველი ერთი handler-ით</h3>
+      <p>
+        როცა ფორმას 5–10 ველი აქვს, თითოეულისთვის ცალკე <code>useState</code> და ცალკე handler მოუხერხებელია. გავრცელებული ხერხია
+        ერთი state ობიექტი და ერთი <code>onChange</code>, რომელიც ველის <code>name</code> ატრიბუტს იყენებს:
+      </p>
+      <pre><code>const [values, setValues] = useState({ fullName: "", email: "", city: "Tbilisi", subscribe: false });
+
+function handleChange(e) {
+  const { name, type, value, checked } = e.target;
+  setValues((prev) =&gt; ({
+    ...prev,                                   // spread — უცვლელი (immutable) განახლება, მე-14 გაკვეთილიდან
+    [name]: type === "checkbox" ? checked : value,   // [name] — computed property
+  }));
+}
+
+&lt;input name="fullName" value={values.fullName} onChange={handleChange} /&gt;
+&lt;input name="email" type="email" value={values.email} onChange={handleChange} /&gt;
+&lt;select name="city" value={values.city} onChange={handleChange}&gt;
+  &lt;option value="Tbilisi"&gt;თბილისი&lt;/option&gt;
+  &lt;option value="Batumi"&gt;ბათუმი&lt;/option&gt;
+&lt;/select&gt;
+&lt;label&gt;
+  &lt;input name="subscribe" type="checkbox" checked={values.subscribe} onChange={handleChange} /&gt;
+  გამოწერა
+&lt;/label&gt;</code></pre>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>text, email, number, textarea, select</strong> — <code>value</code> + <code>onChange</code> (React-ში <code>&lt;textarea value=...&gt;</code> და <code>&lt;select value=...&gt;</code> იგივე ლოგიკით მუშაობს).</li>
+        <li><strong>checkbox</strong> — <code>checked</code> + <code>onChange</code> (იკითხება <code>e.target.checked</code>).</li>
+        <li><strong>radio</strong> — თითოეულს <code>checked={"{value === \"x\"}"}</code> და ერთი და იგივე <code>name</code>.</li>
+        <li><code>type="number"</code> ინპუტიც სტრიქონს გვიბრუნებს (<code>e.target.value</code>) — საჭიროა <code>Number(...)</code>.</li>
+        <li>ფორმის გაგზავნის ღილაკს ყოველთვის დაუწერე <code>type="submit"</code>, სხვა ღილაკებს — <code>type="button"</code> (თორემ ნებისმიერი ღილაკი ფორმას გააგზავნის).</li>
+      </ul>
+
+      <h3>ვალიდაცია: ფუნქცია, ერთი შეცდომების ობიექტი</h3>
+      <p>
+        კარგი პრაქტიკაა ვალიდაცია ცალკე წმინდა ფუნქციად გაიტანო — ის მიიღებს მნიშვნელობებს და დააბრუნებს შეცდომების ობიექტს:
+      </p>
+      <pre><code>function validate(values) {
+  const errors = {};
+  if (values.fullName.trim().length &lt; 3) errors.fullName = "სახელი და გვარი სავალდებულოა (მინ. 3 სიმბოლო)";
+  if (!/^\S+@\S+\.\S+$/.test(values.email)) errors.email = "ელფოსტის ფორმატი არასწორია";
+  if (!/^\+?\d{9,15}$/.test(values.phone)) errors.phone = "ტელეფონი: მხოლოდ ციფრები (9–15), სურვილისამებრ + დასაწყისში";
+  return errors;           // ცარიელი ობიექტი = ყველაფერი რიგზეა
+}
+
+function CheckoutForm() {
+  const [values, setValues] = useState({ fullName: "", email: "", phone: "" });
+  const [touched, setTouched] = useState({});      // რომელი ველია უკვე „შეხებული“
+  const [submitted, setSubmitted] = useState(false);
+
+  const errors = validate(values);                // გამოითვლება რენდერისას — ცალკე state არ სჭირდება!
+  const isValid = Object.keys(errors).length === 0;
+
+  const showError = (name) =&gt; (touched[name] || submitted) &amp;&amp; errors[name];
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setSubmitted(true);
+    if (!isValid) return;
+    // ...გაგზავნა
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} noValidate&gt;
+      &lt;label htmlFor="fullName"&gt;სახელი და გვარი&lt;/label&gt;
+      &lt;input
+        id="fullName"
+        name="fullName"
+        value={values.fullName}
+        onChange={handleChange}
+        onBlur={(e) =&gt; setTouched((t) =&gt; ({ ...t, [e.target.name]: true }))}
+        aria-invalid={Boolean(showError("fullName"))}
+        aria-describedby={showError("fullName") ? "fullName-error" : undefined}
+      /&gt;
+      {showError("fullName") &amp;&amp; &lt;p id="fullName-error" role="alert"&gt;{errors.fullName}&lt;/p&gt;}
+      {/* ... დანარჩენი ველები ანალოგიურად ... */}
+      &lt;button type="submit"&gt;გაგზავნა&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+      <h3>ვალიდაციის UX წესები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>როდის ვაჩვენოთ შეცდომა?</strong> არა პირველივე სიმბოლოზე (მომხმარებელი ჯერ წერს, შეცდომას უკვე „უყვირი“), არამედ <em>ველის დატოვების</em> (<code>onBlur</code>, „touched“) ან <em>გაგზავნის</em> შემდეგ. გასწორების შემდეგ კი შეცდომა დაუყოვნებლივ უნდა გაქრეს.</li>
+        <li><strong>შეცდომის ტექსტი კონკრეტული და გამოსასწორებელია:</strong> არა „არასწორი მნიშვნელობა“, არამედ „ტელეფონი უნდა შეიცავდეს 9–15 ციფრს“.</li>
+        <li><strong>ხელმისაწვდომობა:</strong> ყოველ ველს ჰქონდეს <code>&lt;label htmlFor&gt;</code> (არა მხოლოდ placeholder), შეცდომა <code>aria-describedby</code>-ით დაუკავშირდეს ველს, <code>aria-invalid</code> და შეცდომის ტექსტზე <code>role="alert"</code>.</li>
+        <li><strong>გაგზავნის დროს</strong> ღილაკი გამორთე და აჩვენე მდგომარეობა („იგზავნება...“), რომ ორმაგი დაწკაპუნებით ორჯერ არ გაიგზავნოს.</li>
+        <li><strong>ჯერ HTML-ის ჩაშენებული ატრიბუტები:</strong> <code>required</code>, <code>type="email"</code>, <code>minLength</code>, <code>pattern</code>, <code>autoComplete</code> (მაგ. <code>autoComplete="email"</code>, <code>"new-password"</code>) — ბრაუზერისა და პაროლ-მენეჯერებისთვის დიდი დახმარებაა. <code>noValidate</code>-ს მხოლოდ მაშინ დაუმატებ ფორმას, როცა საკუთარი შეტყობინებების ჩვენება გინდა.</li>
+        <li><strong>კლიენტის ვალიდაცია მხოლოდ მოხერხებულობაა, არა უსაფრთხოება.</strong> ბრაუზერში ყველაფერი შეიძლება გვერდი აუარო; სერვერმა ყველა მონაცემი თავისით უნდა გადაამოწმოს. სერვერის შეცდომები ფორმაში აჩვენე (მაგ. „ეს ელფოსტა უკვე გამოყენებულია“).</li>
+      </ul>
+
+      <h3>React 19: ფორმის Actions — <code>useActionState</code> და <code>useFormStatus</code></h3>
+      <p>
+        React 19-მა ფორმებს ახალი, უფრო დეკლარაციული მიდგომა შესძინა: <code>&lt;form&gt;</code>-ის <code>action</code> prop-ში შეიძლება
+        <strong>ფუნქცია</strong> გადავცეთ. React ამ ფუნქციას ფორმის გაგზავნისას გამოიძახებს, გადასცემს <code>FormData</code>-ს, თვითონ აკონტროლებს
+        „მიმდინარეობს“ მდგომარეობას და ფორმის (არაკონტროლირებად) ველებს წარმატებული დასრულების შემდეგ ავტომატურად ასუფთავებს.
+      </p>
+      <pre><code>import { useActionState } from "react";          // React 19: react-დან (ადრე useFormState იყო react-dom-ში)
+import { useFormStatus } from "react-dom";
+
+function SubmitButton({ children }) {
+  const { pending } = useFormStatus();            // მუშაობს მხოლოდ &lt;form&gt;-ის შვილ კომპონენტში!
+  return &lt;button type="submit" disabled={pending}&gt;{pending ? "იგზავნება..." : children}&lt;/button&gt;;
+}
+
+function NewsletterForm() {
+  const [state, formAction, isPending] = useActionState(
+    async (previousState, formData) =&gt; {          // (წინა state, FormData) =&gt; ახალი state
+      const email = String(formData.get("email") ?? "").trim();
+
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        return { ok: false, message: "ელფოსტა არასწორია", email };
+      }
+      await new Promise((r) =&gt; setTimeout(r, 800));   // აქ იქნებოდა API მოთხოვნა
+      return { ok: true, message: `გამოწერილია: ${email}`, email: "" };
+    },
+    { ok: false, message: "", email: "" }          // საწყისი state
+  );
+
+  return (
+    &lt;form action={formAction}&gt;
+      &lt;input name="email" type="email" defaultValue={state.email} aria-label="ელფოსტა" /&gt;
+      &lt;SubmitButton&gt;გამოწერა&lt;/SubmitButton&gt;
+      {state.message &amp;&amp; &lt;p role="status"&gt;{state.message}&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}</code></pre>
+      <div class="callout callout-warn">
+        <p class="callout-title">Actions — ნიუანსები, რომლებიც ხშირად ავიწყდებათ</p>
+        <ul style="padding-left: 20px; list-style: disc; margin: 8px 0 0;">
+          <li><code>useFormStatus()</code> უნდა გამოიძახო <em>ფორმის შიგნით მდებარე</em> კომპონენტში (ცალკე <code>SubmitButton</code>). თუ იმავე კომპონენტში გამოიძახებ, სადაც <code>&lt;form&gt;</code> იხატება, <code>pending</code> ყოველთვის <code>false</code> იქნება.</li>
+          <li>წარმატებული action-ის შემდეგ React <strong>არაკონტროლირებად</strong> ველებს (<code>defaultValue</code>) ავტომატურად ასუფთავებს, ისევე, როგორც ჩვეულებრივი HTML ფორმა. იმ ველის მნიშვნელობის შესანარჩუნებლად, სადაც შეცდომა მოხდა, state-იდან დააბრუნე და <code>defaultValue={"{state.email}"}</code>-ით ჩასვი (როგორც ზემოთ).</li>
+          <li>controlled ველებს (<code>value</code> + <code>onChange</code>) action ავტომატურად არ ასუფთავებს — შენ თვითონ უნდა გაასუფთავო state (ან გამოიყენე <code>requestFormReset</code> from <code>react-dom</code>).</li>
+          <li><code>useOptimistic</code> — კიდევ ერთი React 19 Hook, რომელიც სერვერის პასუხამდე შედეგის „ოპტიმისტურ“ ჩვენებას იძლევა (მაგ. კომენტარი მაშინვე ჩანს). ეს მოწინავე თემაა, ამ კურსში აღარ შევალთ.</li>
+        </ul>
+      </div>
+
+      <h3>React Hook Form + Zod — რთული ფორმებისთვის</h3>
+      <p>
+        როცა ფორმაში ბევრი ველი, პირობითი ლოგიკა და განმეორებადი წესებია, ხშირად იყენებენ ბიბლიოთეკებს. ყველაზე გავრცელებული კომბინაცია
+        2026-ში: <strong>React Hook Form</strong> (ველების მართვა — ის ძირითადად არაკონტროლირებად ინპუტებს იყენებს, ამიტომ ნაკლები
+        re-render-ია) + <strong>Zod</strong> (ვალიდაციის „სქემა“, რომელიც ერთხელ ეწერება და ბევრგან მეორდება) + <code>@hookform/resolvers</code>
+        (მათი დამაკავშირებელი). მცირე და მარტივი ფორმებისთვის კი React 19-ის ჩაშენებული Actions ხშირად საკმარისია.
+      </p>
+      <pre><code>npm install react-hook-form zod @hookform/resolvers</code></pre>
+      <pre><code>import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+// 1) სქემა: წესები და შეცდომის ტექსტები ერთ ადგილას (Zod 4)
+const schema = z.object({
+  email: z.email("ელფოსტა არასწორია"),
+  password: z.string().min(8, "პაროლი მინიმუმ 8 სიმბოლოა"),
+});
+
+function SignUpForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "", password: "" },
+    mode: "onTouched",                        // შეცდომა — ველის დატოვების შემდეგ
+  });
+
+  async function onSubmit(values) {           // გამოიძახება მხოლოდ ვალიდური მონაცემებით
+    await api.post("/signup", values);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} noValidate&gt;
+      &lt;input type="email" autoComplete="email" {...register("email")} /&gt;
+      {errors.email &amp;&amp; &lt;p role="alert"&gt;{errors.email.message}&lt;/p&gt;}
+
+      &lt;input type="password" autoComplete="new-password" {...register("password")} /&gt;
+      {errors.password &amp;&amp; &lt;p role="alert"&gt;{errors.password.message}&lt;/p&gt;}
+
+      &lt;button disabled={isSubmitting}&gt;რეგისტრაცია&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+      <p>
+        <strong>ვერსიების შენიშვნა:</strong> Zod 4-ში (2025 წლის ივლისიდან) შეცდომის შეტყობინებებს ერთიანი <code>error</code> პარამეტრი განსაზღვრავს;
+        Zod 3-ის <code>required_error</code> და <code>invalid_type_error</code> ახალ ვერსიაში უბრალოდ აღარ მუშაობს (ჩუმად იგნორირდება). Zod 4-ში გამოიყენება
+        მოკლე <code>z.email()</code> (ძველი <code>z.string().email()</code> ჯერ მუშაობს, მაგრამ მოძველებულია). თუ ძველი ტუტორიალის კოდი ისე არ მუშაობს, როგორც
+        უნდა, ყველაზე ხშირი მიზეზი ეს არის.
+      </p>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ვარიანტი</th><th>როდის</th></tr></thead>
+          <tbody>
+            <tr><td>Controlled + ხელით ვალიდაცია</td><td>სასწავლად, 1–5 ველი, სრული კონტროლი</td></tr>
+            <tr><td>React 19 Actions (<code>useActionState</code>)</td><td>მარტივი ფორმა, სერვერზე გაგზავნა, pending/შეცდომის მდგომარეობა „უფასოდ“</td></tr>
+            <tr><td>React Hook Form (+ Zod)</td><td>დიდი ან რთული ფორმა, ბევრი წესი, საუკეთესო წარმადობა და ტიპიზაცია</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 2. AUTH ========================= -->
+      <h2 id="auth">2. საბაზისო ავტორიზაციის ლოგიკა</h2>
       <p>
         რეალურ პროექტში ავტორიზაცია მოიცავს სერვერს, ტოკენებს და უსაფრთხოების ბევრ დეტალს — მაგრამ
         საბაზისო, front-end მხარეს, პატერნი ასე გამოიყურება (მე-20 გაკვეთილის storage-ცოდნაზე
         დაფუძნებული):
       </p>
-      <pre><code><span class="attr">function</span> LoginForm({ onLogin }) {
-  <span class="attr">const</span> [username, setUsername] = useState("");
+      <pre><code>function LoginForm({ onLogin }) {
+  const [username, setUsername] = useState("");
 
-  <span class="attr">function</span> handleSubmit(event) {
+  function handleSubmit(event) {
     event.preventDefault();
-    <span class="cmt">// რეალურ აპლიკაციაში აქ იქნებოდა API მოთხოვნა (axios.post("/login", ...))</span>
+    // რეალურ აპლიკაციაში აქ იქნებოდა API მოთხოვნა (axios.post("/login", ...))
     sessionStorage.setItem("user", JSON.stringify({ username }));
-    onLogin(username); <span class="cmt">// მშობელი კომპონენტისთვის ცნობა, რომ ავტორიზაცია მოხდა</span>
+    onLogin(username); // მშობელი კომპონენტისთვის ცნობა, რომ ავტორიზაცია მოხდა
   }
 
-  <span class="attr">return</span> (
-    &lt;<span class="tag">form</span> <span class="attr">onSubmit</span>={handleSubmit}&gt;
-      &lt;<span class="tag">input</span> <span class="attr">value</span>={username} <span class="attr">onChange</span>={(e) => setUsername(e.target.value)} /&gt;
-      &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;შესვლა&lt;/<span class="tag">button</span>&gt;
-    &lt;/<span class="tag">form</span>&gt;
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={username} onChange={(e) =&gt; setUsername(e.target.value)} /&gt;
+      &lt;button type="submit"&gt;შესვლა&lt;/button&gt;
+    &lt;/form&gt;
   );
 }</code></pre>
       <p>
@@ -116,19 +358,224 @@
         შემთხვევაში ავტომატურად გადამისამართებენ login გვერდზე — ეს ლოგიკა ჩვეულებრივ იტანება
         ერთ, ხელახლა გამოსაყენებელ კომპონენტში.
       </p>
+      <div class="callout callout-warn">
+        <p class="callout-title">ზემოთ მოცემული მაგალითი მხოლოდ „სათამაშოა“</p>
+        <p>
+          ის არ ამოწმებს პაროლს და მხოლოდ UI-ს გადართავს. ქვემოთ დეტალურად ვნახავთ, როგორ გამოიყურება ეს „სერვერთან ერთად“ და რატომ
+          უნდა იყოს ფრთხილად ის, თუ <em>სად</em> ვინახავთ ავტორიზაციის მონაცემებს.
+        </p>
+      </div>
 
-      <h2>3. E-commerce აპლიკაციის არქიტექტურა</h2>
+      <h3>ძირითადი ცნებები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>ავთენტიფიკაცია</strong> (authentication) — „ვინ ხარ?“ (შესვლა: მომხმარებლის სახელი + პაროლი).</li>
+        <li><strong>ავტორიზაცია</strong> (authorization) — „რისი უფლება გაქვს?“ (მაგ. მხოლოდ ადმინს შეუძლია პროდუქტის წაშლა). ამ ორ სიტყვას ხშირად ერთმანეთში ურევენ; ამ გაკვეთილზე „ავტორიზაციას“ სასაუბრო მნიშვნელობით, ანუ „შესვლის სისტემას“ ვეძახით.</li>
+        <li><strong>სესია (cookie-ზე დაფუძნებული)</strong> — სერვერი იმახსოვრებს, ვინ შემოვიდა და ბრაუზერს აძლევს cookie-ს; ან <strong>ტოკენი (JWT და სხვ.)</strong> — სერვერი ხელმოწერილ ტოკენს აბრუნებს და ბრაუზერი მას ყოველ მოთხოვნაში <code>Authorization: Bearer ...</code> header-ით აგზავნის.</li>
+      </ul>
+
+      <h3>ტიპური შესვლის ნაკადი</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li>მომხმარებელი ავსებს ფორმას (ვალიდაცია კლიენტზე).</li>
+        <li>აპლიკაცია აგზავნის <code>POST /auth/login</code> მოთხოვნას <code>{"{ username, password }"}</code> სხეულით (HTTPS-ით!).</li>
+        <li>სერვერი ამოწმებს მონაცემებს: წარმატებისას აბრუნებს ტოკენს (ან ადგენს cookie-ს) და მომხმარებლის პროფილს; წარმატების გარეშე — <code>400/401</code>.</li>
+        <li>აპლიკაცია „ინახავს“ ავტორიზებულ მდგომარეობას (ქვემოთ — სად) და გადაჰყავს დაცულ გვერდზე ან იქ, საიდანაც მოვიდა.</li>
+        <li>შემდეგ მოთხოვნებს აპლიკაცია ტოკენს ახლავს (Axios interceptor — მე-23 გაკვეთილი).</li>
+        <li>გამოსვლისას (logout) აპლიკაცია ასუფთავებს მდგომარეობას და ტოკენს.</li>
+      </ol>
+
+      <h3>სად შევინახოთ ტოკენი? (უსაფრთხოების მნიშვნელოვანი დეტალი)</h3>
+      <p>
+        <code>localStorage</code> და <code>sessionStorage</code> ხელმისაწვდომია <em>ნებისმიერი JavaScript-ისთვის გვერდზე</em>. თუ საიტზე XSS ხარვეზი
+        (ან დაზიანებული მესამე მხარის სკრიპტი) არსებობს, თავდამსხმელს მათი წაკითხვა შეუძლია. ამიტომ OWASP-ისა და OAuth-ის ბრაუზერ-აპლიკაციების
+        რეკომენდაციები <strong>გრძელვადიანი ტოკენების localStorage-ში შენახვას არ ურჩევს</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ადგილი</th><th>XSS-ით ქურდობა</th><th>შენიშვნა</th></tr></thead>
+          <tbody>
+            <tr><td><code>localStorage</code></td><td>შესაძლებელია</td><td>გადარჩება ბრაუზერის დახურვას; არ არის HttpOnly ანალოგი</td></tr>
+            <tr><td><code>sessionStorage</code></td><td>შესაძლებელია</td><td>იშლება ტაბის დახურვისას, მაგრამ XSS-ისგან არ გვიცავს</td></tr>
+            <tr><td>HttpOnly cookie</td><td>JS ვერ კითხულობს</td><td>საჭიროა CSRF დაცვა (<code>SameSite</code>, CSRF ტოკენი); ტოკენს სერვერი ადგენს</td></tr>
+            <tr><td>JS მეხსიერება (state / მოდულის ცვლადი)</td><td>ძალიან გაძნელებულია</td><td>გვერდის განახლებისას იკარგება → საჭიროა refresh ტოკენი HttpOnly cookie-ში</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        დღეს გავრცელებული რეკომენდაცია SPA-სთვის: <strong>მოკლევადიანი access ტოკენი — მეხსიერებაში</strong>, <strong>refresh ტოკენი —
+        <code>HttpOnly</code> + <code>Secure</code> + <code>SameSite</code> cookie-ში</strong> (ტოკენების როტაციით), ან სრულიად „ტოკენის გარეშე“
+        სერვერული სესია cookie-ით (მაგ. BFF — Backend for Frontend — არქიტექტურით). ეს <em>სერვერის</em> მხარესაც ცვლილებებს მოითხოვს, ამიტომ
+        სასწავლო პროექტში კომპრომისს ვიყენებთ და ამას ღიად ვაღიარებთ:
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ტოკენს ვინახავთ <strong>მხოლოდ მეხსიერებაში</strong> (მოდულის ცვლადში, Axios interceptor-ისთვის).</li>
+        <li><code>sessionStorage</code>-ში ვინახავთ მხოლოდ <strong>არასენსიტიურ პროფილს</strong> (<code>id</code>, <code>firstName</code>...) — რომ გვერდის განახლებისას UI „არ გაგვიხსნას“. პაროლს და ტოკენს არასდროს ვინახავთ.</li>
+        <li>გვერდის განახლების შემდეგ ტოკენი იკარგება — რეალურ აპლიკაციაში აქ refresh cookie იმუშავებდა.</li>
+      </ul>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">Front-end „დაცვა“ UX-ია, არა უსაფრთხოება</p>
+        <p>
+          <code>&lt;ProtectedRoute&gt;</code> მხოლოდ მომხმარებელს არ აჩვენებს გვერდს; ნებისმიერს შეუძლია JavaScript-ის შეცვლა ან API-ს უშუალო გამოძახება.
+          ნამდვილი დაცვა ყოველთვის <strong>სერვერზეა</strong>: ყოველი დაცული API მოთხოვნა სერვერმა უნდა გადაამოწმოს (ტოკენი, როლი, უფლებები).
+          ზუსტად ამიტომ, front-end-ში არასდროს ჩაწერო „ადმინის პაროლი“ ან საიდუმლო გასაღები და არ ენდო <code>isAdmin</code> მნიშვნელობას, რომელიც ბრაუზერში იცვლება.
+        </p>
+      </div>
+
+      <h3>უსაფრთხო ავტორიზაციის ჩეკლისტი (front-end)</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ყოველთვის <strong>HTTPS</strong>; პაროლს არასდროს ვინახავთ localStorage-ში, არც URL-ში არ ვაგზავნით და არც კონსოლში ვბეჭდავთ (<code>console.log(user)</code> ტოკენის ბეჭდვამდეც შეიძლება მიგვიყვანოს).</li>
+        <li>პაროლის ველი: <code>type="password"</code>, <code>autoComplete="current-password"</code> (შესვლისას) და <code>"new-password"</code> (რეგისტრაციისას) — პაროლ-მენეჯერები გამოიყენებენ.</li>
+        <li>შეცდომის ტექსტი ზოგადი იყოს: „სახელი ან პაროლი არასწორია“ (არ დააზუსტო, რომელია არასწორი — ეს მომხმარებლების ჩამოთვლის საშუალებას იძლევა).</li>
+        <li>ჩაშენებული გავრცელებული საფრთხეებისგან დაცვა: React ტექსტს ავტომატურად ექრანირებს (XSS) — <code>dangerouslySetInnerHTML</code>-ს ნუ გამოიყენებ მომხმარებლის შიგთავსზე; პაკეტებს აკონტროლებ (lock ფაილი, <code>npm ci</code>, <code>npm audit</code>).</li>
+        <li><strong>რეალურ პროექტში თვითონ ნუ ააშენებ ავტორიზაციის სისტემას</strong> (პაროლების შენახვა, აღდგენა, 2FA, სოციალური შესვლა): გამოიყენე გამართული სერვისები და ბიბლიოთეკები (მაგ. Auth0, Clerk, Firebase Auth, Supabase Auth, Keycloak) ან სერვერის ფრეიმვორქის ჩაშენებული გადაწყვეტა.</li>
+        <li>სერვერი უნდა იცავდეს brute-force შეტევისგან (rate limiting) — ეს ეხება backend-ს, მაგრამ შენც უნდა იცოდე (<code>429</code> სტატუსი).</li>
+      </ul>
+
+      <h3>AuthContext და დაცული მარშრუტი (მოკლედ)</h3>
+      <p>
+        ავტორიზაციის მდგომარეობა (ვინ არის შესული) ბევრ კომპონენტს სჭირდება: ნავიგაციას, დაცულ გვერდებს, შეკვეთის ფორმას. ეს Context-ის კლასიკური
+        გამოყენებაა (იხ. შემდეგი სექცია). დაცული მარშრუტი — layout მარშრუტი, რომელიც ან შვილს აჩვენებს (<code>&lt;Outlet /&gt;</code>), ან login-ზე
+        გადამისამართებს და „გახსოვს, საიდან მოვიდა“:
+      </p>
+      <pre><code>// components/ProtectedRoute.jsx
+import { Navigate, Outlet, useLocation } from "react-router";
+import { useAuth } from "../context/AuthContext";
+
+export default function ProtectedRoute() {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    // state-ში ვინახავთ საიდან მოვიდა, რომ შესვლის შემდეგ უკან დავაბრუნოთ
+    return &lt;Navigate to="/login" replace state={{ from: location.pathname }} /&gt;;
+  }
+  return &lt;Outlet /&gt;;
+}
+
+// App.jsx-ში:
+&lt;Route element={&lt;ProtectedRoute /&gt;}&gt;
+  &lt;Route path="checkout" element={&lt;CheckoutPage /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+
+      <!-- ========================= 3. CONTEXT ========================= -->
+      <h2 id="context">3. Context API და მდგომარეობის გაზიარება</h2>
+      <p>
+        <strong>Cart-ის მდგომარეობა</strong> (რომელი პროდუქტებია კალათაში) საჭიროებს „გაზიარებას"
+        ბევრ კომპონენტს შორის (ProductCard-ს „დამატება" ღილაკიდან, Navbar-ს რაოდენობის ჩვენებამდე,
+        Cart გვერდამდე) — ამისთვის React გვთავაზობს <strong>Context API</strong>-ს (props-ის ყოველ
+        დონეზე ხელით გადაცემის (prop drilling) თავიდან ასაცილებლად):
+      </p>
+      <pre><code>// CartContext.jsx — გამარტივებული მაგალითი
+import { createContext, useState, useContext } from "react";
+
+const CartContext = createContext();
+
+export function CartProvider({ children }) {
+  const [items, setItems] = useState([]);
+
+  function addToCart(product) {
+    setItems(prev =&gt; [...prev, product]); // spread — უცვლელი (immutable) განახლება, მე-14 გაკვეთილიდან
+  }
+
+  return (
+    &lt;CartContext value={{ items, addToCart }}&gt;
+      {children}
+    &lt;/CartContext&gt;
+  );
+}
+
+export function useCart() {
+  return useContext(CartContext); // custom hook, კონტექსტთან წვდომისთვის
+}</code></pre>
+      <pre><code>// ProductCard.jsx — ნებისმიერ სიღრმეზე, props-ის გადაცემის გარეშე
+function ProductCard({ product }) {
+  const { addToCart } = useCart();
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{product.name}&lt;/h3&gt;
+      &lt;button onClick={() =&gt; addToCart(product)}&gt;კალათაში დამატება&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+      <h3>Context-ის სამი ნაბიჯი</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>შექმნა:</strong> <code>const CartContext = createContext(null)</code>.</li>
+        <li><strong>მიწოდება:</strong> ხის ზედა ნაწილში <code>&lt;CartContext value={"{...}"}&gt;</code>-ით. <em>React 19-ში</em> კონტექსტის ობიექტი თავად არის provider; ძველ კოდში ხშირად გაქვს
+          <code>&lt;CartContext.Provider value=...&gt;</code> — ის კვლავ მუშაობს (მაგრამ მომავალ ვერსიაში მოძველებულად გამოცხადდება), ამიტომ ახალ კოდში გამოიყენე მოკლე ფორმა.</li>
+        <li><strong>წაკითხვა:</strong> <code>useContext(CartContext)</code> (ან React 19-ის <code>use(CartContext)</code>, რომელიც პირობითადაც შეიძლება გამოიძახო).</li>
+      </ol>
+
+      <h3>უკეთესი პატერნი: ნულოვანი ნაგულისხმევი მნიშვნელობა და „დაცვა“</h3>
+      <p>
+        <code>createContext()</code> ცარიელად <code>undefined</code>-ს აბრუნებს, თუ provider-ის გარეთ გამოიყენე — შეცდომა მოგვიანებით და გაუგებრად გამოჩნდება
+        (<em>„Cannot destructure property of undefined“</em>). უკეთესია <code>null</code>-ით შექმნა და custom hook-ში აშკარა შეცდომის ამოგდება:
+      </p>
+      <pre><code>const CartContext = createContext(null);
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (ctx === null) {
+    throw new Error("useCart უნდა გამოიყენო &lt;CartProvider&gt;-ის შიგნით");
+  }
+  return ctx;
+}</code></pre>
+
+      <h3>რთული state: Context + <code>useReducer</code></h3>
+      <p>
+        კალათას რამდენიმე მოქმედება აქვს: დამატება (ან რაოდენობის გაზრდა, თუ პროდუქტი უკვე არის), რაოდენობის შეცვლა, წაშლა, გასუფთავება. როცა ერთ state-ზე
+        ბევრი სახის განახლება გვაქვს, <code>useReducer</code> ლოგიკას ერთ ფუნქციაში (reducer) აგროვებს და აადვილებს ტესტირებას:
+      </p>
+      <pre><code>function cartReducer(items, action) {
+  switch (action.type) {
+    case "added": {
+      const existing = items.find((i) =&gt; i.id === action.item.id);
+      if (existing) {
+        return items.map((i) =&gt;
+          i.id === action.item.id
+            ? { ...i, quantity: Math.min(i.quantity + action.quantity, i.stock) }
+            : i
+        );
+      }
+      return [...items, { ...action.item, quantity: action.quantity }];
+    }
+    case "removed":
+      return items.filter((i) =&gt; i.id !== action.id);
+    case "cleared":
+      return [];
+    default:
+      throw new Error("უცნობი action: " + action.type);
+  }
+}
+
+const [items, dispatch] = useReducer(cartReducer, []);
+dispatch({ type: "added", item: product, quantity: 1 });</code></pre>
+      <p>
+        reducer წმინდა ფუნქციაა (ისევე, როგორც კომპონენტი): იღებს მიმდინარე state-ს და action-ს, აბრუნებს <em>ახალ</em> state-ს, არაფერს „ცვლის“ და გარე
+        სისტემასთან (API, localStorage) არ ურთიერთობს.
+      </p>
+
+      <h3>Context-ის შეზღუდვები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>როცა context-ის <code>value</code> იცვლება, <strong>ყველა</strong> მომხმარებელი კომპონენტი ხელახლა იხატება. თუ <code>value</code>-ში ობიექტს რენდერში ახლად ქმნი (<code>value={"{{ items, addToCart }}"}</code>) და provider-ის მშობელი ხშირად რენდერდება, ეს ზედმეტ განახლებებს იწვევს — გამოიყენე <code>useMemo</code> (ან მხოლოდ სტაბილური ფუნქციები).</li>
+        <li>Context ხშირად ცვალებადი მონაცემისთვის (მაუსის პოზიცია, ანიმაცია) ცუდი არჩევანია.</li>
+        <li>დიდ აპლიკაციებში ხშირად იყენებენ სპეციალიზებულ ბიბლიოთეკებს (Zustand, Redux Toolkit, Jotai), ხოლო სერვერის მონაცემებისთვის — TanStack Query. პატარა-საშუალო პროექტისთვის Context + <code>useReducer</code> საკმარისია.</li>
+        <li>ცალკე სფეროებისთვის ცალკე context-ები გამოიყენე (<code>AuthContext</code>, <code>CartContext</code>, <code>ThemeContext</code>) და არა ერთი „გიგანტური“.</li>
+      </ul>
+
+      <!-- ========================= 4. ARCHITECTURE ========================= -->
+      <h2 id="architecture">4. E-commerce აპლიკაციის არქიტექტურა</h2>
       <p>
         დავხატოთ, საიდან შედგება მარტივი მაღაზიის აპლიკაცია — ეს არის ის სტრუქტურა, რომელსაც
         დამოუკიდებლად ააშენებ ამ გაკვეთილის ბოლო დავალებაში:
       </p>
       <pre><code>src/
-├── main.jsx              <span class="cmt">// შესვლის წერტილი (createRoot)</span>
-├── App.jsx                <span class="cmt">// BrowserRouter + Routes</span>
+├── main.jsx              // შესვლის წერტილი (createRoot)
+├── App.jsx                // BrowserRouter + Routes
 ├── hooks/
-│   └── useFetch.js         <span class="cmt">// custom hook (მე-23 გაკვეთილიდან)</span>
+│   └── useFetch.js         // custom hook (მე-23 გაკვეთილიდან)
 ├── context/
-│   └── CartContext.jsx     <span class="cmt">// კალათის state, გაზიარებული ყველა კომპონენტისთვის</span>
+│   └── CartContext.jsx     // კალათის state, გაზიარებული ყველა კომპონენტისთვის
 ├── pages/
 │   ├── Home.jsx
 │   ├── ProductList.jsx
@@ -136,77 +583,1336 @@
 └── components/
     ├── ProductCard.jsx
     └── Navbar.jsx</code></pre>
+
+      <h3>„სად ცხოვრობს თითოეული მონაცემი?“ — ცხრილი, რომელიც ბევრ ბაგს გიცავს</h3>
       <p>
-        <strong>Cart-ის მდგომარეობა</strong> (რომელი პროდუქტებია კალათაში) საჭიროებს „გაზიარებას"
-        ბევრ კომპონენტს შორის (ProductCard-ს „დამატება" ღილაკიდან, Navbar-ს რაოდენობის ჩვენებამდე,
-        Cart გვერდამდე) — ამისთვის React გვთავაზობს <strong>Context API</strong>-ს (props-ის ყოველ
-        დონეზე ხელით გადაცემის თავიდან ასაცილებლად):
+        React აპლიკაციის დაგეგმვისას ყველაზე სასარგებლო კითხვაა: <em>„ეს მონაცემი სად უნდა ინახებოდეს?“</em>
       </p>
-      <pre><code><span class="cmt">// CartContext.jsx — გამარტივებული მაგალითი</span>
-<span class="attr">import</span> { createContext, useState, useContext } <span class="attr">from</span> "react";
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>მონაცემი</th><th>სად ვინახავთ</th><th>რატომ</th></tr></thead>
+          <tbody>
+            <tr><td>პროდუქტების სია, პროდუქტის დეტალები</td><td>„სერვერის მონაცემი“ — <code>useFetch</code> (ან TanStack Query) კომპონენტში</td><td>სერვერია ჭეშმარიტების წყარო; გვჭირდება loading/error</td></tr>
+            <tr><td>ძებნა, კატეგორია, გვერდი (pagination)</td><td>URL-ში (<code>useSearchParams</code>)</td><td>ბმული გასაზიარებელია, „უკან“ ღილაკი მუშაობს, გვერდის განახლებისას არ იკარგება</td></tr>
+            <tr><td>კალათა</td><td><code>CartContext</code> (<code>useReducer</code>) + <code>localStorage</code></td><td>ბევრ კომპონენტს სჭირდება, უნდა გადარჩეს განახლებას</td></tr>
+            <tr><td>შესული მომხმარებელი</td><td><code>AuthContext</code> (ტოკენი — მეხსიერებაში, პროფილი — <code>sessionStorage</code>)</td><td>ნავიგაციას, დაცულ გვერდებს, შეკვეთას სჭირდება</td></tr>
+            <tr><td>ფორმის ველები, ღია/დახურული მენიუ, რაოდენობის counter</td><td>ლოკალური <code>useState</code> / ფორმის ბიბლიოთეკა</td><td>მხოლოდ ერთ კომპონენტს ეხება</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-<span class="attr">const</span> CartContext = createContext();
+      <h3>მარშრუტები</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>URL</th><th>გვერდი</th><th>წვდომა</th></tr></thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>მთავარი (რეკომენდებული პროდუქტები)</td><td>ყველა</td></tr>
+            <tr><td><code>/products?q=&amp;category=&amp;page=</code></td><td>კატალოგი: ძებნა, ფილტრი, გვერდები</td><td>ყველა</td></tr>
+            <tr><td><code>/products/:productId</code></td><td>პროდუქტის გვერდი</td><td>ყველა</td></tr>
+            <tr><td><code>/cart</code></td><td>კალათა</td><td>ყველა</td></tr>
+            <tr><td><code>/login</code></td><td>შესვლა</td><td>ყველა</td></tr>
+            <tr><td><code>/checkout</code>, <code>/order-success</code></td><td>შეკვეთის გაფორმება</td><td>მხოლოდ შესულებისთვის</td></tr>
+            <tr><td><code>*</code></td><td>404</td><td>ყველა</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-<span class="attr">export function</span> CartProvider({ children }) {
-  <span class="attr">const</span> [items, setItems] = useState([]);
-
-  <span class="attr">function</span> addToCart(product) {
-    setItems(prev => [...prev, product]); <span class="cmt">// spread — უცვლელი (immutable) განახლება, მე-14 გაკვეთილიდან</span>
-  }
-
-  <span class="attr">return</span> (
-    &lt;<span class="tag">CartContext.Provider</span> <span class="attr">value</span>={{ items, addToCart }}&gt;
-      {children}
-    &lt;/<span class="tag">CartContext.Provider</span>&gt;
-  );
-}
-
-<span class="attr">export function</span> useCart() {
-  <span class="attr">return</span> useContext(CartContext); <span class="cmt">// custom hook, კონტექსტთან წვდომისთვის</span>
-}</code></pre>
-      <pre><code><span class="cmt">// ProductCard.jsx — ნებისმიერ სიღრმეზე, props-ის გადაცემის გარეშე</span>
-<span class="attr">function</span> ProductCard({ product }) {
-  <span class="attr">const</span> { addToCart } = useCart();
-  <span class="attr">return</span> (
-    &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"card"</span>&gt;
-      &lt;<span class="tag">h3</span>&gt;{product.name}&lt;/<span class="tag">h3</span>&gt;
-      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => addToCart(product)}&gt;კალათაში დამატება&lt;/<span class="tag">button</span>&gt;
-    &lt;/<span class="tag">div</span>&gt;
-  );
-}</code></pre>
-
-      <h2>4. React კომპონენტების, როუტინგისა და Material UI შერწყმა</h2>
+      <!-- ========================= 5. MINI ========================= -->
+      <h2 id="mini">5. React კომპონენტების, როუტინგისა და Material UI შერწყმა</h2>
       <p>
         ერთ პატარა მაგალითში — ProductList გვერდი, რომელიც იყენებს Custom Hook-ს მონაცემებისთვის,
         Material UI-ს ღილაკებისთვის და Router-ის <code>Link</code>-ს ნავიგაციისთვის:
       </p>
-      <pre><code><span class="attr">import</span> { Link } <span class="attr">from</span> "react-router-dom";
-<span class="attr">import</span> Button <span class="attr">from</span> "@mui/material/Button";
-<span class="attr">import</span> useFetch <span class="attr">from</span> "../hooks/useFetch";
-<span class="attr">import</span> { useCart } <span class="attr">from</span> "../context/CartContext";
+      <pre><code>import { Link } from "react-router";                 // v7/v8: react-router (არა react-router-dom)
+import Button from "@mui/material/Button";
+import useFetch from "../hooks/useFetch";
+import { useCart } from "../context/CartContext";
 
-<span class="attr">function</span> ProductList() {
-  <span class="attr">const</span> { data: products, loading } = useFetch("/api/products");
-  <span class="attr">const</span> { addToCart } = useCart();
+function ProductList() {
+  const { data: products, loading, error } = useFetch("/api/products");
+  const { addToCart } = useCart();
 
-  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
+  if (loading) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return &lt;p role="alert"&gt;{error}&lt;/p&gt;;
 
-  <span class="attr">return</span> (
-    &lt;<span class="tag">div</span>&gt;
-      {products.map(p => (
-        &lt;<span class="tag">div</span> <span class="attr">key</span>={p.id}&gt;
-          &lt;<span class="tag">h3</span>&gt;{p.name}&lt;/<span class="tag">h3</span>&gt;
-          &lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"contained"</span> <span class="attr">onClick</span>={() => addToCart(p)}&gt;
+  return (
+    &lt;div&gt;
+      {products.map(p =&gt; (
+        &lt;div key={p.id}&gt;
+          &lt;h3&gt;{p.name}&lt;/h3&gt;
+          &lt;Button variant="contained" onClick={() =&gt; addToCart(p)}&gt;
             კალათაში დამატება
-          &lt;/<span class="tag">Button</span>&gt;
-        &lt;/<span class="tag">div</span>&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
       ))}
-      &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/cart"</span>&gt;კალათის ნახვა&lt;/<span class="tag">Link</span>&gt;
-    &lt;/<span class="tag">div</span>&gt;
+      &lt;Link to="/cart"&gt;კალათის ნახვა&lt;/Link&gt;
+    &lt;/div&gt;
   );
 }</code></pre>
+      <p>
+        <strong>შენიშვნა:</strong> ორიგინალ მაგალითში <code>react-router-dom</code> იყო იმპორტირებული. React Router v7-დან პაკეტი <code>react-router</code>-ია, ხოლო v8-ში
+        <code>react-router-dom</code> სრულად ამოიღეს (იხ. წინა გაკვეთილი). ქვემოთ საბოლოო პროექტში ყველგან <code>react-router</code> გამოიყენება.
+      </p>
 
-      <h2>5. კურსის შემაჯამებელი — საუკეთესო პრაქტიკები</h2>
+      <!-- ========================= 6. PROJECT ========================= -->
+      <h2 id="project">6. საბოლოო პროექტი: ShopHub — სრული E-commerce SPA</h2>
+      <p>
+        ახლა ყველაფერს ერთად ვაკეთებთ. <strong>ShopHub</strong> არის ონლაინ მაღაზიის აპლიკაცია, სადაც პროდუქტებს საჯარო სატესტო API-დან
+        (<a href="https://dummyjson.com/docs" target="_blank" rel="noopener">DummyJSON</a>) ვიღებთ, ვფილტრავთ და ვეძებთ, კალათაში ვამატებთ, ვიშვებთ შესვლას და
+        ვაფორმებთ (სიმულირებულ) შეკვეთას. პროექტი შეგნებულად ისეა დაგეგმილი, რომ <strong>გამოიყენოს მე-23 და მე-24 გაკვეთილის მასალა</strong>
+        და დაუკავშირდეს კურსის წინა მოდულებს.
+      </p>
+
+      <div class="callout">
+        <p class="callout-title">რა თემა სად გამოვიყენეთ</p>
+        <div class="table-wrap" style="margin: 8px 0 0;">
+          <table class="tbl">
+            <thead><tr><th>თემა</th><th>პროექტში</th></tr></thead>
+            <tbody>
+              <tr><td><strong>მე-23:</strong> async/await, loading/error</td><td><code>useFetch</code>, <code>QueryState</code>, შეკვეთის გაგზავნა</td></tr>
+              <tr><td><strong>მე-23:</strong> Axios</td><td><code>api/client.js</code> — instance, interceptor, შეცდომის დამუშავება</td></tr>
+              <tr><td><strong>მე-23:</strong> Custom Hook</td><td><code>useFetch</code> (გაუქმებით), <code>useAuth</code>, <code>useCart</code></td></tr>
+              <tr><td><strong>მე-23:</strong> Material UI</td><td>Layout, ბარათები, ღილაკები, Pagination, Alert</td></tr>
+              <tr><td><strong>მე-23:</strong> Styled Components</td><td><code>PriceTag</code> კომპონენტი</td></tr>
+              <tr><td><strong>მე-23:</strong> Virtual DOM, <code>key</code></td><td>სიები (<code>key={"{id}"}</code>), სტაბილური ბარათები</td></tr>
+              <tr><td><strong>მე-23:</strong> React Router</td><td><code>Routes</code>, <code>Outlet</code>, <code>useParams</code>, <code>useSearchParams</code>, <code>NavLink</code>, დაცული მარშრუტი</td></tr>
+              <tr><td><strong>მე-24:</strong> ფორმები და ვალიდაცია</td><td>Login — React 19 Actions; Checkout — React Hook Form + Zod; ძებნა — <code>FormData</code></td></tr>
+              <tr><td><strong>მე-24:</strong> ავტორიზაცია</td><td><code>AuthContext</code>, <code>ProtectedRoute</code>, ტოკენი მეხსიერებაში</td></tr>
+              <tr><td><strong>მე-24:</strong> Context</td><td><code>CartContext</code> + <code>useReducer</code>, <code>AuthContext</code></td></tr>
+              <tr><td><strong>წინა მოდულები:</strong> სემანტიკური HTML, ხელმისაწვდომობა</td><td><code>header/nav/main/section/article/footer</code>, <code>label</code>, <code>aria-*</code>, skip-link</td></tr>
+              <tr><td><strong>წინა მოდულები:</strong> Responsive/Mobile-First CSS</td><td>CSS Grid (<code>auto-fill, minmax</code>), MUI-ის <code>sx</code> breakpoint-ები</td></tr>
+              <tr><td><strong>წინა მოდულები:</strong> JS — <code>map</code>, <code>filter</code>, <code>reduce</code>, spread, destructuring, <code>?.</code>, <code>??</code></td><td>სიები, კალათის ჯამი, უცვლელი განახლებები</td></tr>
+              <tr><td><strong>წინა მოდულები:</strong> storage (<code>localStorage</code>, <code>sessionStorage</code>)</td><td>კალათა (<code>localStorage</code>), მომხმარებლის პროფილი (<code>sessionStorage</code>)</td></tr>
+              <tr><td><strong>წინა მოდულები:</strong> Promises, <code>fetch</code>/<code>Intl</code>, Git</td><td><code>Promise.all</code> (ბონუსი), <code>Intl.NumberFormat</code>, ხშირი commit-ები</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 class="project-step">ფუნქციონალის მოთხოვნები</h3>
+      <ul class="checklist">
+        <li>☐ <strong>კატალოგი:</strong> პროდუქტები API-დან, loading / error / empty მდგომარეობებით, „სცადე ხელახლა“ ღილაკით.</li>
+        <li>☐ <strong>ძებნა, კატეგორია, გვერდები</strong> — URL-ის query პარამეტრებში (გვერდის განახლება და „უკან“ ღილაკი სწორად მუშაობს).</li>
+        <li>☐ <strong>პროდუქტის გვერდი</strong> <code>/products/:productId</code> — სურათი, აღწერა, რეიტინგი, მარაგი, შეფასებები, რაოდენობის არჩევა, „კალათაში“.</li>
+        <li>☐ <strong>კალათა:</strong> რაოდენობის შეცვლა (მარაგის ლიმიტით), წაშლა, ჯამი (<code>reduce</code>), ბეჯი ნავიგაციაში, გადარჩენა გვერდის განახლებისას.</li>
+        <li>☐ <strong>შესვლა:</strong> ფორმა ვალიდაციით, API-ს მოთხოვნა, შეცდომის ჩვენება, დაბრუნება იმ გვერდზე, საიდანაც მოვიდა; გამოსვლა.</li>
+        <li>☐ <strong>დაცული გვერდები:</strong> <code>/checkout</code> მხოლოდ შესულებისთვის.</li>
+        <li>☐ <strong>შეკვეთის გაფორმება:</strong> ფორმა React Hook Form + Zod-ით; წარმატებისას კალათის გასუფთავება და „შეკვეთა მიღებულია“ გვერდი.</li>
+        <li>☐ <strong>404 გვერდი</strong>, ხელმისაწვდომობა (კლავიატურით სრულად გამოსაყენებელი), რესპონსიული დიზაინი (320px-დან).</li>
+        <li>☐ <strong>README</strong>, ხშირი Git commit-ები, გამოქვეყნება (Netlify/Vercel).</li>
+      </ul>
+
+      <h3 class="project-step">DummyJSON — რა გვჭირდება</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>მოთხოვნა</th><th>რას აკეთებს</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET /products?limit=12&amp;skip=0</code></td><td>პროდუქტების სია; პასუხი: <code>{"{ products, total, skip, limit }"}</code></td></tr>
+            <tr><td><code>GET /products/search?q=phone</code></td><td>ძებნა (კატეგორიასთან ერთად ვერ იფილტრება)</td></tr>
+            <tr><td><code>GET /products/category-list</code></td><td>კატეგორიების სახელების (slug) მასივი</td></tr>
+            <tr><td><code>GET /products/category/smartphones</code></td><td>კატეგორიის პროდუქტები</td></tr>
+            <tr><td><code>GET /products/1</code></td><td>ერთი პროდუქტი (<code>title, price, discountPercentage, rating, stock, thumbnail, images, reviews</code>...)</td></tr>
+            <tr><td><code>POST /auth/login</code></td><td>შესვლა: <code>{"{ username, password }"}</code>; პასუხში <code>accessToken</code> და მომხმარებლის პროფილი. სატესტო ანგარიში (დოკუმენტაციიდან): <code>emilys</code> / <code>emilyspass</code></td></tr>
+            <tr><td><code>POST /carts/add</code></td><td>კალათის „შექმნა“ (სიმულაცია — სერვერზე რეალურად არ ინახება)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <p class="callout-title">სატესტო API-ს შესახებ</p>
+        <ul style="padding-left: 20px; list-style: disc; margin: 8px 0 0;">
+          <li>DummyJSON მონაცემებს რეალურად არ ინახავს — „ახალი“ რესურსები მხოლოდ სიმულაციაა.</li>
+          <li><strong>საჯარო სატესტო სერვისს არასდროს გაუგზავნო რეალური პერსონალური მონაცემი</strong> (სახელი, მისამართი, ტელეფონი). ჩვენს checkout-ში ამ სერვისს მხოლოდ კალათის შემადგენლობა (პროდუქტის ID და რაოდენობა) მიდის, ფორმის მონაცემები არა.</li>
+          <li>ბარათის მონაცემებს (ნომერი, CVV) <strong>არასდროს</strong> ვაგროვებთ საკუთარ ფორმაში — რეალურ მაღაზიაში გადახდას სერტიფიცირებული პროვაიდერი (Stripe, PayPal, ბანკის გადახდის გვერდი) ამუშავებს. ჩვენს პროექტში გადახდა „ადგილზე“ არის.</li>
+          <li>API-ის მისამართი/პასუხის ფორმატი შეიძლება შეიცვალოს; თუ რამე არ მუშაობს, გახსენი <a href="https://dummyjson.com/docs" target="_blank" rel="noopener">dummyjson.com/docs</a> და შეამოწმე.</li>
+        </ul>
+      </div>
+
+      <!-- STEP 0 -->
+      <h3 class="project-step">ნაბიჯი 0. პროექტის შექმნა, პაკეტები და Git</h3>
+      <pre><code>npm create vite@latest shophub -- --template react
+cd shophub
+npm install
+
+# UI, როუტინგი, HTTP, სტილები, ფორმები
+npm install @mui/material @emotion/react @emotion/styled
+npm install react-router axios styled-components
+npm install react-hook-form zod @hookform/resolvers
+
+git init
+git add . &amp;&amp; git commit -m "chore: init Vite + React project"
+
+npm run dev</code></pre>
+      <p>
+        ვერსიები: React Router v8-ს სჭირდება Node 22.22+ და React 19.2.7+ (თუ ეს არ გაქვს, გამოიყენე <code>react-router@7</code> — კოდი იგივეა).
+        <code>package-lock.json</code> აუცილებლად დააკომიტე და დეპლოიში <code>npm ci</code> გამოიყენე (იხ. Axios-ის უსაფრთხოების ინციდენტი მე-23 გაკვეთილზე).
+        საკუთარი კომპიუტერიდან გამოიყენე ის ვერსიები, რაც ინსტალაციისას დაგიყენდება და სანამ პროექტი მუშაობს, ნუ განაახლებ.
+      </p>
+      <p>შექმენი <code>.env</code> ფაილი (და <code>.gitignore</code>-ში უკვე ჩართულია <code>*.local</code>; საჯარო მისამართისთვის <code>.env</code>-ის დაკომიტებაც შეიძლება, საიდუმლოს კი — არასდროს):</p>
+      <pre><code># .env
+VITE_API_URL=https://dummyjson.com</code></pre>
+      <p>საქაღალდეების სტრუქტურა (ფაილებს თანდათან შევქმნით):</p>
+      <pre><code>src/
+├── main.jsx
+├── App.jsx
+├── theme.js
+├── api/
+│   └── client.js            // Axios instance, interceptor, getErrorMessage
+├── hooks/
+│   └── useFetch.js          // GET + loading/error/reload + გაუქმება
+├── utils/
+│   ├── money.js             // ფასების ფორმატი და ფასდაკლება
+│   └── storage.js           // უსაფრთხო localStorage/sessionStorage wrappers
+├── context/
+│   ├── AuthContext.jsx
+│   └── CartContext.jsx
+├── components/
+│   ├── Layout.jsx
+│   ├── ProtectedRoute.jsx
+│   ├── QueryState.jsx       // loading / error სტატუსი
+│   ├── PriceTag.jsx         // Styled Components
+│   ├── ProductCard.jsx
+│   └── FormField.jsx        // MUI TextField + React Hook Form
+└── pages/
+    ├── HomePage.jsx
+    ├── ProductsPage.jsx
+    ├── ProductDetailsPage.jsx
+    ├── CartPage.jsx
+    ├── LoginPage.jsx
+    ├── CheckoutPage.jsx
+    ├── OrderSuccessPage.jsx
+    └── NotFoundPage.jsx</code></pre>
+
+      <!-- STEP 1 -->
+      <h3 class="project-step">ნაბიჯი 1. API კლიენტი და დამხმარე ფუნქციები</h3>
+      <pre><code>// src/api/client.js
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL ?? "https://dummyjson.com",
+  timeout: 10000,
+});
+
+// ტოკენს მხოლოდ მეხსიერებაში (მოდულის ცვლადში) ვინახავთ
+let accessToken = null;
+export function setAccessToken(token) {
+  accessToken = token;
+}
+
+api.interceptors.request.use((config) =&gt; {
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  return config;
+});
+
+// ადამიანისთვის გასაგები შეტყობინება ნებისმიერი შეცდომისთვის
+export function getErrorMessage(err) {
+  if (axios.isAxiosError(err)) {
+    if (err.response) {
+      return err.response.data?.message ?? `სერვერის შეცდომა (${err.response.status})`;
+    }
+    if (err.request) return "სერვერთან კავშირი ვერ დამყარდა. შეამოწმე ინტერნეტი.";
+  }
+  return "მოულოდნელი შეცდომა. სცადე ხელახლა.";
+}</code></pre>
+      <pre><code>// src/utils/money.js
+const formatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+export const formatMoney = (value) =&gt; formatter.format(value);
+
+// ფასდაკლების გათვალისწინებით, 2 ათწილადამდე დამრგვალებული
+export const getFinalPrice = (price, discountPercentage = 0) =&gt;
+  Math.round(price * (1 - discountPercentage / 100) * 100) / 100;</code></pre>
+      <pre><code>// src/utils/storage.js
+export function readJSON(storage, key, fallback) {
+  try {
+    const raw = storage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;            // დაზიანებული JSON ან დაბლოკილი storage
+  }
+}
+
+export function writeJSON(storage, key, value) {
+  try {
+    storage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* მეხსიერება სავსეა ან დაბლოკილია — ჩუმად გავაგრძელებთ */
+  }
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: add API client, money and storage helpers"</code></pre>
+      <p>
+        ფულთან მუშაობის შენიშვნა: JavaScript-ში რიცხვები „მცურავწერტილიანია“ (<code>0.1 + 0.2 !== 0.3</code>). სასწავლო პროექტში დამრგვალება საკმარისია, მაგრამ რეალურ
+        მაღაზიაში თანხებს ხშირად <em>თეთრებში/ცენტებში</em> (მთელი რიცხვები) ინახავენ და ჯამებს სერვერი ითვლის.
+      </p>
+
+      <!-- STEP 2 -->
+      <h3 class="project-step">ნაბიჯი 2. useFetch და QueryState</h3>
+      <pre><code>// src/hooks/useFetch.js
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { api, getErrorMessage } from "../api/client";
+
+export function useFetch(url) {
+  const [state, setState] = useState({ data: null, loading: Boolean(url), error: null });
+  const [reloadCount, setReloadCount] = useState(0);
+
+  const reload = useCallback(() =&gt; setReloadCount((c) =&gt; c + 1), []);
+
+  useEffect(() =&gt; {
+    if (!url) return;                                   // URL ჯერ არ არის
+    const controller = new AbortController();
+
+    setState((prev) =&gt; ({ ...prev, loading: true, error: null }));
+
+    api
+      .get(url, { signal: controller.signal })
+      .then((res) =&gt; setState({ data: res.data, loading: false, error: null }))
+      .catch((err) =&gt; {
+        if (axios.isCancel(err)) return;                // გაუქმება შეცდომა არ არის
+        setState({ data: null, loading: false, error: getErrorMessage(err) });
+      });
+
+    return () =&gt; controller.abort();                    // cleanup: ძველი მოთხოვნის გაუქმება
+  }, [url, reloadCount]);
+
+  return { ...state, reload };
+}</code></pre>
+      <pre><code>// src/components/QueryState.jsx
+import { Alert, Button, CircularProgress, Box } from "@mui/material";
+
+// loading / error მდგომარეობა — თუ ორივე არაა, children გამოიტანება
+export default function QueryState({ loading, error, onRetry, children }) {
+  if (loading) {
+    return (
+      &lt;Box sx={{ display: "flex", justifyContent: "center", py: 6 }}&gt;
+        &lt;CircularProgress aria-label="იტვირთება" /&gt;
+      &lt;/Box&gt;
+    );
+  }
+  if (error) {
+    return (
+      &lt;Alert
+        severity="error"
+        action={onRetry &amp;&amp; &lt;Button color="inherit" size="small" onClick={onRetry}&gt;ხელახლა&lt;/Button&gt;}
+      &gt;
+        {error}
+      &lt;/Alert&gt;
+    );
+  }
+  return children;
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: useFetch hook with abort and QueryState component"</code></pre>
+
+      <!-- STEP 3 -->
+      <h3 class="project-step">ნაბიჯი 3. თემა, Layout და მარშრუტების ჩონჩხი</h3>
+      <pre><code>// src/theme.js
+import { createTheme } from "@mui/material/styles";
+
+export default createTheme({
+  palette: { primary: { main: "#146B5C" } },
+  typography: { fontFamily: '"Noto Sans Georgian", system-ui, sans-serif' },
+});</code></pre>
+      <pre><code>// src/main.jsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme";
+import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+
+createRoot(document.getElementById("root")).render(
+  &lt;StrictMode&gt;
+    &lt;ThemeProvider theme={theme}&gt;
+      &lt;CssBaseline /&gt;
+      &lt;BrowserRouter&gt;
+        &lt;AuthProvider&gt;
+          &lt;CartProvider&gt;
+            &lt;App /&gt;
+          &lt;/CartProvider&gt;
+        &lt;/AuthProvider&gt;
+      &lt;/BrowserRouter&gt;
+    &lt;/ThemeProvider&gt;
+  &lt;/StrictMode&gt;
+);</code></pre>
+      <pre><code>// src/App.jsx
+import { Routes, Route } from "react-router";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import HomePage from "./pages/HomePage";
+import ProductsPage from "./pages/ProductsPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
+import CartPage from "./pages/CartPage";
+import LoginPage from "./pages/LoginPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import NotFoundPage from "./pages/NotFoundPage";
+
+export default function App() {
+  return (
+    &lt;Routes&gt;
+      &lt;Route element={&lt;Layout /&gt;}&gt;
+        &lt;Route index element={&lt;HomePage /&gt;} /&gt;
+        &lt;Route path="products" element={&lt;ProductsPage /&gt;} /&gt;
+        &lt;Route path="products/:productId" element={&lt;ProductDetailsPage /&gt;} /&gt;
+        &lt;Route path="cart" element={&lt;CartPage /&gt;} /&gt;
+        &lt;Route path="login" element={&lt;LoginPage /&gt;} /&gt;
+
+        &lt;Route element={&lt;ProtectedRoute /&gt;}&gt;
+          &lt;Route path="checkout" element={&lt;CheckoutPage /&gt;} /&gt;
+          &lt;Route path="order-success" element={&lt;OrderSuccessPage /&gt;} /&gt;
+        &lt;/Route&gt;
+
+        &lt;Route path="*" element={&lt;NotFoundPage /&gt;} /&gt;
+      &lt;/Route&gt;
+    &lt;/Routes&gt;
+  );
+}</code></pre>
+      <p>
+        <strong>Layout</strong> — სემანტიკური HTML (<code>header</code>, <code>nav</code>, <code>main</code>, <code>footer</code>) + MUI + „skip link“ კლავიატურით მომხმარებლებისთვის:
+      </p>
+      <pre><code>// src/components/Layout.jsx
+import { Outlet, Link as RouterLink, NavLink } from "react-router";
+import { AppBar, Toolbar, Typography, Button, Badge, Container, Box } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+
+export default function Layout() {
+  const { user, logout } = useAuth();
+  const { totalItems } = useCart();
+
+  return (
+    &lt;Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}&gt;
+      &lt;a href="#main" className="skip-link"&gt;მთავარ შიგთავსზე გადასვლა&lt;/a&gt;
+
+      &lt;AppBar position="static" component="header"&gt;
+        &lt;Toolbar sx={{ flexWrap: "wrap", gap: 1 }}&gt;
+          &lt;Typography variant="h6" component={RouterLink} to="/" sx={{ color: "inherit", textDecoration: "none", mr: 2 }}&gt;
+            ShopHub
+          &lt;/Typography&gt;
+
+          &lt;Box component="nav" aria-label="მთავარი ნავიგაცია" sx={{ display: "flex", gap: 1, flexGrow: 1 }}&gt;
+            &lt;Button color="inherit" component={NavLink} to="/products"&gt;პროდუქტები&lt;/Button&gt;
+            &lt;Button color="inherit" component={NavLink} to="/cart"&gt;
+              &lt;Badge badgeContent={totalItems} color="secondary"&gt;კალათა&lt;/Badge&gt;
+            &lt;/Button&gt;
+          &lt;/Box&gt;
+
+          {user ? (
+            &lt;&gt;
+              &lt;Typography component="span" sx={{ mr: 1 }}&gt;{user.firstName}&lt;/Typography&gt;
+              &lt;Button color="inherit" onClick={logout}&gt;გამოსვლა&lt;/Button&gt;
+            &lt;/&gt;
+          ) : (
+            &lt;Button color="inherit" component={NavLink} to="/login"&gt;შესვლა&lt;/Button&gt;
+          )}
+        &lt;/Toolbar&gt;
+      &lt;/AppBar&gt;
+
+      &lt;Container component="main" id="main" tabIndex={-1} sx={{ py: 4, flexGrow: 1 }}&gt;
+        &lt;Outlet /&gt;
+      &lt;/Container&gt;
+
+      &lt;Box component="footer" sx={{ py: 3, textAlign: "center", borderTop: 1, borderColor: "divider" }}&gt;
+        &lt;Typography variant="body2"&gt;ShopHub — სასწავლო პროექტი. მონაცემები: DummyJSON.&lt;/Typography&gt;
+      &lt;/Box&gt;
+    &lt;/Box&gt;
+  );
+}</code></pre>
+      <pre><code>/* src/index.css — skip link (ხილული მხოლოდ ფოკუსისას) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: #fff;
+  color: #000;
+  padding: 8px 12px;
+  z-index: 2000;
+}
+.skip-link:focus { left: 8px; top: 8px; }</code></pre>
+      <p>
+        <code>NavLink</code> აქტიურ გვერდს ავტომატურად აძლევს <code>aria-current="page"</code>-ს. დროებით შექმენი გვერდების ცარიელი ვერსიები (<code>export default function HomePage() &#123; return &lt;h1&gt;მთავარი&lt;/h1&gt;; &#125;</code>),
+        რომ აპლიკაცია გაეშვას, და დააკომიტე.
+      </p>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: MUI theme, layout and route skeleton"</code></pre>
+
+      <!-- STEP 4 -->
+      <h3 class="project-step">ნაბიჯი 4. CartContext (Context + useReducer + localStorage)</h3>
+      <pre><code>// src/context/CartContext.jsx
+import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
+import { readJSON, writeJSON } from "../utils/storage";
+import { getFinalPrice } from "../utils/money";
+
+const CartContext = createContext(null);
+const CART_KEY = "shophub:cart";
+
+function cartReducer(items, action) {
+  switch (action.type) {
+    case "added": {
+      const { product, quantity } = action;
+      if (product.stock &lt; 1) return items;                    // მარაგში არ არის
+      const existing = items.find((i) =&gt; i.id === product.id);
+
+      if (existing) {
+        return items.map((i) =&gt;
+          i.id === product.id
+            ? { ...i, quantity: Math.min(i.quantity + quantity, i.stock) }
+            : i
+        );
+      }
+      return [
+        ...items,
+        {
+          id: product.id,
+          title: product.title,
+          thumbnail: product.thumbnail,
+          price: getFinalPrice(product.price, product.discountPercentage),
+          stock: product.stock,
+          quantity: Math.min(quantity, product.stock),
+        },
+      ];
+    }
+    case "quantity_set":
+      return items.map((i) =&gt;
+        i.id === action.id
+          ? { ...i, quantity: Math.max(1, Math.min(action.quantity, i.stock)) }
+          : i
+      );
+    case "removed":
+      return items.filter((i) =&gt; i.id !== action.id);
+    case "cleared":
+      return [];
+    default:
+      throw new Error("უცნობი action: " + action.type);
+  }
+}
+
+export function CartProvider({ children }) {
+  // მესამე არგუმენტი — ლენივი ინიციალიზაცია: localStorage-ის წაკითხვა მხოლოდ ერთხელ
+  const [items, dispatch] = useReducer(cartReducer, null, () =&gt; readJSON(localStorage, CART_KEY, []));
+
+  useEffect(() =&gt; {
+    writeJSON(localStorage, CART_KEY, items);      // გვერდითი ეფექტი — ეფექტში, არა reducer-ში
+  }, [items]);
+
+  const value = useMemo(
+    () =&gt; ({
+      items,
+      totalItems: items.reduce((sum, i) =&gt; sum + i.quantity, 0),
+      totalPrice: items.reduce((sum, i) =&gt; sum + i.price * i.quantity, 0),
+      addItem: (product, quantity = 1) =&gt; dispatch({ type: "added", product, quantity }),
+      setQuantity: (id, quantity) =&gt; dispatch({ type: "quantity_set", id, quantity }),
+      removeItem: (id) =&gt; dispatch({ type: "removed", id }),
+      clearCart: () =&gt; dispatch({ type: "cleared" }),
+    }),
+    [items]
+  );
+
+  return &lt;CartContext value={value}&gt;{children}&lt;/CartContext&gt;;
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (ctx === null) throw new Error("useCart უნდა გამოიყენო &lt;CartProvider&gt;-ის შიგნით");
+  return ctx;
+}</code></pre>
+      <p>
+        რატომ ვინახავთ კალათაში ფასს „ასლად“ (<code>price</code>, <code>title</code>...)? რომ კალათის გვერდზე დამატებითი API მოთხოვნა არ დაგვჭირდეს. რეალურ მაღაზიაში ეს
+        <em>მხოლოდ ჩვენებისთვისაა</em>: შეკვეთისას სერვერმა ფასები თავისი ბაზიდან უნდა გადაამოწმოს (მომხმარებელს ბრაუზერში <code>localStorage</code>-ის შეცვლა შეუძლია).
+      </p>
+      <div class="callout">
+        <p class="callout-title">ESLint-ის გაფრთხილება: „react-refresh/only-export-components“</p>
+        <p>
+          Vite-ის შაბლონი ამოწმებს, რომ ფაილში მხოლოდ კომპონენტები იყოს ექსპორტირებული — რადგან ზემოთ ერთ ფაილში გვაქვს <code>CartProvider</code> და
+          <code>useCart</code>, შეიძლება გაფრთხილება გამოჩნდეს. ეს გაფრთხილებაა და აპლიკაცია მუშაობს; მიზეზი: Fast Refresh (ცხელი განახლება) ასეთ ფაილში ცვლილებისას გვერდს
+          სრულად გადატვირთავს. სურვილისამებრ <code>useCart</code> ცალკე ფაილში (<code>context/useCart.js</code>) გაიტანე.
+        </p>
+      </div>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: CartContext with reducer and localStorage persistence"</code></pre>
+
+      <!-- STEP 5 -->
+      <h3 class="project-step">ნაბიჯი 5. AuthContext და ProtectedRoute</h3>
+      <pre><code>// src/context/AuthContext.jsx
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { api, getErrorMessage, setAccessToken } from "../api/client";
+import { readJSON, writeJSON } from "../utils/storage";
+
+const AuthContext = createContext(null);
+const USER_KEY = "shophub:user";
+
+export function AuthProvider({ children }) {
+  // sessionStorage-ში მხოლოდ არასენსიტიური პროფილია. ტოკენი — მხოლოდ მეხსიერებაში.
+  const [user, setUser] = useState(() =&gt; readJSON(sessionStorage, USER_KEY, null));
+
+  const login = useCallback(async (username, password) =&gt; {
+    try {
+      const { data } = await api.post("/auth/login", { username, password, expiresInMins: 30 });
+
+      setAccessToken(data.accessToken);              // მოდულის ცვლადში (interceptor-ისთვის)
+
+      // ვინახავთ მხოლოდ საჭირო, არასენსიტიურ ველებს (allowlist)
+      const profile = {
+        id: data.id,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+      };
+      writeJSON(sessionStorage, USER_KEY, profile);
+      setUser(profile);
+      return profile;
+    } catch (err) {
+      // 400 — არასწორი მონაცემები: ზოგადი შეტყობინება (არ ვაზუსტებთ რომელია არასწორი)
+      if (err.response?.status === 400) {
+        throw new Error("მომხმარებლის სახელი ან პაროლი არასწორია");
+      }
+      throw new Error(getErrorMessage(err));
+    }
+  }, []);
+
+  const logout = useCallback(() =&gt; {
+    setAccessToken(null);
+    sessionStorage.removeItem(USER_KEY);
+    setUser(null);
+  }, []);
+
+  const value = useMemo(
+    () =&gt; ({ user, isAuthenticated: user !== null, login, logout }),
+    [user, login, logout]
+  );
+
+  return &lt;AuthContext value={value}&gt;{children}&lt;/AuthContext&gt;;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (ctx === null) throw new Error("useAuth უნდა გამოიყენო &lt;AuthProvider&gt;-ის შიგნით");
+  return ctx;
+}</code></pre>
+      <pre><code>// src/components/ProtectedRoute.jsx — იგივეა, რაც ზემოთ ვნახეთ
+import { Navigate, Outlet, useLocation } from "react-router";
+import { useAuth } from "../context/AuthContext";
+
+export default function ProtectedRoute() {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    return &lt;Navigate to="/login" replace state={{ from: location.pathname }} /&gt;;
+  }
+  return &lt;Outlet /&gt;;
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: AuthContext and ProtectedRoute"</code></pre>
+
+      <!-- STEP 6 -->
+      <h3 class="project-step">ნაბიჯი 6. PriceTag (Styled Components) და ProductCard</h3>
+      <pre><code>// src/components/PriceTag.jsx
+import styled from "styled-components";
+import { formatMoney, getFinalPrice } from "../utils/money";
+
+const Price = styled.span`
+  font-weight: 700;
+  font-size: ${(props) =&gt; (props.$large ? "1.6rem" : "1.1rem")};
+  color: #146b5c;
+
+  s {
+    margin-left: 8px;
+    font-weight: 400;
+    font-size: 0.85em;
+    color: #777;
+  }
+`;
+
+export default function PriceTag({ price, discountPercentage = 0, large = false }) {
+  const finalPrice = getFinalPrice(price, discountPercentage);
+  return (
+    &lt;Price $large={large}&gt;
+      {formatMoney(finalPrice)}
+      {discountPercentage &gt; 0 &amp;&amp; &lt;s&gt;{formatMoney(price)}&lt;/s&gt;}
+    &lt;/Price&gt;
+  );
+}</code></pre>
+      <p>
+        <code>$large</code> — „transient prop“ (<code>$</code>-ით): ის მხოლოდ სტილს ემსახურება და DOM-ში არ გადადის. გახსოვდეს: Styled Components maintenance mode-შია (იხ. მე-23 გაკვეთილი) —
+        აქ მხოლოდ სასწავლო მიზნით ვიყენებთ; ახალ პროექტში ამავე კომპონენტს CSS Modules-ითაც დაწერდი (დავალებაა!).
+      </p>
+      <pre><code>// src/components/ProductCard.jsx
+import { Link as RouterLink } from "react-router";
+import { Card, CardActionArea, CardMedia, CardContent, CardActions, Button, Typography, Rating } from "@mui/material";
+import PriceTag from "./PriceTag";
+import { useCart } from "../context/CartContext";
+
+export default function ProductCard({ product }) {
+  const { addItem } = useCart();
+  const { id, title, thumbnail, price, discountPercentage, rating, stock } = product;
+
+  return (
+    &lt;Card component="article" sx={{ display: "flex", flexDirection: "column", height: "100%" }}&gt;
+      &lt;CardActionArea component={RouterLink} to={`/products/${id}`} sx={{ flexGrow: 1 }}&gt;
+        &lt;CardMedia
+          component="img"
+          image={thumbnail}
+          alt={title}
+          loading="lazy"
+          sx={{ aspectRatio: "1 / 1", objectFit: "contain", bgcolor: "action.hover" }}
+        /&gt;
+        &lt;CardContent&gt;
+          &lt;Typography variant="subtitle1" component="h3"&gt;{title}&lt;/Typography&gt;
+          &lt;Rating value={rating} precision={0.1} readOnly size="small" /&gt;
+          &lt;div&gt;&lt;PriceTag price={price} discountPercentage={discountPercentage} /&gt;&lt;/div&gt;
+        &lt;/CardContent&gt;
+      &lt;/CardActionArea&gt;
+
+      &lt;CardActions&gt;
+        &lt;Button
+          variant="contained"
+          fullWidth
+          disabled={stock &lt; 1}
+          onClick={() =&gt; addItem(product)}
+        &gt;
+          {stock &lt; 1 ? "მარაგში არ არის" : "კალათაში დამატება"}
+        &lt;/Button&gt;
+      &lt;/CardActions&gt;
+    &lt;/Card&gt;
+  );
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: PriceTag (styled-components) and ProductCard"</code></pre>
+
+      <!-- STEP 7 -->
+      <h3 class="project-step">ნაბიჯი 7. კატალოგი: ძებნა, კატეგორია, გვერდები (URL-ში)</h3>
+      <pre><code>// src/pages/ProductsPage.jsx
+import { useSearchParams } from "react-router";
+import { Box, Button, MenuItem, Pagination, TextField, Typography } from "@mui/material";
+import { useFetch } from "../hooks/useFetch";
+import QueryState from "../components/QueryState";
+import ProductCard from "../components/ProductCard";
+
+const PAGE_SIZE = 12;
+
+export default function ProductsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get("q") ?? "";
+  const category = searchParams.get("category") ?? "";
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);   // URL-ის პარამეტრი სტრიქონია!
+
+  // URL-ის აგება: ძებნა &gt; კატეგორია &gt; ყველა (API ძებნას და კატეგორიას ერთად ვერ აერთიანებს)
+  const skip = (page - 1) * PAGE_SIZE;
+  const paging = `limit=${PAGE_SIZE}&amp;skip=${skip}`;
+  let url = `/products?${paging}`;
+  if (q) url = `/products/search?q=${encodeURIComponent(q)}&amp;${paging}`;
+  else if (category) url = `/products/category/${encodeURIComponent(category)}?${paging}`;
+
+  const products = useFetch(url);
+  const categories = useFetch("/products/category-list");
+
+  function updateParams(changes) {
+    const next = new URLSearchParams(searchParams);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    setSearchParams(next);
+  }
+
+  function handleSearch(event) {
+    event.preventDefault();
+    const value = String(new FormData(event.currentTarget).get("q") ?? "").trim();
+    updateParams({ q: value, category: "", page: "" });          // ახალი ძებნა — პირველი გვერდიდან
+  }
+
+  const totalPages = Math.ceil((products.data?.total ?? 0) / PAGE_SIZE);
+
+  return (
+    &lt;section aria-labelledby="catalog-title"&gt;
+      &lt;Typography id="catalog-title" variant="h4" component="h1" gutterBottom&gt;პროდუქტები&lt;/Typography&gt;
+
+      &lt;Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}&gt;
+        {/* key={q}: URL-ის ცვლილებისას (მაგ. „უკან“) ველი თავიდან ინიციალიზდება.
+            არაკონტროლირებადი input + FormData — მე-24 გაკვეთილი */}
+        &lt;Box component="form" key={q} onSubmit={handleSearch} role="search" sx={{ display: "flex", gap: 1 }}&gt;
+          &lt;TextField name="q" defaultValue={q} label="ძებნა" size="small" type="search" /&gt;
+          &lt;Button type="submit" variant="contained"&gt;მოძებნე&lt;/Button&gt;
+        &lt;/Box&gt;
+
+        &lt;TextField
+          select
+          size="small"
+          label="კატეგორია"
+          value={category || "all"}
+          onChange={(e) =&gt; updateParams({ category: e.target.value === "all" ? "" : e.target.value, q: "", page: "" })}
+          sx={{ minWidth: 200 }}
+        &gt;
+          &lt;MenuItem value="all"&gt;ყველა კატეგორია&lt;/MenuItem&gt;
+          {(categories.data ?? []).map((slug) =&gt; (
+            &lt;MenuItem key={slug} value={slug}&gt;{slug}&lt;/MenuItem&gt;
+          ))}
+        &lt;/TextField&gt;
+      &lt;/Box&gt;
+
+      &lt;QueryState loading={products.loading} error={products.error} onRetry={products.reload}&gt;
+        {products.data?.products.length === 0 ? (
+          &lt;Typography role="status"&gt;„{q}“-ზე ვერაფერი მოიძებნა.&lt;/Typography&gt;
+        ) : (
+          &lt;&gt;
+            &lt;Box
+              sx={{
+                display: "grid",
+                gap: 2,
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",   // mobile-first, media query-ის გარეშე
+              }}
+            &gt;
+              {products.data?.products.map((product) =&gt; (
+                &lt;ProductCard key={product.id} product={product} /&gt;
+              ))}
+            &lt;/Box&gt;
+
+            {totalPages &gt; 1 &amp;&amp; (
+              &lt;Pagination
+                sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+                count={totalPages}
+                page={page}
+                onChange={(_, value) =&gt; updateParams({ page: value &gt; 1 ? String(value) : "" })}
+              /&gt;
+            )}
+          &lt;/&gt;
+        )}
+      &lt;/QueryState&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: products page with search, category filter and pagination in URL"</code></pre>
+
+      <!-- STEP 8 -->
+      <h3 class="project-step">ნაბიჯი 8. პროდუქტის გვერდი</h3>
+      <pre><code>// src/pages/ProductDetailsPage.jsx
+import { useState } from "react";
+import { Link as RouterLink, useParams } from "react-router";
+import { Box, Button, Chip, Divider, Rating, Stack, TextField, Typography } from "@mui/material";
+import { useFetch } from "../hooks/useFetch";
+import { useCart } from "../context/CartContext";
+import QueryState from "../components/QueryState";
+import PriceTag from "../components/PriceTag";
+
+export default function ProductDetailsPage() {
+  const { productId } = useParams();                       // სტრიქონია!
+  const { data: product, loading, error, reload } = useFetch(`/products/${encodeURIComponent(productId)}`);
+  const { addItem } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  function handleAdd() {
+    addItem(product, quantity);
+    setAdded(true);
+  }
+
+  return (
+    &lt;QueryState loading={loading} error={error} onRetry={reload}&gt;
+      {product &amp;&amp; (
+        &lt;article&gt;
+          &lt;Button component={RouterLink} to="/products" sx={{ mb: 2 }}&gt;← პროდუქტებზე დაბრუნება&lt;/Button&gt;
+
+          &lt;Box sx={{ display: "grid", gap: 4, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}&gt;
+            &lt;Box component="img" src={product.images?.[0] ?? product.thumbnail} alt={product.title}
+                 sx={{ width: "100%", maxHeight: 420, objectFit: "contain", bgcolor: "action.hover", borderRadius: 2 }} /&gt;
+
+            &lt;Stack spacing={2}&gt;
+              &lt;Typography variant="h4" component="h1"&gt;{product.title}&lt;/Typography&gt;
+              &lt;Stack direction="row" spacing={1} alignItems="center"&gt;
+                &lt;Rating value={product.rating} precision={0.1} readOnly /&gt;
+                &lt;Chip size="small" label={product.category} /&gt;
+              &lt;/Stack&gt;
+
+              &lt;PriceTag large price={product.price} discountPercentage={product.discountPercentage} /&gt;
+              &lt;Typography&gt;{product.description}&lt;/Typography&gt;
+              &lt;Typography color={product.stock &gt; 0 ? "success.main" : "error"}&gt;
+                {product.stock &gt; 0 ? `მარაგშია: ${product.stock}` : "მარაგში არ არის"}
+              &lt;/Typography&gt;
+
+              &lt;Stack direction="row" spacing={2}&gt;
+                &lt;TextField
+                  label="რაოდენობა"
+                  type="number"
+                  size="small"
+                  value={quantity}
+                  onChange={(e) =&gt; setQuantity(Math.max(1, Math.min(Number(e.target.value) || 1, product.stock)))}
+                  slotProps={{ htmlInput: { min: 1, max: product.stock } }}
+                  sx={{ width: 120 }}
+                /&gt;
+                &lt;Button variant="contained" disabled={product.stock &lt; 1} onClick={handleAdd}&gt;
+                  კალათაში დამატება
+                &lt;/Button&gt;
+              &lt;/Stack&gt;
+              {added &amp;&amp; (
+                &lt;Typography role="status"&gt;
+                  დაემატა! &lt;RouterLink to="/cart"&gt;კალათის ნახვა&lt;/RouterLink&gt;
+                &lt;/Typography&gt;
+              )}
+            &lt;/Stack&gt;
+          &lt;/Box&gt;
+
+          {product.reviews?.length &gt; 0 &amp;&amp; (
+            &lt;section aria-labelledby="reviews-title" style={{ marginTop: 32 }}&gt;
+              &lt;Typography id="reviews-title" variant="h5" component="h2" gutterBottom&gt;შეფასებები&lt;/Typography&gt;
+              {product.reviews.map((review) =&gt; (
+                &lt;Box key={`${review.reviewerEmail}-${review.date}`} sx={{ py: 1.5 }}&gt;
+                  &lt;Rating value={review.rating} readOnly size="small" /&gt;
+                  &lt;Typography variant="subtitle2"&gt;{review.reviewerName}&lt;/Typography&gt;
+                  &lt;Typography variant="body2"&gt;{review.comment}&lt;/Typography&gt;
+                  &lt;Divider sx={{ mt: 1.5 }} /&gt;
+                &lt;/Box&gt;
+              ))}
+            &lt;/section&gt;
+          )}
+        &lt;/article&gt;
+      )}
+    &lt;/QueryState&gt;
+  );
+}</code></pre>
+      <p>
+        შეამოწმე <code>/products/9999</code> — API 404-ს აბრუნებს და <code>QueryState</code> შეცდომის შეტყობინებას აჩვენებს (<code>useFetch</code>-ში Axios-ის შეცდომა გადადის <code>getErrorMessage</code>-ში).
+        ყურადღება მიაქციე, რომ <code>slotProps.htmlInput</code> MUI-ს ახალი ვერსიების (v6+) სინტაქსია; თუ სხვა ვერსია გაქვს და გაფრთხილებას ხედავ, დოკუმენტაციაში შეამოწმე.
+      </p>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: product details page"</code></pre>
+
+      <!-- STEP 9 -->
+      <h3 class="project-step">ნაბიჯი 9. კალათის გვერდი</h3>
+      <pre><code>// src/pages/CartPage.jsx
+import { Link as RouterLink } from "react-router";
+import { Box, Button, ButtonGroup, Card, CardContent, Stack, Typography } from "@mui/material";
+import { useCart } from "../context/CartContext";
+import { formatMoney } from "../utils/money";
+
+export default function CartPage() {
+  const { items, totalItems, totalPrice, setQuantity, removeItem, clearCart } = useCart();
+
+  if (items.length === 0) {
+    return (
+      &lt;section&gt;
+        &lt;Typography variant="h4" component="h1" gutterBottom&gt;კალათა ცარიელია&lt;/Typography&gt;
+        &lt;Button variant="contained" component={RouterLink} to="/products"&gt;პროდუქტების ნახვა&lt;/Button&gt;
+      &lt;/section&gt;
+    );
+  }
+
+  return (
+    &lt;section aria-labelledby="cart-title"&gt;
+      &lt;Typography id="cart-title" variant="h4" component="h1" gutterBottom&gt;კალათა ({totalItems})&lt;/Typography&gt;
+
+      &lt;Stack spacing={2}&gt;
+        {items.map((item) =&gt; (
+          &lt;Card key={item.id} component="article"&gt;
+            &lt;CardContent sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 2 }}&gt;
+              &lt;Box component="img" src={item.thumbnail} alt="" width={72} height={72} sx={{ objectFit: "contain" }} /&gt;
+
+              &lt;Box sx={{ flexGrow: 1, minWidth: 160 }}&gt;
+                &lt;Typography component={RouterLink} to={`/products/${item.id}`} variant="subtitle1"&gt;{item.title}&lt;/Typography&gt;
+                &lt;Typography variant="body2"&gt;{formatMoney(item.price)} / ცალი&lt;/Typography&gt;
+              &lt;/Box&gt;
+
+              &lt;ButtonGroup size="small" aria-label={`რაოდენობა: ${item.title}`}&gt;
+                &lt;Button onClick={() =&gt; setQuantity(item.id, item.quantity - 1)} disabled={item.quantity &lt;= 1} aria-label="შემცირება"&gt;−&lt;/Button&gt;
+                &lt;Button disabled sx={{ minWidth: 40 }}&gt;{item.quantity}&lt;/Button&gt;
+                &lt;Button onClick={() =&gt; setQuantity(item.id, item.quantity + 1)} disabled={item.quantity &gt;= item.stock} aria-label="გაზრდა"&gt;+&lt;/Button&gt;
+              &lt;/ButtonGroup&gt;
+
+              &lt;Typography sx={{ width: 90, textAlign: "right" }}&gt;{formatMoney(item.price * item.quantity)}&lt;/Typography&gt;
+              &lt;Button color="error" onClick={() =&gt; removeItem(item.id)}&gt;წაშლა&lt;/Button&gt;
+            &lt;/CardContent&gt;
+          &lt;/Card&gt;
+        ))}
+      &lt;/Stack&gt;
+
+      &lt;Box sx={{ mt: 3, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}&gt;
+        &lt;Button color="inherit" onClick={clearCart}&gt;კალათის გასუფთავება&lt;/Button&gt;
+        &lt;Box sx={{ textAlign: "right" }}&gt;
+          &lt;Typography variant="h5"&gt;ჯამი: {formatMoney(totalPrice)}&lt;/Typography&gt;
+          &lt;Button variant="contained" size="large" component={RouterLink} to="/checkout" sx={{ mt: 1 }}&gt;
+            შეკვეთის გაფორმება
+          &lt;/Button&gt;
+        &lt;/Box&gt;
+      &lt;/Box&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: cart page"</code></pre>
+
+      <!-- STEP 10 -->
+      <h3 class="project-step">ნაბიჯი 10. შესვლის გვერდი (React 19 Actions)</h3>
+      <p>
+        ამ ფორმაში ვიყენებთ <code>useActionState</code>-ს, <code>useFormStatus</code>-ს და არაკონტროლირებად ველებს. შესვლის შემდეგ მომხმარებელს ვაბრუნებთ იმ გვერდზე, საიდანაც მოვიდა
+        (<code>location.state.from</code>).
+      </p>
+      <pre><code>// src/pages/LoginPage.jsx
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { useLocation, useNavigate } from "react-router";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();                     // მუშაობს, რადგან &lt;form&gt;-ის შიგნითაა
+  return (
+    &lt;Button type="submit" variant="contained" disabled={pending}&gt;
+      {pending ? "მიმდინარეობს შესვლა..." : "შესვლა"}
+    &lt;/Button&gt;
+  );
+}
+
+export default function LoginPage() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from ?? "/";
+
+  const [state, formAction] = useActionState(
+    async (_previousState, formData) =&gt; {
+      const username = String(formData.get("username") ?? "").trim();
+      const password = String(formData.get("password") ?? "");
+
+      // 1) ვალიდაცია
+      const errors = {};
+      if (username.length &lt; 3) errors.username = "მომხმარებლის სახელი მინიმუმ 3 სიმბოლოა";
+      if (password.length &lt; 6) errors.password = "პაროლი მინიმუმ 6 სიმბოლოა";
+      if (Object.keys(errors).length &gt; 0) return { errors, message: "", username };
+
+      // 2) API მოთხოვნა
+      try {
+        await login(username, password);
+        navigate(from, { replace: true });                 // წარმატების შემდეგ დაბრუნება
+        return { errors: {}, message: "", username };
+      } catch (err) {
+        return { errors: {}, message: err.message, username };   // ზოგადი შეცდომა
+      }
+    },
+    { errors: {}, message: "", username: "" }
+  );
+
+  return (
+    &lt;Box component="section" sx={{ maxWidth: 420, mx: "auto" }}&gt;
+      &lt;Typography variant="h4" component="h1" gutterBottom&gt;შესვლა&lt;/Typography&gt;
+
+      &lt;Alert severity="info" sx={{ mb: 2 }}&gt;
+        სატესტო ანგარიში: &lt;strong&gt;emilys&lt;/strong&gt; / &lt;strong&gt;emilyspass&lt;/strong&gt; (DummyJSON)
+      &lt;/Alert&gt;
+
+      &lt;Box component="form" action={formAction} noValidate sx={{ display: "grid", gap: 2 }}&gt;
+        &lt;TextField
+          name="username"
+          label="მომხმარებლის სახელი"
+          defaultValue={state.username}                  // შეცდომის შემდეგაც შენარჩუნდება
+          autoComplete="username"
+          error={Boolean(state.errors.username)}
+          helperText={state.errors.username}
+          required
+        /&gt;
+        &lt;TextField
+          name="password"
+          type="password"
+          label="პაროლი"
+          autoComplete="current-password"
+          error={Boolean(state.errors.password)}
+          helperText={state.errors.password}
+          required
+        /&gt;
+
+        {state.message &amp;&amp; &lt;Alert severity="error" role="alert"&gt;{state.message}&lt;/Alert&gt;}
+
+        &lt;SubmitButton /&gt;
+      &lt;/Box&gt;
+    &lt;/Box&gt;
+  );
+}</code></pre>
+      <p>
+        გამოცადე: ცარიელი ველები (ვალიდაციის შეცდომები), არასწორი პაროლი (ზოგადი შეცდომა), სწორი მონაცემები (გადამისამართება). დაცულ გვერდზე (<code>/checkout</code>) შესვლამდე გადასვლა
+        უნდა გადაგიყვანოს <code>/login</code>-ზე და შესვლის შემდეგ — უკან.
+      </p>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: login page with React 19 form actions"</code></pre>
+
+      <!-- STEP 11 -->
+      <h3 class="project-step">ნაბიჯი 11. შეკვეთის გაფორმება (React Hook Form + Zod)</h3>
+      <p>
+        ჯერ პატარა დამხმარე კომპონენტი, რომ MUI-ს <code>TextField</code> React Hook Form-თან კარგად იმუშაოს (მნიშვნელოვანია <code>inputRef</code>, რომ RHF-მა
+        ნამდვილ <code>&lt;input&gt;</code>-ს მიაგნოს და შეცდომიან ველზე ფოკუსი გადაიტანოს):
+      </p>
+      <pre><code>// src/components/FormField.jsx
+import { TextField } from "@mui/material";
+
+export default function FormField({ label, registration, error, ...rest }) {
+  const { ref, ...field } = registration;     // registration = register("fieldName")
+  return (
+    &lt;TextField
+      label={label}
+      inputRef={ref}
+      {...field}
+      error={Boolean(error)}
+      helperText={error?.message}
+      fullWidth
+      {...rest}
+    /&gt;
+  );
+}</code></pre>
+      <pre><code>// src/pages/CheckoutPage.jsx
+import { useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Alert, Box, Button, Card, CardContent, Checkbox, FormControlLabel, FormHelperText, Stack, Typography } from "@mui/material";
+import FormField from "../components/FormField";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { api, getErrorMessage } from "../api/client";
+import { formatMoney } from "../utils/money";
+
+const schema = z.object({
+  fullName: z.string().trim().min(3, "სახელი და გვარი სავალდებულოა (მინ. 3 სიმბოლო)"),
+  email: z.email("ელფოსტის ფორმატი არასწორია"),
+  phone: z.string().trim().regex(/^\+?\d{9,15}$/, "ტელეფონი: 9–15 ციფრი, სურვილისამებრ + დასაწყისში"),
+  city: z.string().trim().min(2, "ქალაქი სავალდებულოა"),
+  address: z.string().trim().min(5, "მიუთითე სრული მისამართი"),
+  agree: z.boolean().refine((value) =&gt; value === true, "პირობებზე თანხმობა სავალდებულოა"),
+});
+
+export default function CheckoutPage() {
+  const { user } = useAuth();
+  const { items, totalPrice, clearCart } = useCart();
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: "onTouched",
+    defaultValues: {
+      fullName: user ? `${user.firstName} ${user.lastName}` : "",
+      email: user?.email ?? "",
+      phone: "",
+      city: "",
+      address: "",
+      agree: false,
+    },
+  });
+
+  if (items.length === 0) {
+    return (
+      &lt;section&gt;
+        &lt;Typography variant="h4" component="h1" gutterBottom&gt;კალათა ცარიელია&lt;/Typography&gt;
+        &lt;Button component={RouterLink} to="/products" variant="contained"&gt;პროდუქტების ნახვა&lt;/Button&gt;
+      &lt;/section&gt;
+    );
+  }
+
+  async function onSubmit(values) {                         // გამოიძახება მხოლოდ ვალიდური მონაცემებით
+    setSubmitError(null);
+    try {
+      // ტესტ-API-ს მხოლოდ კალათის შემადგენლობას ვუგზავნით, პერსონალურ მონაცემებს არა!
+      const { data } = await api.post("/carts/add", {
+        userId: user.id,
+        products: items.map(({ id, quantity }) =&gt; ({ id, quantity })),
+      });
+
+      clearCart();
+      navigate("/order-success", {
+        replace: true,
+        state: { orderId: data.id, total: totalPrice, name: values.fullName },
+      });
+    } catch (err) {
+      setSubmitError(getErrorMessage(err));
+    }
+  }
+
+  return (
+    &lt;section aria-labelledby="checkout-title"&gt;
+      &lt;Typography id="checkout-title" variant="h4" component="h1" gutterBottom&gt;შეკვეთის გაფორმება&lt;/Typography&gt;
+
+      &lt;Box sx={{ display: "grid", gap: 4, gridTemplateColumns: { xs: "1fr", md: "3fr 2fr" } }}&gt;
+        &lt;Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: "grid", gap: 2 }}&gt;
+          &lt;FormField label="სახელი და გვარი" autoComplete="name" registration={register("fullName")} error={errors.fullName} /&gt;
+          &lt;FormField label="ელფოსტა" type="email" autoComplete="email" registration={register("email")} error={errors.email} /&gt;
+          &lt;FormField label="ტელეფონი" type="tel" autoComplete="tel" registration={register("phone")} error={errors.phone} /&gt;
+          &lt;FormField label="ქალაქი" autoComplete="address-level2" registration={register("city")} error={errors.city} /&gt;
+          &lt;FormField label="მისამართი" autoComplete="street-address" registration={register("address")} error={errors.address} /&gt;
+
+          &lt;Alert severity="info"&gt;გადახდა — ადგილზე. ბარათის მონაცემებს ამ ფორმაში არ ვაგროვებთ.&lt;/Alert&gt;
+
+          &lt;Box&gt;
+            {(() =&gt; {
+              const { ref, ...field } = register("agree");
+              return (
+                &lt;FormControlLabel
+                  control={&lt;Checkbox inputRef={ref} {...field} /&gt;}
+                  label="ვეთანხმები მაღაზიის პირობებს"
+                /&gt;
+              );
+            })()}
+            {errors.agree &amp;&amp; &lt;FormHelperText error&gt;{errors.agree.message}&lt;/FormHelperText&gt;}
+          &lt;/Box&gt;
+
+          {submitError &amp;&amp; &lt;Alert severity="error" role="alert"&gt;{submitError}&lt;/Alert&gt;}
+
+          &lt;Button type="submit" variant="contained" size="large" disabled={isSubmitting}&gt;
+            {isSubmitting ? "იგზავნება..." : `შეკვეთის დადასტურება (${formatMoney(totalPrice)})`}
+          &lt;/Button&gt;
+        &lt;/Box&gt;
+
+        &lt;Card component="aside" aria-label="შეკვეთის შემადგენლობა" sx={{ alignSelf: "start" }}&gt;
+          &lt;CardContent&gt;
+            &lt;Typography variant="h6" component="h2" gutterBottom&gt;თქვენი შეკვეთა&lt;/Typography&gt;
+            &lt;Stack component="ul" spacing={1} sx={{ listStyle: "none", p: 0, m: 0 }}&gt;
+              {items.map((item) =&gt; (
+                &lt;li key={item.id}&gt;
+                  {item.title} × {item.quantity} — {formatMoney(item.price * item.quantity)}
+                &lt;/li&gt;
+              ))}
+            &lt;/Stack&gt;
+            &lt;Typography variant="h6" sx={{ mt: 2 }}&gt;ჯამი: {formatMoney(totalPrice)}&lt;/Typography&gt;
+          &lt;/CardContent&gt;
+        &lt;/Card&gt;
+      &lt;/Box&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+      <div class="callout callout-warn">
+        <p class="callout-title">ყურადღება: რამდენიმე „ხაფანგი“</p>
+        <ul style="padding-left: 20px; list-style: disc; margin: 8px 0 0;">
+          <li><code>if (items.length === 0) return ...</code> Hook-ების <em>შემდეგაა</em> (<code>useForm</code> წინაა). Hook-ების წინ „ადრეული return“ დაუშვებელია (Hooks-ის წესი, მე-22 გაკვეთილი).</li>
+          <li>checkbox-ის <code>register</code> პირდაპირ MUI <code>Checkbox</code>-ზე <code>inputRef</code>-ით ვადებთ (ზემოთ IIFE ფორმით, ერთ ადგილას); თუ გირჩევნია, გამოიტანე ცალკე <code>FormCheckbox</code> კომპონენტად.</li>
+          <li>თუ ძველი React Hook Form/Zod/MUI ვერსია გაქვს და რომელიმე იმპორტი ან prop არ მუშაობს, შეამოწმე შესაბამისი ბიბლიოთეკის დოკუმენტაცია (ვერსიებს შორის API ხანდახან იცვლება).</li>
+          <li>ტექსტებს (<code>ელფოსტის ფორმატი არასწორია</code> და ა.შ.) სერვერიც უნდა გადაამოწმებდეს — ეს კლიენტზე მხოლოდ მოხერხებულობაა.</li>
+        </ul>
+      </div>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: checkout form with React Hook Form and Zod"</code></pre>
+
+      <!-- STEP 12 -->
+      <h3 class="project-step">ნაბიჯი 12. მთავარი, წარმატების და 404 გვერდები</h3>
+      <pre><code>// src/pages/HomePage.jsx
+import { Link as RouterLink } from "react-router";
+import { Box, Button, Typography } from "@mui/material";
+import { useFetch } from "../hooks/useFetch";
+import QueryState from "../components/QueryState";
+import ProductCard from "../components/ProductCard";
+
+export default function HomePage() {
+  // საუკეთესო რეიტინგის 4 პროდუქტი
+  const { data, loading, error, reload } = useFetch("/products?limit=4&amp;sortBy=rating&amp;order=desc");
+
+  return (
+    &lt;&gt;
+      &lt;Box component="section" sx={{ py: 4, textAlign: "center" }}&gt;
+        &lt;Typography variant="h3" component="h1" gutterBottom&gt;კეთილი იყოს შენი მობრძანება ShopHub-ში&lt;/Typography&gt;
+        &lt;Typography sx={{ mb: 3 }}&gt;ათასობით პროდუქტი ერთ ადგილას.&lt;/Typography&gt;
+        &lt;Button variant="contained" size="large" component={RouterLink} to="/products"&gt;კატალოგის ნახვა&lt;/Button&gt;
+      &lt;/Box&gt;
+
+      &lt;section aria-labelledby="top-title"&gt;
+        &lt;Typography id="top-title" variant="h5" component="h2" gutterBottom&gt;საუკეთესო რეიტინგით&lt;/Typography&gt;
+        &lt;QueryState loading={loading} error={error} onRetry={reload}&gt;
+          &lt;Box sx={{ display: "grid", gap: 2, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}&gt;
+            {data?.products.map((p) =&gt; &lt;ProductCard key={p.id} product={p} /&gt;)}
+          &lt;/Box&gt;
+        &lt;/QueryState&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+
+// src/pages/OrderSuccessPage.jsx
+import { Link as RouterLink, useLocation } from "react-router";
+import { Alert, Button, Typography } from "@mui/material";
+import { formatMoney } from "../utils/money";
+
+export default function OrderSuccessPage() {
+  const { state } = useLocation();               // გვერდის განახლებისას state შეიძლება არ არსებობდეს!
+
+  return (
+    &lt;section&gt;
+      &lt;Typography variant="h4" component="h1" gutterBottom&gt;შეკვეთა მიღებულია 🎉&lt;/Typography&gt;
+      {state ? (
+        &lt;Alert severity="success" sx={{ mb: 2 }}&gt;
+          გმადლობთ, {state.name}! შეკვეთა №{state.orderId} ({formatMoney(state.total)}) გაფორმებულია.
+        &lt;/Alert&gt;
+      ) : (
+        &lt;Typography sx={{ mb: 2 }}&gt;შეკვეთის დეტალები ვერ მოიძებნა.&lt;/Typography&gt;
+      )}
+      &lt;Button variant="contained" component={RouterLink} to="/products"&gt;შოპინგის გაგრძელება&lt;/Button&gt;
+    &lt;/section&gt;
+  );
+}
+
+// src/pages/NotFoundPage.jsx
+import { Link as RouterLink } from "react-router";
+import { Button, Typography } from "@mui/material";
+
+export default function NotFoundPage() {
+  return (
+    &lt;section&gt;
+      &lt;Typography variant="h4" component="h1" gutterBottom&gt;404 — გვერდი ვერ მოიძებნა&lt;/Typography&gt;
+      &lt;Button variant="contained" component={RouterLink} to="/"&gt;მთავარ გვერდზე დაბრუნება&lt;/Button&gt;
+    &lt;/section&gt;
+  );
+}</code></pre>
+      <p>
+        (ეს სამი კომპონენტი სამ ცალკე ფაილშია; აქ მოკლედობისთვის ერთ ბლოკშია ნაჩვენები.)
+      </p>
+      <pre><code>git add . &amp;&amp; git commit -m "feat: home, order success and not found pages"</code></pre>
+
+      <!-- STEP 13 -->
+      <h3 class="project-step">ნაბიჯი 13. გამოცდა, დახვეწა და გამოქვეყნება</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>ხელით ტესტი (ყველა სცენარი):</strong> ძებნა, კატეგორია, გვერდები, „უკან“ ღილაკი; ცარიელი შედეგი; არარსებული პროდუქტი (<code>/products/99999</code>); კალათის რაოდენობა მარაგის ლიმიტამდე; გვერდის განახლება (კალათა უნდა დარჩეს); დაცული გვერდი გამოსულ მდგომარეობაში; არასწორი პაროლი; ინტერნეტის გამორთვა (DevTools → Offline).</li>
+        <li><strong>კლავიატურით:</strong> მთელი აპლიკაცია Tab/Enter/Space-ით უნდა მუშაობდეს; ფოკუსი ყოველთვის ხილულია.</li>
+        <li><strong>რესპონსიულობა:</strong> DevTools-ში 320px, 768px, 1280px.</li>
+        <li><strong>Lighthouse</strong> (Chrome DevTools): Performance, Accessibility, Best Practices — სცადე ყველა მაჩვენებელი 90+-მდე მიიყვანო.</li>
+        <li><strong>React DevTools:</strong> Components ჩანართში გადაამოწმე <code>CartContext</code>-ის და <code>AuthContext</code>-ის მნიშვნელობები; Profiler-ით ნახე, ზედმეტად ხომ არ იხატება ბარათები.</li>
+        <li><strong>production build:</strong> <code>npm run build</code> და <code>npm run preview</code> — ლოკალურად გადაამოწმე დამზადებული ვერსია.</li>
+        <li><strong>SPA fallback</strong> (გვერდის განახლებაზე 404 რომ არ დაგიბრუნდეს): Netlify-ზე შექმენი <code>public/_redirects</code>: <code>/* /index.html 200</code>; Vercel-ზე <code>vercel.json</code>-ში rewrite; GitHub Pages-ზე — <code>HashRouter</code> ან <code>404.html</code> ხრიკი (იხ. მე-23 გაკვეთილი).</li>
+        <li><strong>README.md</strong>: პროექტის აღწერა, ეკრანის სურათები, გაშვების ინსტრუქცია (<code>npm install</code>, <code>npm run dev</code>), ტექნოლოგიების სია, ცნობილი შეზღუდვები (სატესტო API, ტოკენის შენახვის კომპრომისი), ბმული დემო-საიტზე.</li>
+        <li><strong>გამოქვეყნება:</strong> GitHub-ზე ატვირთვა → Netlify/Vercel/Cloudflare Pages-თან დაკავშირება (build: <code>npm run build</code>, გამოსატანი: <code>dist</code>).</li>
+      </ol>
+
+      <h3 class="project-step">Git სამუშაო პროცესი პროექტისთვის</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>პატარა, ლოგიკური commit-ები (როგორც ზემოთ). შეტყობინებები: <code>feat:</code> (ახალი ფუნქცია), <code>fix:</code> (შეცდომა), <code>refactor:</code>, <code>docs:</code>, <code>chore:</code>.</li>
+        <li>ახალი ფუნქციისთვის ცალკე ბრენჩი: <code>git switch -c feature/checkout</code>; დასრულებისას Pull Request GitHub-ზე (ან საკუთარ თავს გადახედე diff-ი).</li>
+        <li><code>.gitignore</code>-ში <code>node_modules</code>, <code>dist</code>, <code>.env.local</code> — საიდუმლოებები repo-ში არასდროს.</li>
+      </ul>
+
+      <h3 class="project-step">გაუმჯობესების იდეები (ბონუსი)</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Code splitting:</strong> <code>React.lazy</code> + <code>Suspense</code> გვერდებზე (<code>const CheckoutPage = lazy(() =&gt; import("./pages/CheckoutPage"))</code>).</li>
+        <li><strong>Error Boundary:</strong> მოულოდნელი რენდერის შეცდომისთვის ლამაზი გვერდი (<code>react-error-boundary</code> ან Router-ის <code>ErrorBoundary</code> data რეჟიმში).</li>
+        <li><strong>ფავორიტები</strong> (wishlist) — კიდევ ერთი Context + <code>localStorage</code>.</li>
+        <li><strong>TanStack Query</strong> — <code>useFetch</code>-ის ჩანაცვლება <code>useQuery</code>-ით; შეადარე ქეშირების ეფექტი.</li>
+        <li><strong>ფასების დახარისხება</strong> (<code>sortBy=price&amp;order=asc</code>) და ფასის დიაპაზონის ფილტრი.</li>
+        <li><strong>ბნელი თემა</strong> (MUI <code>palette.mode</code>) და არჩევანის შენახვა <code>localStorage</code>-ში.</li>
+        <li><strong>TypeScript:</strong> პროექტის გადაწერა <code>react-ts</code> შაბლონზე.</li>
+        <li><strong>ტესტები:</strong> <code>cartReducer</code>-ის unit ტესტები Vitest-ით (წმინდა ფუნქცია — ყველაზე მარტივი სატესტო), კომპონენტებისთვის — React Testing Library.</li>
+        <li><strong>Styled Components → CSS Modules:</strong> გადაწერე <code>PriceTag</code> CSS Modules-ით და შეადარე.</li>
+        <li><strong>რეალური ავტორიზაცია:</strong> წაიკითხე, როგორ მუშაობს HttpOnly refresh cookie + access token მეხსიერებაში და მოიფიქრე, რა უნდა შეიცვალოს backend-ზე.</li>
+      </ul>
+
+      <h3 class="project-step">შეფასების კრიტერიუმები (თვითშეფასებისთვის)</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>კრიტერიუმი</th><th>რას ვამოწმებთ</th></tr></thead>
+          <tbody>
+            <tr><td><strong>ფუნქციონალი</strong></td><td>ყველა მოთხოვნა შესრულებულია; ძირითადი სცენარები უშეცდომოდ მუშაობს</td></tr>
+            <tr><td><strong>React-ის გამოყენება</strong></td><td>კომპონენტები მცირე და ერთმიზნიანია; state სწორ ადგილასაა; უცვლელი განახლებები; <code>key</code>-ები; ეფექტები cleanup-ით</td></tr>
+            <tr><td><strong>API და შეცდომები</strong></td><td>loading/error/empty მდგომარეობები; Axios instance; <code>useFetch</code> გაუქმებით</td></tr>
+            <tr><td><strong>ფორმები და ავტორიზაცია</strong></td><td>ვალიდაცია, გასაგები შეცდომები, ხელმისაწვდომი ველები; ტოკენი სწორად ინახება; დაცული მარშრუტები</td></tr>
+            <tr><td><strong>კოდის ხარისხი</strong></td><td>სუფთა სტრუქტურა, სახელები, ESLint-ის გაფრთხილებების გარეშე ან გაცნობიერებულად, ზედმეტი კოდის გარეშე</td></tr>
+            <tr><td><strong>დიზაინი და რესპონსიულობა</strong></td><td>320px-დან კარგად გამოიყურება; ერთგვაროვანი სტილი</td></tr>
+            <tr><td><strong>ხელმისაწვდომობა და უსაფრთხოება</strong></td><td>სემანტიკური HTML, კლავიატურა, <code>aria</code>; საიდუმლოები არ არის კოდში; მესამე მხარეს პერსონალური მონაცემები არ მიდის</td></tr>
+            <tr><td><strong>პროცესი</strong></td><td>Git commit-ები, README, გამოქვეყნებული დემო</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= 7. PRACTICES ========================= -->
+      <h2 id="practices">7. კურსის შემაჯამებელი — საუკეთესო პრაქტიკები</h2>
       <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
         <li><strong>სემანტიკური HTML</strong> ყოველთვის — ეს დღემდე რჩება ხელმისაწვდომობისა და SEO-ს საფუძვლად, React-ის კომპონენტებშიც კი.</li>
         <li><strong>Mobile-First CSS</strong> — დაწერე პატარა ეკრანისთვის ჯერ, შემდეგ გააფართოვე <code>@media (min-width: ...)</code>-ით.</li>
@@ -216,29 +1922,118 @@
         <li><strong>Git commit-ები ხშირად</strong> — მცირე, გასაგები commit-ები, მკაფიო შეტყობინებებით.</li>
         <li><strong>AI ასისტენტები</strong> — გამოსადეგია აჩქარებისთვის, მაგრამ ყოველთვის გადამოწმებადია, არა უპირობო ნდობის საგანი.</li>
       </ul>
+
+      <h3>დამატებითი პრაქტიკები (რაც კურსის განმავლობაში ვისწავლეთ და რეალურ პროექტში აუცილებელია)</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>State სწორ ადგილას:</strong> იფიქრე „ვის სჭირდება?“ — ლოკალური → საერთო მშობელი → Context → URL → სერვერის მონაცემი (იხ. ცხრილი ზემოთ). ნუ შეინახავ იმას, რაც გამოითვლება.</li>
+        <li><strong>ყოველთვის დაამუშავე loading / error / empty</strong> — ეს „მესამე სახის“ UI უმეტეს ბაგს ხსნის.</li>
+        <li><strong>ეფექტები მხოლოდ საჭიროებისას</strong> (გარე სისტემასთან სინქრონიზაცია) და ყოველთვის cleanup-ით; მონაცემების გამოთვლას ეფექტი არ უნდა.</li>
+        <li><strong>ხელმისაწვდომობა:</strong> <code>label</code>-ები, ალტერნატიული ტექსტი, კონტრასტი, კლავიატურა, <code>aria-live</code>/<code>role="alert"</code> დინამიური შეტყობინებებისთვის.</li>
+        <li><strong>უსაფრთხოება:</strong> frontend-ში საიდუმლო არ არის; მომხმარებლის ტექსტი არასოდეს ჩავსვათ როგორც HTML; ტოკენის შენახვის რისკები; HTTPS; lock ფაილი და <code>npm audit</code>; სერვერის მხარის ვალიდაცია.</li>
+        <li><strong>წარმადობა:</strong> სურათებზე <code>loading="lazy"</code> და ზომები (layout shift-ის თავიდან ასაცილებლად); code splitting; სიების <code>key</code>; ჯერ გაზომე (Lighthouse, Profiler), მერე ოპტიმიზაცია.</li>
+        <li><strong>ვერსიების სიფრთხილე:</strong> ბიბლიოთეკების API იცვლება (React Router v8, MUI v9, Zod 4...) — ტუტორიალს თარიღი შეხედე, ოფიციალურ დოკუმენტაციას ენდე, ვერსიები lock ფაილით დაამაგრე.</li>
+        <li><strong>კითხვადი კოდი:</strong> კარგი სახელები, პატარა ფუნქციები, თანმიმდევრული ფორმატირება (Prettier), ESLint-ის გაფრთხილებებს ყურადღება.</li>
+        <li><strong>ტესტირება და ხარისხი:</strong> რაც უფრო „წმინდაა“ ლოგიკა (reducer, utils), მით უფრო ადვილად იტესტება.</li>
+      </ul>
       <p>
         ეს კურსი დაფარა გზა ერთი HTML ტეგიდან სრულ React აპლიკაციამდე — შემდეგი ნაბიჯი შენია:
         ააგე რეალური პროექტი, გაუზიარე კოდი GitHub-ზე და გააგრძელე სწავლა პრაქტიკით.
       </p>
 
+      <!-- ========================= 8. NEXT ========================= -->
+      <h2 id="next">8. რა არის შემდეგი ნაბიჯი</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>მიმართულება</th><th>რა ისწავლო</th></tr></thead>
+          <tbody>
+            <tr><td><strong>TypeScript</strong></td><td>ტიპები props-ებზე, state-ზე, API პასუხებზე; <code>react-ts</code> შაბლონი. დღეს ეს პრაქტიკულად სტანდარტია გუნდურ პროექტებში.</td></tr>
+            <tr><td><strong>ტესტირება</strong></td><td>Vitest + React Testing Library; ბრაუზერული e2e — Playwright.</td></tr>
+            <tr><td><strong>სერვერის მონაცემები</strong></td><td>TanStack Query (ქეში, ფონური განახლება, mutation-ები).</td></tr>
+            <tr><td><strong>სახელმწიფო მენეჯმენტი</strong></td><td>Zustand, Redux Toolkit (როცა Context უკვე აღარ კმარა).</td></tr>
+            <tr><td><strong>ფრეიმვორქები</strong></td><td>Next.js ან React Router framework mode — SSR/SSG, SEO, ჩაშენებული მონაცემთა ჩატვირთვა. React-ის გუნდი ახალი production აპლიკაციებისთვის ფრეიმვორქს რეკომენდაციას უწევს.</td></tr>
+            <tr><td><strong>სტილები</strong></td><td>Tailwind CSS, CSS Modules, shadcn/ui; დიზაინის სისტემები.</td></tr>
+            <tr><td><strong>Backend საფუძვლები</strong></td><td>Node.js + Express, ბაზები (PostgreSQL/MongoDB), REST/GraphQL — რომ „სრული სტეკის“ სურათი გქონდეს.</td></tr>
+            <tr><td><strong>ინსტრუმენტები</strong></td><td>GitHub Actions (CI/CD), Docker-ის საფუძვლები, Lighthouse/Web Vitals.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========================= SELF CHECK ========================= -->
+      <h2 id="selfcheck">9. თვითშემოწმება</h2>
+      <div class="qa">
+        <details>
+          <summary>1. რა არის controlled input და რა არის „source of truth“ მასში?</summary>
+          <p>ველის მნიშვნელობა ინახება React state-ში (<code>value</code> + <code>onChange</code>), ანუ state არის ჭეშმარიტების ერთადერთი წყარო, და არა DOM.</p>
+        </details>
+        <details>
+          <summary>2. როდის უნდა ვაჩვენოთ ვალიდაციის შეცდომა და რატომ?</summary>
+          <p>ველის დატოვების (blur) ან გაგზავნის შემდეგ — არა პირველივე სიმბოლოზე. გასწორებისას კი შეცდომა დაუყოვნებლივ უნდა გაქრეს. ასე მომხმარებელი არ იგრძნობს „შეტევას“.</p>
+        </details>
+        <details>
+          <summary>3. რას აკეთებს <code>useActionState</code> და რატომ უნდა იყოს <code>useFormStatus</code> ფორმის შიგნით არსებულ კომპონენტში?</summary>
+          <p><code>useActionState</code> ფორმის action-ს აკავშირებს state-თან და აბრუნებს <code>[state, action, isPending]</code>-ს. <code>useFormStatus</code> მშობელი ფორმის სტატუსს კითხულობს, ამიტომ ის მხოლოდ ფორმის შვილ კომპონენტში მუშაობს; იმავე კომპონენტში, სადაც <code>&lt;form&gt;</code> იხატება, ყოველთვის <code>pending: false</code> იქნება.</p>
+        </details>
+        <details>
+          <summary>4. რატომ არ არის კლიენტის ვალიდაცია უსაფრთხოების საშუალება?</summary>
+          <p>ბრაუზერში ყველაფერი შეიძლება შეიცვალოს ან გვერდი აუარო (API-ს უშუალო გამოძახებით). ვალიდაცია კლიენტზე მხოლოდ მოხერხებულობაა; სერვერმა ყველა მონაცემი თავისით უნდა გადაამოწმოს.</p>
+        </details>
+        <details>
+          <summary>5. რატომ არ არის რეკომენდებული გრძელვადიანი ტოკენის <code>localStorage</code>-ში შენახვა და რა არის ალტერნატივა?</summary>
+          <p><code>localStorage</code> ხელმისაწვდომია გვერდზე გაშვებული ნებისმიერი JavaScript-ისთვის, ამიტომ XSS-ის შემთხვევაში ტოკენის მოპარვა შესაძლებელია. ალტერნატივა: მოკლევადიანი access ტოკენი მეხსიერებაში და refresh ტოკენი HttpOnly+Secure+SameSite cookie-ში (ან სერვერული სესია cookie-ით).</p>
+        </details>
+        <details>
+          <summary>6. რას იცავს <code>ProtectedRoute</code> და რას არა?</summary>
+          <p>ის მხოლოდ UI-ს მართავს (არ აჩვენებს გვერდს და გადამისამართებს). ნამდვილ უსაფრთხოებას სერვერი უზრუნველყოფს — ყოველი დაცული მოთხოვნა სერვერზე უნდა გადამოწმდეს.</p>
+        </details>
+        <details>
+          <summary>7. როდის გამოვიყენოთ Context და რა არის მისი მთავარი ნაკლი?</summary>
+          <p>როცა ერთი მონაცემი ბევრ დაშორებულ კომპონენტს სჭირდება და prop drilling მოუხერხებელია (მომხმარებელი, კალათა, თემა). ნაკლი: <code>value</code>-ს ცვლილებისას ყველა მომხმარებელი კომპონენტი ხელახლა იხატება; ხშირად ცვალებად მონაცემებზე არ გამოდგება.</p>
+        </details>
+        <details>
+          <summary>8. რატომ ვიყენებთ კალათისთვის <code>useReducer</code>-ს?</summary>
+          <p>ერთ state-ზე რამდენიმე სახის ცვლილებაა (დამატება, რაოდენობა, წაშლა, გასუფთავება); reducer მათ ერთ წმინდა ფუნქციაში აერთიანებს, რაც ლოგიკას გასაგებს და ტესტირებადს ხდის.</p>
+        </details>
+        <details>
+          <summary>9. რატომ ვინახავთ ძებნას/გვერდს URL-ში და არა state-ში?</summary>
+          <p>ბმული გასაზიარებელი ხდება, „უკან“ ღილაკი სწორად მუშაობს და გვერდის განახლებისას მდგომარეობა არ იკარგება.</p>
+        </details>
+        <details>
+          <summary>10. რა სიფრთხილე გვმართებს საჯარო სატესტო API-ებთან (DummyJSON და მსგავსი)?</summary>
+          <p>მათ არასოდეს ვუგზავნით რეალურ პერსონალურ ან გადახდის მონაცემებს; ისინი მონაცემებს რეალურად არ ინახავენ და შეიძლება შეიცვალონ ან მიუწვდომელი გახდნენ.</p>
+        </details>
+      </div>
+
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
-          <li><a href="https://react.dev/reference/react-dom/components/common#applying-css-styles" target="_blank" rel="noopener">React — Forms (controlled components)</a></li>
+          <li><a href="https://react.dev/reference/react-dom/components/form" target="_blank" rel="noopener">React — &lt;form&gt; (Actions)</a></li>
+          <li><a href="https://react.dev/reference/react-dom/components/input" target="_blank" rel="noopener">React — &lt;input&gt; (controlled components)</a></li>
+          <li><a href="https://react.dev/reference/react/useActionState" target="_blank" rel="noopener">React — useActionState</a></li>
+          <li><a href="https://react.dev/reference/react-dom/hooks/useFormStatus" target="_blank" rel="noopener">React — useFormStatus</a></li>
           <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank" rel="noopener">React — Passing Data Deeply with Context</a></li>
-          <li><a href="https://mui.com/material-ui/getting-started/templates/" target="_blank" rel="noopener">Material UI — Templates (e-commerce ჩათვლით)</a></li>
-          <li><a href="https://reactrouter.com/en/main/hooks/use-params" target="_blank" rel="noopener">React Router — useParams reference</a></li>
+          <li><a href="https://react.dev/learn/scaling-up-with-reducer-and-context" target="_blank" rel="noopener">React — Scaling Up with Reducer and Context</a></li>
+          <li><a href="https://react-hook-form.com/get-started" target="_blank" rel="noopener">React Hook Form — Get started</a></li>
+          <li><a href="https://zod.dev/" target="_blank" rel="noopener">Zod — დოკუმენტაცია</a></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — HTML5 Security Cheat Sheet (storage-ის რისკები)</a></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — Authentication Cheat Sheet</a></li>
+          <li><a href="https://dummyjson.com/docs" target="_blank" rel="noopener">DummyJSON — დოკუმენტაცია (products, auth, carts)</a></li>
+          <li><a href="https://mui.com/material-ui/getting-started/" target="_blank" rel="noopener">Material UI — Getting started</a></li>
+          <li><a href="https://reactrouter.com/" target="_blank" rel="noopener">React Router — ოფიციალური საიტი</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms" target="_blank" rel="noopener">MDN — Web forms</a></li>
+          <li><a href="https://web.dev/learn/accessibility" target="_blank" rel="noopener">web.dev — Learn Accessibility</a></li>
         </ul>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">საბოლოო პროექტი — პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>ააწყვე ავტორიზაციის მარტივი ფორმა — <code>username</code>/<code>password</code> ველებით, ვალიდაციით, და <code>sessionStorage</code>-ში „ავტორიზებული" მდგომარეობის შენახვით.</li>
-          <li>შექმენი <code>CartContext</code> ზემოთ მოცემული მაგალითის მსგავსად და დაარეგისტრირე ის <code>App.jsx</code>-ში.</li>
-          <li>ააწყვე <code>ProductList</code> გვერდი — 6+ პროდუქტით (მასივი static მონაცემით ან <code>useFetch</code>-ით), თითოეულს ჰქონდეს „კალათაში დამატება" ღილაკი.</li>
-          <li>ააწყვე <code>Cart</code> გვერდი, რომელიც <code>useCart()</code>-ის გამოყენებით აჩვენებს დამატებულ პროდუქტებს და ჯამურ ფასს (<code>reduce()</code>-ის გამოყენებით).</li>
-          <li><em>(საბოლოო, კომპლექსური დავალება)</em> გააერთიანე ყველაფერი ერთ სრულ, მუშა React აპლიკაციაში: React Router-ით ნავიგაცია (მთავარი/პროდუქტები/კალათა/შესვლა), Material UI-ის კომპონენტებით გაფორმებული, Context-ით მართული კალათა, და მინიმუმ ერთი custom hook — ატვირთე პროექტი GitHub-ზე.</li>
+          <li>ააწყვე ავტორიზაციის მარტივი ფორმა — <code>username</code>/<code>password</code> ველებით, ვალიდაციით და გასაგები შეცდომებით. ჯერ <strong>controlled</strong> ვერსია (ხელით ვალიდაცია, <code>touched</code> მდგომარეობით), მერე იგივე React 19 <code>useActionState</code>-ით. შეადარე ორივე.</li>
+          <li>შექმენი <code>CartContext</code> <code>useReducer</code>-ით ზემოთ მოცემული მაგალითის მსგავსად, დაარეგისტრირე ის <code>main.jsx</code>-ში და გააკეთე კალათის გადარჩენა <code>localStorage</code>-ში. დაწერე <code>cartReducer</code>-ის მარტივი ტესტები (ან ხელით ჩაატარე კონსოლში).</li>
+          <li>ააწყვე <code>ProductsPage</code> — პროდუქტები API-დან <code>useFetch</code>-ით, ძებნით და კატეგორიით (URL-ის პარამეტრებში), გვერდებით, loading/error/empty მდგომარეობებით.</li>
+          <li>ააწყვე <code>CartPage</code>, რომელიც <code>useCart()</code>-ის გამოყენებით აჩვენებს დამატებულ პროდუქტებს, რაოდენობას (მარაგის ლიმიტით) და ჯამურ ფასს (<code>reduce()</code>-ის გამოყენებით).</li>
+          <li>დაამატე <code>ProtectedRoute</code>, <code>/checkout</code> გვერდი React Hook Form + Zod-ით და შეკვეთის წარმატების გვერდი.</li>
+          <li><em>(საბოლოო, კომპლექსური დავალება)</em> გააერთიანე ყველაფერი ერთ სრულ, მუშა React აპლიკაციაში (<strong>ShopHub</strong> ან შენი საკუთარი იდეა — წიგნების მაღაზია, ფილმების კატალოგი, რეცეპტების აპლიკაცია...): React Router-ით ნავიგაცია (მთავარი/პროდუქტები/პროდუქტის გვერდი/კალათა/შესვლა/შეკვეთა/404), Material UI-ის კომპონენტებით გაფორმებული, Context-ით მართული კალათა და ავტორიზაცია, მინიმუმ ერთი custom hook (<code>useFetch</code>), Axios instance, ფორმები ვალიდაციით და სტრუქტურული Git ისტორია — ატვირთე პროექტი GitHub-ზე და გამოაქვეყნე.</li>
+          <li><em>(რეფლექსია, 5–10 წინადადება README-ში)</em>: რა იყო ყველაზე რთული? რა ვისწავლე ამ პროექტიდან? რას გავაუმჯობესებდი, თუ მეტი დრო მექნებოდა? რომელი უსაფრთხოების შეზღუდვები აქვს ჩემს ვერსიას?</li>
         </ol>
       </div>
 

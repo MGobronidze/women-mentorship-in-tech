@@ -4,11 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>გაკვეთილი 23 — API მუშაობა, Axios, Custom Hook, Router</title>
-  <meta name="description" content="Request async/await, Axios, error handling, loading state, Custom Hook, Styled Components, Material UI, Virtual DOM და React Router." />
+  <meta name="description" content="Request async/await, fetch და Axios, error handling, loading state, Custom Hook, Styled Components, Material UI, Virtual DOM და React Router (v8)." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* დამატებითი სტილები ამ გაკვეთილისთვის (იყენებს style.css-ის ცვლადებს, სათადარიგო მნიშვნელობებით) */
+    .toc { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+    .toc h3 { margin-top: 0; }
+    .toc ol { padding-left: 20px; margin: 0; }
+    .toc li { margin: 4px 0; }
+    .callout { border-left: 4px solid var(--mod-react, #0ea5e9); background: color-mix(in srgb, var(--mod-react, #0ea5e9) 12%, transparent); padding: 14px 18px; border-radius: 10px; margin: 20px 0; }
+    .callout > :first-child { margin-top: 0; }
+    .callout > :last-child { margin-bottom: 0; }
+    .callout-warn { border-left-color: #e08a00; background: color-mix(in srgb, #e08a00 13%, transparent); }
+    .callout-title { font-weight: 800; margin: 0 0 6px; }
+    .table-wrap { overflow-x: auto; margin: 18px 0; }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .tbl th, .tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); vertical-align: top; }
+    .tbl th { font-weight: 800; }
+    .project-step { margin: 28px 0 8px; padding-top: 6px; }
+    .qa details { border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 10px; padding: 10px 16px; margin: 10px 0; }
+    .qa summary { cursor: pointer; font-weight: 700; }
+    .meta-line { font-size: 14px; color: var(--ink-soft); }
+    h2[id], h3[id] { scroll-margin-top: 90px; }
+  </style>
 </head>
 <body>
 
@@ -43,6 +64,9 @@
         React აპლიკაცია იშვიათად არსებობს იზოლირებულად — თითქმის ყოველთვის მას სჭირდება
         სერვერთან კომუნიკაცია და რამდენიმე „გვერდი". ეს გაკვეთილი სწორედ ამას ეთმობა.
       </p>
+      <p class="meta-line">
+        გაკვეთილის მასალა განახლებულია 2026 წლის ნოემბრისთვის: React Router v8, Material UI v9, Axios 1.x (და 2026 წლის მარტის უსაფრთხოების ინციდენტი).
+      </p>
       <div class="lesson-progress" data-lesson="23">
         <button class="progress-btn" id="progress-btn" type="button">მონიშნე გაკვეთილი დასრულებულად</button>
       </div>
@@ -50,114 +74,520 @@
 
     <article class="lesson-article">
 
-      <h2>1. მონაცემების წამოღება: async/await + useEffect</h2>
+      <nav class="toc" aria-label="გაკვეთილის სარჩევი">
+        <h3>გაკვეთილის გეგმა</h3>
+        <ol>
+          <li><a href="#http">HTTP, REST, CORS — ბაზისი, რაც API-სთან მუშაობისთვის უნდა იცოდე</a></li>
+          <li><a href="#fetch">მონაცემების წამოღება: async/await + useEffect</a></li>
+          <li><a href="#axios">Axios — ალტერნატივა Fetch-ისთვის</a></li>
+          <li><a href="#hook">Custom Hook</a></li>
+          <li><a href="#styling">Styled Components და Material UI</a></li>
+          <li><a href="#vdom">Virtual DOM</a></li>
+          <li><a href="#router">React Router — მრავალგვერდიანი ნავიგაცია</a></li>
+          <li><a href="#example">სრული მაგალითი: მომხმარებლების კატალოგი (Router + useFetch)</a></li>
+          <li><a href="#mistakes">ხშირი შეცდომები და უსაფრთხოება</a></li>
+          <li><a href="#selfcheck">თვითშემოწმება</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========================= 0. HTTP BASICS ========================= -->
+      <h2 id="http">1. HTTP, REST, CORS — ბაზისი</h2>
+      <p>
+        სანამ კოდზე გადავალთ, გავიხსენოთ, რას ველაპარაკებით. <strong>API</strong> (Application Programming Interface) აქ
+        ნიშნავს სერვერზე არსებულ მისამართებს (<em>endpoint</em>-ებს), რომლებიც მონაცემებს, ჩვეულებრივ <strong>JSON</strong>
+        ფორმატში, გვიბრუნებს ან იღებს. ყველაზე გავრცელებული სტილია <strong>REST</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>მეთოდი</th><th>რისთვის</th><th>მაგალითი</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td>მონაცემების წაკითხვა</td><td><code>GET /users</code>, <code>GET /users/5</code></td></tr>
+            <tr><td><code>POST</code></td><td>ახალი ჩანაწერის შექმნა</td><td><code>POST /users</code> (სხეულში — JSON)</td></tr>
+            <tr><td><code>PUT</code> / <code>PATCH</code></td><td>ჩანაწერის სრული / ნაწილობრივი განახლება</td><td><code>PATCH /users/5</code></td></tr>
+            <tr><td><code>DELETE</code></td><td>წაშლა</td><td><code>DELETE /users/5</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>სტატუს კოდები</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>კოდი</th><th>მნიშვნელობა</th></tr></thead>
+          <tbody>
+            <tr><td><code>200</code> OK, <code>201</code> Created, <code>204</code> No Content</td><td>წარმატება</td></tr>
+            <tr><td><code>400</code> Bad Request</td><td>არასწორი მოთხოვნა (მაგ. ვალიდაციის შეცდომა)</td></tr>
+            <tr><td><code>401</code> Unauthorized / <code>403</code> Forbidden</td><td>არ ხარ ავტორიზებული / არ გაქვს უფლება</td></tr>
+            <tr><td><code>404</code> Not Found</td><td>რესურსი არ არსებობს</td></tr>
+            <tr><td><code>429</code> Too Many Requests</td><td>ძალიან ბევრი მოთხოვნა (rate limit)</td></tr>
+            <tr><td><code>500</code>, <code>503</code></td><td>სერვერის შეცდომა / მიუწვდომელია</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>CORS — ყველაზე ხშირი „უცნაური“ შეცდომა</h3>
+      <p>
+        როცა შენი აპლიკაცია (მაგ. <code>http://localhost:5173</code>) სხვა წარმოშობის (origin) სერვერს (მაგ.
+        <code>https://api.example.com</code>) ეკონტაქტება, <strong>ბრაუზერი</strong> ამოწმებს, ნებას რთავს თუ არა სერვერი ამას
+        (<code>Access-Control-Allow-Origin</code> header). თუ არ რთავს, კონსოლში ჩნდება „blocked by CORS policy“. ეს <em>სერვერის</em>
+        კონფიგურაციის საკითხია, React-ის ან Axios-ის კოდის შეცდომა არ არის. development-ში გავრცელებული გამოსავალია Vite-ის proxy:
+      </p>
+      <pre><code>// vite.config.js
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      // /api/... მოთხოვნები გადაიგზავნება backend-ზე — ბრაუზერისთვის ის იგივე origin-ია
+      "/api": { target: "http://localhost:3000", changeOrigin: true },
+    },
+  },
+})</code></pre>
+
+      <h3>გარემოს ცვლადები (.env) Vite-ში</h3>
+      <p>
+        API-ს მისამართი კოდში „ხელით“ არ ჩაწერო — გამოიტანე <code>.env</code> ფაილში. Vite-ში ბრაუზერში ხელმისაწვდომია მხოლოდ
+        <code>VITE_</code> პრეფიქსიანი ცვლადები:
+      </p>
+      <pre><code># .env
+VITE_API_URL=https://jsonplaceholder.typicode.com
+
+// კოდში:
+const API_URL = import.meta.env.VITE_API_URL;</code></pre>
+      <div class="callout callout-warn">
+        <p class="callout-title">საიდუმლო გასაღებს frontend-ში ვერ დამალავ</p>
+        <p>
+          <code>VITE_</code> ცვლადები build-ის დროს უშუალოდ ჩაიწერება JavaScript-ში და ნებისმიერს შეუძლია ბრაუზერიდან წაიკითხოს.
+          ამიტომ პაროლები, secret გასაღებები და სხვა საიდუმლო მონაცემები frontend-ში არასდროს ჩაწერო — ისინი backend-ზე უნდა ინახებოდეს.
+          საჯარო API key-ებიც (მაგ. რუკის ბიბლიოთეკის) შეზღუდე domain-ით პროვაიდერის პანელში.
+        </p>
+      </div>
+
+      <!-- ========================= 1. FETCH ========================= -->
+      <h2 id="fetch">2. მონაცემების წამოღება: async/await + useEffect</h2>
       <p>
         React-ში API მოთხოვნები ჩვეულებრივ ხდება <code>useEffect</code>-ის შიგნით (მე-22
         გაკვეთილიდან ნაცნობი), <code>async</code> ფუნქციის დახმარებით (<code>useEffect</code>-ის
         callback თავად არ შეიძლება იყოს <code>async</code>):
       </p>
-      <pre><code><span class="attr">function</span> ProductList() {
-  <span class="attr">const</span> [products, setProducts] = useState([]);
-  <span class="attr">const</span> [loading, setLoading] = useState(<span class="attr">true</span>);
-  <span class="attr">const</span> [error, setError] = useState(<span class="attr">null</span>);
+      <pre><code>function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    <span class="attr">async function</span> loadProducts() {
-      <span class="attr">try</span> {
-        <span class="attr">const</span> response = <span class="attr">await</span> fetch("/api/products");
-        <span class="attr">if</span> (!response.ok) <span class="attr">throw new</span> Error("წამოღება ვერ მოხერხდა");
-        <span class="attr">const</span> data = <span class="attr">await</span> response.json();
+    async function loadProducts() {
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) throw new Error("წამოღება ვერ მოხერხდა");
+        const data = await response.json();
         setProducts(data);
-      } <span class="attr">catch</span> (err) {
+      } catch (err) {
         setError(err.message);
-      } <span class="attr">finally</span> {
-        setLoading(<span class="attr">false</span>); <span class="cmt">// ან წარმატებით, ან შეცდომით — loading მთავრდება</span>
+      } finally {
+        setLoading(false); // ან წარმატებით, ან შეცდომით — loading მთავრდება
       }
     }
     loadProducts();
   }, []);
 
-  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
-  <span class="attr">if</span> (error) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;შეცდომა: {error}&lt;/<span class="tag">p</span>&gt;;
-  <span class="attr">return</span> &lt;<span class="tag">ul</span>&gt;{products.map(p => &lt;<span class="tag">li</span> <span class="attr">key</span>={p.id}&gt;{p.name}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+  if (loading) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return &lt;p&gt;შეცდომა: {error}&lt;/p&gt;;
+  return &lt;ul&gt;{products.map(p => &lt;li key={p.id}&gt;{p.name}&lt;/li&gt;)}&lt;/ul&gt;;
 }</code></pre>
       <p>
         <code>loading</code> და <code>error</code> state ცვლადები — ეს არის სტანდარტული პატერნი
-        ნებისმიერ React აპლიკაციაში, სადაც მონაცემები სერვერიდან მოდის.
+        ნებისმიერ React აპლიკაციაში, სადაც მონაცემები სერვერიდან მოდის. ამ კოდს ორი მნიშვნელოვანი ნაკლი აქვს,
+        რომელსაც ქვემოთ გამოვასწორებთ: ძველი მოთხოვნა არ უქმდება (race condition) და მონაცემი ბევრ ადგილას მეორდება.
       </p>
 
-      <h2>2. Axios — ალტერნატივა Fetch-ისთვის</h2>
+      <h3>ძალიან მნიშვნელოვანი: fetch არ „ვარდება“ HTTP შეცდომაზე</h3>
+      <p>
+        <code>fetch</code>-ის Promise მხოლოდ <em>ქსელის</em> შეცდომაზე (კავშირი არ არის, CORS, DNS) უარყოფილია (reject).
+        თუ სერვერმა <code>404</code> ან <code>500</code> დააბრუნა, <code>fetch</code> ჩვეულებრივად „წარმატებულად“ სრულდება — ამიტომ
+        <strong>აუცილებლად</strong> შეამოწმე <code>response.ok</code> (ეს true არის <code>200–299</code> სტატუსებზე) ან
+        <code>response.status</code>. ეს ერთ-ერთი ყველაზე ხშირი ბაგია დამწყებებისთვის.
+      </p>
+
+      <h3>სრული „მზა“ ვერსია: გაუქმება, პარალელური მოთხოვნები და სხვა მეთოდები</h3>
+      <pre><code>useEffect(() => {
+  const controller = new AbortController();   // მოთხოვნის გაუქმების საშუალება
+
+  async function load() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(`${API_URL}/products?category=${category}`, {
+        signal: controller.signal,
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      setProducts(await res.json());
+    } catch (err) {
+      if (err.name !== "AbortError") setError(err.message); // გაუქმება შეცდომა არ არის
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
+    }
+  }
+
+  load();
+  return () => controller.abort();   // cleanup: category-ის შეცვლისას ძველი მოთხოვნა უქმდება
+}, [category]);</code></pre>
+
+      <pre><code>// POST — ახალი ჩანაწერის გაგზავნა
+async function createUser(user) {
+  const res = await fetch(`${API_URL}/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),       // ობიექტი → JSON სტრიქონი
+  });
+  if (!res.ok) throw new Error("შექმნა ვერ მოხერხდა");
+  return res.json();
+}
+
+// DELETE
+await fetch(`${API_URL}/users/${id}`, { method: "DELETE" });
+
+// რამდენიმე დამოუკიდებელი მოთხოვნა ერთდროულად (უფრო სწრაფია, ვიდრე ზედიზედ await)
+const [users, posts] = await Promise.all([
+  fetch(`${API_URL}/users`).then((r) => r.json()),
+  fetch(`${API_URL}/posts`).then((r) => r.json()),
+]);</code></pre>
+
+      <h3>UI-ს მდგომარეობები: loading / error / empty / success</h3>
+      <p>
+        კარგი აპლიკაცია მომხმარებელს ოთხივე მდგომარეობაში ეხმარება: <strong>იტვირთება</strong> (spinner ან skeleton),
+        <strong>შეცდომა</strong> (გასაგები ტექსტი და „სცადე ხელახლა“ ღილაკი), <strong>ცარიელია</strong> (მონაცემი წარმატებით
+        მოვიდა, მაგრამ სია ცარიელია) და <strong>წარმატება</strong>. ხშირი შეცდომაა მხოლოდ „წარმატების“ დაწერა.
+      </p>
+      <pre><code>if (loading) return &lt;p role="status"&gt;იტვირთება...&lt;/p&gt;;
+if (error) return (
+  &lt;div role="alert"&gt;
+    &lt;p&gt;შეცდომა: {error}&lt;/p&gt;
+    &lt;button onClick={reload}&gt;სცადე ხელახლა&lt;/button&gt;
+  &lt;/div&gt;
+);
+if (products.length === 0) return &lt;p&gt;პროდუქტები ვერ მოიძებნა.&lt;/p&gt;;
+return &lt;ul&gt;...&lt;/ul&gt;;</code></pre>
+
+      <div class="callout">
+        <p class="callout-title">რეალურ პროექტებში: server state-ის ბიბლიოთეკები</p>
+        <p>
+          <code>useEffect</code> + <code>fetch</code> მშვენიერია სასწავლად და პატარა პროექტებისთვის, მაგრამ რეალურ
+          აპლიკაციებში მონაცემების წამოღებას (ქეშირება, ავტომატური განმეორება, გადაფრენა, ფონური განახლება, mutation-ები)
+          ხშირად <strong>TanStack Query</strong> (<code>@tanstack/react-query</code>, v5) ან <strong>SWR</strong> ხსნის:
+        </p>
+<pre><code>import { useQuery } from "@tanstack/react-query";
+
+function Users() {
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await fetch("https://jsonplaceholder.typicode.com/users");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    },
+  });
+
+  if (isPending) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  if (isError) return &lt;p&gt;შეცდომა: {error.message}&lt;/p&gt;;
+  return &lt;ul&gt;{data.map((u) =&gt; &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}</code></pre>
+        <p>
+          (ამ ბიბლიოთეკას მთლიანი აპლიკაცია <code>&lt;QueryClientProvider&gt;</code>-ით უნდა შეეფუთოს.) ახლა მთავარი მიზანი
+          ისაა, რომ გესმოდეს, რას აკეთებენ ისინი „კედლის უკან“ — სწორედ ამას ვსწავლობთ ამ გაკვეთილზე.
+        </p>
+      </div>
+
+      <!-- ========================= 2. AXIOS ========================= -->
+      <h2 id="axios">3. Axios — ალტერნატივა Fetch-ისთვის</h2>
       <p>
         <strong>Axios</strong> არის პოპულარული NPM ბიბლიოთეკა HTTP მოთხოვნებისთვის — Fetch-თან
         შედარებით გვთავაზობს ავტომატურ JSON პარსინგს, უფრო მარტივ error handling-ს და
         request/response ინტერცეპტორებს.
       </p>
-      <pre><code><span class="cmt"># ინსტალაცია</span>
+      <pre><code># ინსტალაცია
 npm install axios</code></pre>
-      <pre><code><span class="attr">import</span> axios <span class="attr">from</span> "axios";
+      <pre><code>import axios from "axios";
 
-<span class="attr">async function</span> loadProducts() {
-  <span class="attr">try</span> {
-    <span class="attr">const</span> response = <span class="attr">await</span> axios.get("/api/products"); <span class="cmt">// ავტომატურად JSON-ად პარსავს</span>
-    setProducts(response.data); <span class="cmt">// მონაცემი პირდაპირ .data-შია, .json() აღარ სჭირდება</span>
-  } <span class="attr">catch</span> (err) {
+async function loadProducts() {
+  try {
+    const response = await axios.get("/api/products"); // ავტომატურად JSON-ად პარსავს
+    setProducts(response.data); // მონაცემი პირდაპირ .data-შია, .json() აღარ სჭირდება
+  } catch (err) {
     setError(err.message);
   }
 }</code></pre>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">უსაფრთხოება: 2026 წლის მარტის Axios ინციდენტი</p>
+        <p>
+          2026 წლის 31 მარტს თავდამსხმელმა Axios-ის მომვლელის npm ანგარიში გატეხა და გამოაქვეყნა ორი მავნე ვერსია —
+          <code>axios@1.14.1</code> და <code>axios@0.30.4</code> (ისინი ზიანის მომტან დამოკიდებულებას მოიცავდა). npm-მა ორივე რამდენიმე საათში
+          წაშალა, მაგრამ იმ პერიოდში <code>npm install axios</code> ლოკ-ფაილის გარეშე შეიძლებოდა მავნე ვერსიაზე „მოსულიყო“.
+          ეს გაკვეთილი მნიშვნელოვანია არა იმიტომ, რომ Axios „ცუდია“ — პრობლემა <em>ნებისმიერ</em> პოპულარულ npm პაკეტს შეიძლება შეეხოს.
+          პრაქტიკული წესები:
+        </p>
+        <ul style="padding-left: 20px; list-style: disc; margin: 8px 0 0;">
+          <li><strong>lock ფაილი (<code>package-lock.json</code>) აუცილებლად Git-ში ჩაამატე</strong> და CI-ში/დეპლოიში გამოიყენე <code>npm ci</code>, არა <code>npm install</code>.</li>
+          <li>ახალი პაკეტის დამატებამდე შეამოწმე: რამდენი ჩამოტვირთვა აქვს, ვინ მართავს, ბოლოს როდის განახლდა.</li>
+          <li>ახალი ვერსიის გამოშვებისთანავე ავტომატურად ნუ განაახლებ — დაელოდე რამდენიმე დღე (არსებობს ინსტრუმენტები, რომლებიც ახალ გამოშვებებს „დაყოვნებას“ უწესებენ).</li>
+          <li>პერიოდულად გაუშვი <code>npm audit</code>; რეალურ პროექტებში გამოიყენე dependency-სკანერი (Dependabot, Socket და ა.შ.).</li>
+          <li>თუ 2026 წლის 31 მარტს შენს მანქანაზე ვინმემ Axios დააინსტალირა ლოკ-ფაილის გარეშე და შეიძლება მავნე ვერსია ჩამოტვირთულიყო, ეს უსაფრთხოების ინციდენტია: გადაამოწმე ვერსიები და გამოიყენე უსაფრთხოების კომპანიების გზამკვლევები (ბმულები ქვემოთ).</li>
+        </ul>
+        <p style="margin-top: 8px;">
+          დღეს უახლესი Axios ვერსია სანდო წყაროდან (<code>npm view axios version</code>) გადაამოწმე; ქვედა ვერსიები,
+          რომლებიც 2026 წლის აპრილის უსაფრთხოების ხარვეზებს შეიცავს, არ გამოიყენო (დაფიქსირდა 1.15.x განახლებით).
+        </p>
+      </div>
+
+      <h3>Axios instance — ერთხელ დაყენებული კონფიგურაცია</h3>
       <p>
         Axios ასევე იძლევა საშუალებას, ერთხელ დავაყენოთ „ბაზური" კონფიგურაცია (base URL,
         default headers) — გამოსადეგია, როცა ბევრი endpoint-თან ვმუშაობთ:
       </p>
-      <pre><code><span class="attr">const</span> api = axios.create({
-  baseURL: "https://api.example.com",
-  headers: { Authorization: "Bearer TOKEN" },
+      <pre><code>// src/api/client.js
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,   // მაგ. https://api.example.com
+  timeout: 10000,                          // 10 წმ-ის შემდეგ მოთხოვნა შეცდომით სრულდება
+  headers: { "Content-Type": "application/json" },
 });
 
-<span class="attr">const</span> response = <span class="attr">await</span> api.get("/products"); <span class="cmt">// baseURL ავტომატურად ერწყმის</span></code></pre>
+// გამოყენება — baseURL ავტომატურად ერწყმის:
+const { data } = await api.get("/products", { params: { category: "books", page: 2 } });
+// რეალური მოთხოვნა: GET .../products?category=books&amp;page=2
 
-      <h2>3. Custom Hook</h2>
+await api.post("/products", { name: "წიგნი", price: 35 });   // JSON სხეული ავტომატურად
+await api.patch(`/products/${id}`, { price: 30 });
+await api.delete(`/products/${id}`);</code></pre>
+      <p>
+        შენიშვნა: ზემოთ ნაჩვენები <code>headers</code>-ში <code>Authorization: "Bearer TOKEN"</code>-ის „ჩაწერა“ ქვემოთ
+        ინტერცეპტორით გაკეთდება — ტოკენის კოდში ჩაწერა არასდროს არის კარგი იდეა.
+      </p>
+
+      <h3>შეცდომების დამუშავება Axios-ში</h3>
+      <p>
+        Fetch-ისგან განსხვავებით, Axios ნაგულისხმევად <strong>უარყოფს</strong> Promise-ს ნებისმიერ არა-2xx სტატუსზე
+        (<code>404</code>, <code>500</code> ...) — ამიტომ <code>response.ok</code>-ის შემოწმება აღარ გვჭირდება. შეცდომის ობიექტში
+        სამი სხვადასხვა სიტუაციაა:
+      </p>
+      <pre><code>try {
+  const { data } = await api.get("/products");
+  setProducts(data);
+} catch (err) {
+  if (axios.isAxiosError(err)) {
+    if (err.response) {
+      // 1) სერვერმა უპასუხა, მაგრამ შეცდომის სტატუსით
+      console.log(err.response.status);   // 404, 500...
+      console.log(err.response.data);     // სერვერის შეცდომის ტექსტი/JSON
+      setError(`სერვერის შეცდომა (${err.response.status})`);
+    } else if (err.request) {
+      // 2) მოთხოვნა გაიგზავნა, პასუხი არ მოსულა (ქსელი, CORS, timeout)
+      setError("სერვერთან კავშირი ვერ დამყარდა");
+    } else {
+      // 3) მოთხოვნის მომზადებისას მოხდა შეცდომა
+      setError(err.message);
+    }
+  } else {
+    setError("უცნობი შეცდომა");
+  }
+}</code></pre>
+
+      <h3>ინტერცეპტორები (interceptors)</h3>
+      <p>
+        ინტერცეპტორი — ფუნქცია, რომელიც <em>ყოველ</em> მოთხოვნას ან პასუხს გაივლის. ტიპური გამოყენება: ავტორიზაციის header-ის ავტომატური დამატება და
+        <code>401</code>-ზე გამოსვლა:
+      </p>
+      <pre><code>api.interceptors.request.use((config) => {
+  const token = getToken();                  // მაგ. მეხსიერებიდან, არა კოდიდან
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,                    // წარმატებას ისე ვატარებთ
+  (error) => {
+    if (error.response?.status === 401) {
+      // მაგ. გამოსვლა (logout) და გადამისამართება
+      logout();
+    }
+    return Promise.reject(error);            // შეცდომა მაინც გადაეცემა გამომძახებელს
+  }
+);</code></pre>
+
+      <h3>მოთხოვნის გაუქმება Axios-ში</h3>
+      <pre><code>useEffect(() => {
+  const controller = new AbortController();
+
+  api.get("/products", { signal: controller.signal })
+    .then((res) => setProducts(res.data))
+    .catch((err) => {
+      if (!axios.isCancel(err)) setError(err.message);   // გაუქმება შეცდომა არ არის
+    });
+
+  return () => controller.abort();
+}, []);</code></pre>
+
+      <h3>Fetch თუ Axios?</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th></th><th><code>fetch</code></th><th>Axios</th></tr></thead>
+          <tbody>
+            <tr><td><strong>ინსტალაცია</strong></td><td>ჩაშენებულია ბრაუზერში, დამოკიდებულება არ არის</td><td>გარე npm პაკეტი (ეს უსაფრთხოების თვალსაზრისით დამატებითი რისკი/ყურადღებაა)</td></tr>
+            <tr><td><strong>JSON</strong></td><td>ხელით: <code>res.json()</code>, <code>JSON.stringify</code></td><td>ავტომატურად</td></tr>
+            <tr><td><strong>HTTP შეცდომა (404, 500)</strong></td><td>Promise არ ვარდება; <code>res.ok</code> უნდა შეამოწმო</td><td>Promise ვარდება</td></tr>
+            <tr><td><strong>Timeout</strong></td><td><code>AbortSignal.timeout(ms)</code></td><td><code>timeout</code> ოფცია</td></tr>
+            <tr><td><strong>ინტერცეპტორები, instance</strong></td><td>არ არის (საკუთარი wrapper-ის დაწერა შეიძლება)</td><td>ჩაშენებულია</td></tr>
+            <tr><td><strong>query პარამეტრები</strong></td><td><code>URLSearchParams</code></td><td><code>params</code> ობიექტი</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        ორივე კარგი არჩევანია. თუ მარტივი მოთხოვნები გაქვს, <code>fetch</code> სრულიად საკმარისია და დამატებით პაკეტს არ
+        მოითხოვს; თუ ბევრი endpoint, ავტორიზაციის ლოგიკა და ინტერცეპტორები გჭირდება, Axios უფრო მოხერხებულია. ბევრ გუნდში სწორედ ამიტომ
+        ჯერ <code>fetch</code>-ზე დაფუძნებულ პატარა wrapper-ს წერენ ან TanStack Query-ს იყენებენ.
+      </p>
+
+      <!-- ========================= 3. CUSTOM HOOK ========================= -->
+      <h2 id="hook">4. Custom Hook</h2>
       <p>
         Custom Hook არის ჩვეულებრივი JavaScript ფუნქცია, რომლის სახელი იწყება <code>use</code>-ით
         და რომელიც სხვა Hook-ებს (<code>useState</code>, <code>useEffect</code>) იყენებს — ეს
         საშუალებას გვაძლევს, გავიტანოთ განმეორებადი ლოგიკა ცალკე, ხელახლა გამოსაყენებელ ერთეულში.
+        მნიშვნელოვანია: Custom Hook-ი <em>ლოგიკას</em> იზიარებს და არა <em>state-ს</em> — ერთსა და იმავე Hook-ს ორ კომპონენტში
+        თითოეული თავის დამოუკიდებელ state-ს მიიღებს.
       </p>
-      <pre><code><span class="cmt">// useFetch.js — Custom Hook, რომელიც "ფარავს" loading/error/data ლოგიკას</span>
-<span class="attr">import</span> { useState, useEffect } <span class="attr">from</span> "react";
+      <pre><code>// useFetch.js — Custom Hook, რომელიც "ფარავს" loading/error/data ლოგიკას
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-<span class="attr">function</span> useFetch(url) {
-  <span class="attr">const</span> [data, setData] = useState(<span class="attr">null</span>);
-  <span class="attr">const</span> [loading, setLoading] = useState(<span class="attr">true</span>);
-  <span class="attr">const</span> [error, setError] = useState(<span class="attr">null</span>);
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setLoading(<span class="attr">true</span>);
+    setLoading(true);
     axios.get(url)
       .then(res => setData(res.data))
       .catch(err => setError(err.message))
-      .finally(() => setLoading(<span class="attr">false</span>));
+      .finally(() => setLoading(false));
   }, [url]);
 
-  <span class="attr">return</span> { data, loading, error };
+  return { data, loading, error };
 }
 
-<span class="attr">export default</span> useFetch;</code></pre>
-      <pre><code><span class="cmt">// ProductList.jsx — ერთი ხაზი, ნაცვლად 15-ის!</span>
-<span class="attr">function</span> ProductList() {
-  <span class="attr">const</span> { data: products, loading, error } = useFetch("/api/products");
+export default useFetch;</code></pre>
+      <pre><code>// ProductList.jsx — ერთი ხაზი, ნაცვლად 15-ის!
+function ProductList() {
+  const { data: products, loading, error } = useFetch("/api/products");
 
-  <span class="attr">if</span> (loading) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;იტვირთება...&lt;/<span class="tag">p</span>&gt;;
-  <span class="attr">if</span> (error) <span class="attr">return</span> &lt;<span class="tag">p</span>&gt;{error}&lt;/<span class="tag">p</span>&gt;;
-  <span class="attr">return</span> &lt;<span class="tag">ul</span>&gt;{products.map(p => &lt;<span class="tag">li</span> <span class="attr">key</span>={p.id}&gt;{p.name}&lt;/<span class="tag">li</span>&gt;)}&lt;/<span class="tag">ul</span>&gt;;
+  if (loading) return &lt;p&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return &lt;p&gt;{error}&lt;/p&gt;;
+  return &lt;ul&gt;{products.map(p => &lt;li key={p.id}&gt;{p.name}&lt;/li&gt;)}&lt;/ul&gt;;
 }</code></pre>
 
-      <h2>4. Styled Components და Material UI</h2>
+      <h3>გაუმჯობესებული ვერსია: გაუქმება, ხელახალი წამოღება, შეცდომის გასუფთავება</h3>
+      <p>
+        ზემოთ მოცემულ ვერსიას სამი ნაკლი აქვს: (1) URL სწრაფად რომ შეიცვალოს, ძველმა ნელმა პასუხმა შეიძლება ახალი გადააწეროს (race
+        condition); (2) შეცდომა არ ნულდება ახალი მოთხოვნისას; (3) „ხელახლა სცადე“ ფუნქცია არ არსებობს. გამართული ვერსია
+        (სუფთა <code>fetch</code>-ზე, დამოკიდებულების გარეშე):
+      </p>
+      <pre><code>// src/hooks/useFetch.js
+import { useState, useEffect, useCallback } from "react";
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(Boolean(url));
+  const [error, setError] = useState(null);
+  const [reloadCount, setReloadCount] = useState(0);
+
+  const reload = useCallback(() => setReloadCount((c) => c + 1), []);
+
+  useEffect(() => {
+    if (!url) return;                         // URL ჯერ არ არის (მაგ. ველოდებით ID-ს)
+
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    fetch(url, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then((json) => setData(json))
+      .catch((err) => {
+        if (err.name !== "AbortError") setError(err.message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();          // cleanup
+  }, [url, reloadCount]);
+
+  return { data, loading, error, reload };
+}</code></pre>
+      <p>
+        Axios-ის ვერსიაში ცვლილება მხოლოდ მოთხოვნის ხაზშია: <code>axios.get(url, &#123; signal: controller.signal &#125;)</code>
+        და შეცდომაში <code>axios.isCancel(err)</code>-ის შემოწმება. სახელობითი ექსპორტი (<code>export function useFetch</code>)
+        და ნაგულისხმევი (<code>export default</code>) ორივე მისაღებია — მთავარია პროექტში ერთი სტილი გამოიყენო.
+      </p>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">Hook-ის გამოყენებისას — ობიექტი dependency-ში</p>
+        <p>
+          <code>useFetch(url)</code>-ში <code>url</code> სტრიქონია — პრიმიტივი, ამიტომ dependency სწორად მუშაობს. თუ Hook-ში ობიექტს
+          (მაგ. <code>options</code>) გადასცემ, რომელიც რენდერისას ყოველ ჯერზე ახლიდან იქმნება, ეფექტი ყოველ რენდერზე
+          გაეშვება და მიიღებ უსასრულო ციკლს (სავარაუდოდ „მოთხოვნების ქარიშხალს“). მოთხოვნის პარამეტრები ან URL-ში ჩააწერე
+          (<code>`/items?page=$&#123;page&#125;`</code>) ან გამოიყენე პრიმიტივები.
+        </p>
+      </div>
+
+      <h3>სხვა სასარგებლო custom hook-ების იდეები</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><code>useLocalStorage(key, initial)</code> — წინა გაკვეთილზე დავწერეთ.</li>
+        <li><code>useDebounce(value, delay)</code> — ძებნის input-ისთვის: API-ს მოთხოვნა იგზავნება არა ყოველ ასოზე, არამედ მას შემდეგ, რაც მომხმარებელმა წერა შეწყვიტა.</li>
+        <li><code>useToggle(initial)</code>, <code>useWindowSize()</code>, <code>useOnlineStatus()</code>.</li>
+      </ul>
+      <pre><code>// useDebounce — 400 მწ-ით დაგვიანებული მნიშვნელობა
+import { useState, useEffect } from "react";
+
+export function useDebounce(value, delay = 400) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);            // ახალი ასოს აკრეფისას ძველი ტაიმერი უქმდება
+  }, [value, delay]);
+
+  return debounced;
+}
+
+// გამოყენება:
+const [query, setQuery] = useState("");
+const debouncedQuery = useDebounce(query);
+const { data } = useFetch(debouncedQuery ? `/api/search?q=${encodeURIComponent(debouncedQuery)}` : null);</code></pre>
+
+      <!-- ========================= 4. STYLING ========================= -->
+      <h2 id="styling">5. Styled Components და Material UI</h2>
+      <p>
+        React-ში სტილების დაწერის რამდენიმე გზა არსებობს: ჩვეულებრივი CSS ფაილი, <strong>CSS Modules</strong> (Vite-ში
+        უშუალოდ მუშაობს: <code>Button.module.css</code>), <strong>Tailwind CSS</strong>, <strong>CSS-in-JS</strong> ბიბლიოთეკები და მზა
+        UI-ბიბლიოთეკები. ამ გაკვეთილზე ორს ვხედავთ: Styled Components-ს (CSS-in-JS) და Material UI-ს (მზა კომპონენტები).
+      </p>
+
+      <h3>Styled Components</h3>
       <p>
         <strong>Styled Components</strong> არის ბიბლიოთეკა, რომელიც საშუალებას გვაძლევს, CSS
         პირდაპირ JS ფაილში დავწეროთ, კომპონენტთან „მიმაგრებული":
       </p>
-      <pre><code><span class="attr">import</span> styled <span class="attr">from</span> "styled-components";
+      <pre><code>import styled from "styled-components";
 
-<span class="attr">const</span> Button = styled.button`
+const Button = styled.button`
   background: #146B5C;
   color: white;
   padding: 10px 16px;
@@ -169,20 +599,158 @@ npm install axios</code></pre>
   }
 `;
 
-<span class="cmt">// გამოყენება ჩვეულებრივი კომპონენტივით</span>
-&lt;<span class="tag">Button</span>&gt;დაწკაპუნება&lt;/<span class="tag">Button</span>&gt;</code></pre>
+// გამოყენება ჩვეულებრივი კომპონენტივით
+&lt;Button&gt;დაწკაპუნება&lt;/Button&gt;</code></pre>
+      <p>თითოეული styled კომპონენტი იღებს უნიკალურ კლასს, ამიტომ სტილები ერთმანეთს არ ეჯახება (scoped). სტილები props-ზეც შეიძლება
+        იყოს დამოკიდებული:</p>
+      <pre><code>const Button = styled.button`
+  background: ${(props) => (props.$variant === "danger" ? "#c0392b" : "#146B5C")};
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+`;
+
+&lt;Button $variant="danger"&gt;წაშლა&lt;/Button&gt;
+&lt;Button&gt;შენახვა&lt;/Button&gt;</code></pre>
+      <p>
+        <code>$</code>-ით დაწყებული props (<em>transient props</em>) მხოლოდ სტილისთვის გამოიყენება და DOM ელემენტზე
+        ატრიბუტად არ გადადის (თორემ კონსოლში გაფრთხილებას მიიღებ). გლობალური სტილისთვის არსებობს <code>createGlobalStyle</code>,
+        ხოლო თემისთვის — <code>ThemeProvider</code>:
+      </p>
+      <pre><code>import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+  body { margin: 0; font-family: "Noto Sans Georgian", system-ui, sans-serif; }
+`;
+
+const theme = { colors: { primary: "#146B5C", text: "#1a1a1a" } };
+
+const Title = styled.h1`
+  color: ${(props) => props.theme.colors.primary};
+`;
+
+function App() {
+  return (
+    &lt;ThemeProvider theme={theme}&gt;
+      &lt;GlobalStyle /&gt;
+      &lt;Title&gt;გამარჯობა&lt;/Title&gt;
+    &lt;/ThemeProvider&gt;
+  );
+}</code></pre>
+
+      <div class="callout callout-warn">
+        <p class="callout-title">Styled Components დღეს: „maintenance mode“</p>
+        <p>
+          2025 წელს ბიბლიოთეკის მომვლელებმა გამოაცხადეს, რომ Styled Components <strong>მხოლოდ შენახვის რეჟიმშია</strong>:
+          ახალი ფუნქციები აღარ დაემატება, მხოლოდ კრიტიკული შეცდომები და უსაფრთხოების გასწორებები. ის კვლავ მუშაობს და ძალიან ბევრ არსებულ
+          პროექტშია, ამიტომ მისი ცოდნა სასარგებლოა (ძველი კოდის წასაკითხად), მაგრამ <em>ახალი</em> პროექტისთვის უფრო
+          გავრცელებული ალტერნატივებია CSS Modules, Tailwind CSS ან build-time CSS-in-JS ბიბლიოთეკები (მაგ. Linaria).
+          გადაწყვეტილებამდე გადაამოწმე ბიბლიოთეკის ოფიციალურ საიტზე მიმდინარე სტატუსი.
+        </p>
+      </div>
+
+      <h3>CSS Modules — ყველაზე მარტივი ალტერნატივა (Vite-ში ჩაშენებულია)</h3>
+      <pre><code>/* Button.module.css */
+.button { background: #146B5C; color: white; padding: 10px 16px; border-radius: 8px; border: none; }
+.danger { background: #c0392b; }
+
+// Button.jsx
+import styles from "./Button.module.css";
+
+function Button({ danger, children }) {
+  const className = danger ? `${styles.button} ${styles.danger}` : styles.button;
+  return &lt;button className={className}&gt;{children}&lt;/button&gt;;
+}</code></pre>
+
+      <h3>Material UI (MUI)</h3>
       <p>
         <strong>Material UI</strong> (MUI) კი, Bootstrap-ის React ვერსიის მსგავსად, გვთავაზობს
         მზა, სრულად აწყობილ React კომპონენტებს (ღილაკები, ფორმები, ცხრილები), Google-ის Material
         Design-ის სტილში:
       </p>
-      <pre><code><span class="attr">import</span> Button <span class="attr">from</span> "@mui/material/Button";
+      <pre><code># ინსტალაცია (MUI + სტილის ძრავა)
+npm install @mui/material @emotion/react @emotion/styled
 
-&lt;<span class="tag">Button</span> <span class="attr">variant</span>=<span class="str">"contained"</span> <span class="attr">color</span>=<span class="str">"primary"</span>&gt;
+import Button from "@mui/material/Button";
+
+&lt;Button variant="contained" color="primary"&gt;
   შენახვა
-&lt;/<span class="tag">Button</span>&gt;</code></pre>
+&lt;/Button&gt;</code></pre>
+      <div class="callout">
+        <p class="callout-title">MUI ვერსია</p>
+        <p>
+          დღევანდელი სტაბილური ვერსია <strong>Material UI v9</strong> (გამოვიდა 2026 წლის აპრილში; <em>v8 არ არსებობს</em> — ბიბლიოთეკა v7-დან პირდაპირ
+          v9-ზე გადავიდა, MUI X-თან სინქრონიზაციისთვის). v9-ის ძირითადი აქცენტი: ხელმისაწვდომობა (accessibility), <code>sx</code> prop-ის
+          სიჩქარე და მოძველებული API-ების გაწმენდა. ინტერნეტში ბევრი ძველი (v5/v6) მაგალითია — ძირითადი იდეები (Button, TextField,
+          ThemeProvider, <code>sx</code>) იგივეა, მაგრამ თუ მაგალითი არ მუშაობს, შეამოწმე migration გზამკვლევი
+          (<a href="https://mui.com/material-ui/migration/upgrade-to-v9/" target="_blank" rel="noopener">mui.com</a>).
+        </p>
+      </div>
+      <p>MUI-ის ყველაზე ხშირად გამოსაყენებელი ნაწილები API-სთან მუშაობისას — loading და error მდგომარეობები:</p>
+      <pre><code>import { Container, Typography, CircularProgress, Alert, Stack, Card, CardContent, Button } from "@mui/material";
 
-      <h2>5. Virtual DOM — რატომ არის React სწრაფი</h2>
+function UsersGrid() {
+  const { data, loading, error, reload } = useFetch("https://jsonplaceholder.typicode.com/users");
+
+  if (loading) return &lt;CircularProgress aria-label="იტვირთება" /&gt;;
+  if (error) return (
+    &lt;Alert severity="error" action={&lt;Button onClick={reload}&gt;ხელახლა&lt;/Button&gt;}&gt;
+      {error}
+    &lt;/Alert&gt;
+  );
+
+  return (
+    &lt;Container maxWidth="md"&gt;
+      &lt;Typography variant="h4" component="h1" gutterBottom&gt;მომხმარებლები&lt;/Typography&gt;
+      &lt;Stack spacing={2}&gt;
+        {data.map((u) => (
+          &lt;Card key={u.id}&gt;
+            &lt;CardContent&gt;
+              &lt;Typography variant="h6"&gt;{u.name}&lt;/Typography&gt;
+              &lt;Typography color="text.secondary"&gt;{u.email}&lt;/Typography&gt;
+            &lt;/CardContent&gt;
+          &lt;/Card&gt;
+        ))}
+      &lt;/Stack&gt;
+    &lt;/Container&gt;
+  );
+}</code></pre>
+
+      <h3><code>sx</code> prop და თემა</h3>
+      <pre><code>// ერთჯერადი სტილი კონკრეტულ ელემენტზე
+&lt;Button sx={{ mt: 2, px: 4, borderRadius: 2 }}&gt;გაგზავნა&lt;/Button&gt;
+
+// გლობალური თემა: ფერები, შრიფტი, კომპონენტების ნაგულისხმევი სტილი
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: { primary: { main: "#146B5C" } },
+  typography: { fontFamily: '"Noto Sans Georgian", system-ui, sans-serif' },
+});
+
+&lt;ThemeProvider theme={theme}&gt;&lt;App /&gt;&lt;/ThemeProvider&gt;</code></pre>
+
+      <h3>რომელი შევარჩიო?</h3>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>ვარიანტი</th><th>ძლიერი მხარე</th><th>სუსტი მხარე / გაითვალისწინე</th></tr></thead>
+          <tbody>
+            <tr><td>CSS / CSS Modules</td><td>უმარტივესი, დამატებითი პაკეტი არ სჭირდება, სწრაფია</td><td>დინამიური სტილი ცოტა უფრო მოუხერხებელია</td></tr>
+            <tr><td>Tailwind CSS</td><td>სწრაფი დაწყობა, პოპულარული, მცირე საბოლოო CSS</td><td>HTML/JSX-ში გრძელი კლასების სია; სწავლის ეტაპია</td></tr>
+            <tr><td>Styled Components</td><td>CSS კომპონენტთან ახლოს, props-ზე დაფუძნებული სტილი</td><td>maintenance mode; runtime ხარჯი</td></tr>
+            <tr><td>Material UI</td><td>მზა, ხელმისაწვდომი კომპონენტები და თემა, სწრაფი პროტოტიპი</td><td>Material Design-ის ვიზუალი; პაკეტის ზომა; საკუთარი უნიკალური დიზაინი უფრო რთულია</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        ერთ პროექტში ორ-სამ სისტემას ნუ აურევ. ახალი გუნდები ხშირად ირჩევენ მარტივ CSS Modules-ს ან Tailwind-ს; თუ საჭიროა ბევრი
+        მზა კომპონენტი (ფორმები, ცხრილები, ადმინ-პანელი), MUI კარგი არჩევანია.
+      </p>
+
+      <!-- ========================= 5. VDOM ========================= -->
+      <h2 id="vdom">6. Virtual DOM — რატომ არის React სწრაფი</h2>
       <p>
         React ინახავს „ვირტუალურ" ასლს DOM-ისა მეხსიერებაში (Virtual DOM). state-ის შეცვლისას,
         React ჯერ ადარებს ახალ ვირტუალურ DOM-ს ძველთან (<strong>diffing</strong>) და შემდეგ
@@ -190,54 +758,493 @@ npm install axios</code></pre>
         უფრო სწრაფია, ვიდრე მთელი გვერდის ხელახლა აგება.
       </p>
 
-      <h2>6. React Router — მრავალგვერდიანი ნავიგაცია</h2>
+      <h3>როგორ მუშაობს ეს ნაბიჯ-ნაბიჯ</h3>
+      <ol style="padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>ტრიგერი</strong> — state იცვლება (<code>setCount</code>) ან მშობელი ახალ props-ს გადასცემს.</li>
+        <li><strong>რენდერი</strong> — React იძახებს შენს კომპონენტებს და იღებს ახალ React element-ების ხეს (JavaScript ობიექტებს — „ვირტუალურ DOM“-ს; ის, რაც ქვევით ვნახეთ <code>createElement</code>-ის შედეგად).</li>
+        <li><strong>შედარება (reconciliation)</strong> — React ადარებს ახალ ხეს წინასთან. ეს რთული ალგორითმია, მაგრამ ორ მარტივ ევრისტიკას ეყრდნობა:
+          <ul style="padding-left: 20px; list-style: disc; margin: 6px 0 0;">
+            <li>თუ ელემენტის <strong>ტიპი</strong> შეიცვალა (<code>&lt;div&gt;</code> → <code>&lt;span&gt;</code> ან <code>&lt;A /&gt;</code> → <code>&lt;B /&gt;</code>), React ძველ ქვეხეს მთლიანად აგდებს და ახალს აშენებს (state-ის დაკარგვითაც);</li>
+            <li>თუ ტიპი იგივეა, React მხოლოდ შეცვლილ ატრიბუტებს/ტექსტს ანახლებს; სიებში ელემენტებს <code>key</code>-ით ცნობს.</li>
+          </ul>
+        </li>
+        <li><strong>Commit</strong> — React რეალურ DOM-ს მხოლოდ ზუსტად იმ ადგილებში ცვლის, სადაც სხვაობა იპოვა.</li>
+      </ol>
+
+      <div class="callout">
+        <p class="callout-title">დაზუსტება: „Virtual DOM სწრაფია“ — რას ნიშნავს ეს?</p>
+        <p>
+          Virtual DOM <em>ყოველთვის</em> უფრო სწრაფი არ არის, ვიდრე ხელით, ზუსტად გაწერილი DOM-ის განახლება — ის დამატებით შედარების
+          სამუშაოს აკეთებს. მისი ძირითადი მნიშვნელობა სხვაა: ის გვაძლევს <strong>დეკლარაციულ</strong> პროგრამირებას (ვწერთ,
+          როგორ გამოიყურება UI მონაცემებისთვის, არა როგორ შევცვალოთ DOM ბრძანებებით) და ამავდროულად საკმარისად სწრაფ განახლებებს, რომ
+          ეს მიდგომა მასშტაბურად იმუშაოს. არსებობს ფრეიმვორქები (Svelte, Solid), რომლებიც ვირტუალურ DOM-ს საერთოდ არ იყენებენ და სხვა
+          მეთოდით აღწევენ სიჩქარეს — „რომელი სჯობს“ კამათი არ არის ამ გაკვეთილის საკითხი.
+        </p>
+      </div>
+
+      <h3>React Fiber და კონკურენტული რენდერი</h3>
+      <p>
+        ამჟამინდელი React-ის შიგნით მუშაობს <strong>Fiber</strong> არქიტექტურა: რენდერის სამუშაო პატარა ნაწილებად იყოფა და
+        შეიძლება შეჩერდეს ან გადაიდოს, რომ მომხმარებლის ქმედებები (კლავიატურაზე წერა, დაწკაპუნება) არ „გაიყინოს“. ამას ეყრდნობა
+        <code>useTransition</code>, <code>Suspense</code> და 19.3-ში stable <code>&lt;ViewTransition&gt;</code>. შენთვის პრაქტიკული დასკვნა:
+        რენდერის დროს კომპონენტი „სუფთა“ უნდა იყოს (გვერდითი ეფექტების გარეშე) — რადგან React მას შეიძლება რამდენჯერმე გამოიძახოს, ან
+        გააუქმოს.
+      </p>
+
+      <h3>პრაქტიკული რჩევები ეფექტურობისთვის</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li>ყოველთვის უნიკალური, სტაბილური <code>key</code> სიებში.</li>
+        <li>state შეინახე იმ კომპონენტთან, რომელსაც ის სჭირდება — რაც უფრო მაღლაა state, მით მეტი კომპონენტი ხელახლა იხატება.</li>
+        <li>ჯერ გაზომე, მერე ოპტიმიზაცია: <strong>React DevTools Profiler</strong>-ით. ნუ დაწერ <code>useMemo</code>-ს და <code>useCallback</code>-ს „ყოველი შემთხვევისთვის“ — React Compiler ბევრ ასეთ შემთხვევას ავტომატურად ხსნის.</li>
+        <li>დიდი სიებისთვის (ათასობით ელემენტი) გამოიყენე ვირტუალიზაცია (მაგ. <code>@tanstack/react-virtual</code>) — ეს სხვა „ვირტუალური“ ცნებაა: მხოლოდ ეკრანზე ჩანაცვლებული ელემენტები იხატება.</li>
+      </ul>
+
+      <!-- ========================= 6. ROUTER ========================= -->
+      <h2 id="router">7. React Router — მრავალგვერდიანი ნავიგაცია</h2>
       <p>
         SPA-ში „გვერდები" სინამდვილეში ცალკე HTML ფაილები არ არის (როგორც ჩვენს
         <code>lessonX.html</code> სისტემაში) — <strong>React Router</strong> მართავს URL-ს და
         აჩვენებს შესაბამის კომპონენტს, გვერდის ხელახლა ჩატვირთვის გარეშე:
       </p>
-      <pre><code><span class="cmt"># ინსტალაცია</span>
-npm install react-router-dom</code></pre>
-      <pre><code><span class="attr">import</span> { BrowserRouter, Routes, Route, Link } <span class="attr">from</span> "react-router-dom";
 
-<span class="attr">function</span> App() {
-  <span class="attr">return</span> (
-    &lt;<span class="tag">BrowserRouter</span>&gt;
-      &lt;<span class="tag">nav</span>&gt;
-        &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/"</span>&gt;მთავარი&lt;/<span class="tag">Link</span>&gt;
-        &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/products"</span>&gt;პროდუქტები&lt;/<span class="tag">Link</span>&gt;
-      &lt;/<span class="tag">nav</span>&gt;
+      <div class="callout callout-warn">
+        <p class="callout-title">მნიშვნელოვანი განახლება: პაკეტი <code>react-router</code>-ია, არა <code>react-router-dom</code></p>
+        <p>
+          ძველ ტუტორიალებში ხშირად წერია <code>npm install react-router-dom</code> და <code>import ... from "react-router-dom"</code>.
+          React Router <strong>v7</strong>-ში ყველაფერი ერთ პაკეტში გაერთიანდა: <code>react-router</code>.
+          2026 წლის 17 ივნისს გამოვიდა <strong>React Router v8</strong>, სადაც <code>react-router-dom</code> პაკეტი სრულად ამოიღეს,
+          და ბრაუზერის სპეციფიკური ნაწილი (<code>RouterProvider</code>, <code>HydratedRouter</code>) <code>react-router/dom</code>-იდან
+          შემოდის, დანარჩენი — <code>react-router</code>-იდან. v6-ისთვის უსაფრთხოების განახლებები აღარ გამოდის, ამიტომ ახალ პროექტში ნუ დაიწყებ მისით.
+        </p>
+        <p style="margin-top: 8px;">
+          <strong>მოთხოვნები (v8):</strong> Node.js 22.22+ და React 19.2.7+ (framework რეჟიმისთვის დამატებით Vite 7+). ბიბლიოთეკა ESM-ონლი-ა. თუ შენი
+          Node ძველია, ან დაყენებული პროექტი ჯერ React 18-ზეა, გამოიყენე <code>react-router@7</code> — API იგივეა,
+          და 7-დან 8-ზე გადასვლა მცირე ცვლილებებს მოითხოვს.
+        </p>
+      </div>
 
-      &lt;<span class="tag">Routes</span>&gt;
-        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/"</span> <span class="attr">element</span>={&lt;<span class="tag">Home</span> /&gt;} /&gt;
-        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/products"</span> <span class="attr">element</span>={&lt;<span class="tag">ProductList</span> /&gt;} /&gt;
-      &lt;/<span class="tag">Routes</span>&gt;
-    &lt;/<span class="tag">BrowserRouter</span>&gt;
+      <pre><code># ინსტალაცია (ახალი პროექტი)
+npm install react-router
+
+# თუ Node/React ვერსიები ჯერ v8-ს არ აკმაყოფილებს
+npm install react-router@7</code></pre>
+
+      <p>
+        React Router-ს სამი „რეჟიმი“ აქვს: <strong>declarative</strong> (მარტივი, <code>&lt;BrowserRouter&gt;</code> +
+        <code>&lt;Routes&gt;</code> — ამას ვისწავლით), <strong>data</strong> (<code>createBrowserRouter</code> +
+        <code>RouterProvider</code>, loader-ებით და action-ებით) და <strong>framework</strong> (სრული ფრეიმვორქი Vite-ით, SSR და ა.შ.).
+        დასაწყებად declarative რეჟიმი საკმარისია.
+      </p>
+
+      <pre><code>// main.jsx — BrowserRouter-ით შევფუთავთ მთელ აპლიკაციას
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router";
+import App from "./App";
+
+createRoot(document.getElementById("root")).render(
+  &lt;StrictMode&gt;
+    &lt;BrowserRouter&gt;
+      &lt;App /&gt;
+    &lt;/BrowserRouter&gt;
+  &lt;/StrictMode&gt;
+);</code></pre>
+
+      <pre><code>// App.jsx
+import { Routes, Route, Link } from "react-router";
+
+function App() {
+  return (
+    &lt;&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;მთავარი&lt;/Link&gt;
+        &lt;Link to="/products"&gt;პროდუქტები&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/products" element={&lt;ProductList /&gt;} /&gt;
+        &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;   {/* ყველა დანარჩენი მისამართი: 404 */}
+      &lt;/Routes&gt;
+    &lt;/&gt;
   );
 }</code></pre>
       <p>
         <code>&lt;Link&gt;</code> გამოიყენება <code>&lt;a&gt;</code>-ის ნაცვლად — ის React
         Router-ს ატყობინებს ნავიგაციაზე, სრული გვერდის გადატვირთვის თავიდან ასაცილებლად.
+        გარე ბმულებისთვის (სხვა საიტი) ჩვეულებრივი <code>&lt;a href&gt;</code> რჩება.
       </p>
+
+      <h3>NavLink — აქტიური გვერდის გამოყოფა</h3>
+      <pre><code>import { NavLink } from "react-router";
+
+&lt;NavLink to="/products" className={({ isActive }) =&gt; (isActive ? "active" : "")}&gt;
+  პროდუქტები
+&lt;/NavLink&gt;
+// მთავარი გვერდისთვის დაამატე  end  — თორემ "/"  ყველა მისამართზე „აქტიური“ იქნება
+&lt;NavLink to="/" end&gt;მთავარი&lt;/NavLink&gt;</code></pre>
+
+      <h3>ჩადგმული მარშრუტები და Layout (Outlet)</h3>
+      <p>
+        როცა ყველა გვერდს საერთო ჩარჩო აქვს (ჰედერი, ფუტერი), ერთხელ აღვწერთ <strong>layout მარშრუტს</strong>,
+        ხოლო შვილი გვერდები <code>&lt;Outlet /&gt;</code>-ის ადგილას ჩაჯდება:
+      </p>
+      <pre><code>// Layout.jsx
+import { NavLink, Outlet } from "react-router";
+
+function Layout() {
+  return (
+    &lt;&gt;
+      &lt;header&gt;
+        &lt;nav&gt;
+          &lt;NavLink to="/" end&gt;მთავარი&lt;/NavLink&gt;
+          &lt;NavLink to="/users"&gt;მომხმარებლები&lt;/NavLink&gt;
+        &lt;/nav&gt;
+      &lt;/header&gt;
+      &lt;main&gt;
+        &lt;Outlet /&gt;   {/* აქ ჩნდება მიმდინარე შვილი გვერდი */}
+      &lt;/main&gt;
+    &lt;/&gt;
+  );
+}
+
+// App.jsx
+&lt;Routes&gt;
+  &lt;Route element={&lt;Layout /&gt;}&gt;
+    &lt;Route index element={&lt;Home /&gt;} /&gt;                              {/* "/" */}
+    &lt;Route path="users" element={&lt;UsersPage /&gt;} /&gt;                  {/* "/users" */}
+    &lt;Route path="users/:userId" element={&lt;UserDetailsPage /&gt;} /&gt;    {/* "/users/5" */}
+    &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;
+  &lt;/Route&gt;
+&lt;/Routes&gt;</code></pre>
+
+      <h3>მარშრუტის Hooks: useParams, useNavigate, useSearchParams, useLocation</h3>
+      <pre><code>import { useParams, useNavigate, useSearchParams, Navigate } from "react-router";
+
+// 1) URL პარამეტრი  /users/5  →  userId === "5"  (ყოველთვის სტრიქონია!)
+function UserDetailsPage() {
+  const { userId } = useParams();
+  // ...
+}
+
+// 2) პროგრამული ნავიგაცია (მაგ. ფორმის გაგზავნის შემდეგ)
+const navigate = useNavigate();
+navigate("/users");        // გადასვლა
+navigate(-1);              // უკან (ბრაუზერის „Back“)
+navigate("/login", { replace: true });  // ისტორიაში ახალი ჩანაწერის გარეშე
+
+// 3) query string:  /users?search=ანა&amp;page=2
+const [searchParams, setSearchParams] = useSearchParams();
+const search = searchParams.get("search") ?? "";
+setSearchParams({ search: "გიორგი", page: "1" });   // URL იცვლება; გვერდი არ იტვირთება
+
+// 4) გადამისამართება რენდერისას (მაგ. დაცული გვერდი)
+if (!isLoggedIn) return &lt;Navigate to="/login" replace /&gt;;</code></pre>
+      <p>
+        <strong>ყურადღება:</strong> <code>useParams()</code>-ის მნიშვნელობები <em>სტრიქონია</em>. თუ მონაცემებში <code>id</code> რიცხვია და
+        ადარებ <code>===</code>-ით, წინასწარ გადააქციე: <code>Number(userId)</code>. ძებნა და ფილტრი კარგია URL-ში (<code>useSearchParams</code>) შეინახო:
+        მომხმარებელს შეუძლია ბმულის გაზიარება, ხოლო „Back“ ღილაკი იმუშავებს.
+      </p>
+
+      <h3>Data რეჟიმი (მოკლედ): createBrowserRouter და loader</h3>
+      <p>
+        „Data“ რეჟიმში მარშრუტები ობიექტების მასივად აღიწერება და მონაცემებს <strong>გვერდის გამოჩენამდე</strong> loader-ი ტვირთავს (არა
+        <code>useEffect</code>-ი კომპონენტის შიგნით). ეს თანამედროვე და ძალიან გავრცელებული მიდგომაა; აქ მხოლოდ გაგებისთვის ვაჩვენებთ:
+      </p>
+      <pre><code>import { createBrowserRouter, useLoaderData } from "react-router";
+import { RouterProvider } from "react-router/dom";      // v8-ში ბრაუზერისთვის ეს იმპორტია რეკომენდებული
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    Component: Layout,
+    children: [
+      { index: true, Component: Home },
+      {
+        path: "users/:userId",
+        loader: async ({ params }) => {
+          const res = await fetch(`https://jsonplaceholder.typicode.com/users/${params.userId}`);
+          if (!res.ok) throw new Response("მომხმარებელი ვერ მოიძებნა", { status: res.status });
+          return res.json();
+        },
+        Component: UserDetails,          // შიგნით:  const user = useLoaderData();
+        ErrorBoundary: UserError,        // შეცდომის გვერდი ამ მარშრუტისთვის
+      },
+    ],
+  },
+]);
+
+createRoot(document.getElementById("root")).render(&lt;RouterProvider router={router} /&gt;);</code></pre>
+
+      <h3>დეპლოი და „გვერდის განახლებისას 404“</h3>
+      <p>
+        <code>BrowserRouter</code> „ლამაზ“ მისამართებს იყენებს (<code>/users/5</code>). გვერდის განახლებისას (F5) ბრაუზერი
+        სერვერს ფაილ <code>/users/5</code>-ს სთხოვს — სერვერზე კი ასეთი ფაილი არ არსებობს, არსებობს მხოლოდ <code>index.html</code>. ამიტომ სერვერმა
+        ყველა უცნობი მისამართი <code>index.html</code>-ზე უნდა გადაამისამართოს („SPA fallback“):
+      </p>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>Vite dev სერვერი, <code>npm run preview</code>, Netlify, Vercel, Cloudflare Pages</strong> — ეს, როგორც წესი, ავტომატურად ან მცირე კონფიგურაციით (Netlify-ში <code>public/_redirects</code> ფაილი: <code>/* /index.html 200</code>) მუშაობს.</li>
+        <li><strong>GitHub Pages</strong> — არ აქვს fallback; გამოსავალი: <code>HashRouter</code> (<code>/#/users/5</code>), ან <code>404.html</code> ხრიკი. ამასთან <code>vite.config.js</code>-ში <code>base: "/რეპოზიტორია/"</code> და <code>&lt;BrowserRouter basename="/რეპოზიტორია"&gt;</code> უნდა დააყენო.</li>
+      </ul>
+
+      <!-- ========================= EXAMPLE ========================= -->
+      <h2 id="example">8. სრული მაგალითი: მომხმარებლების კატალოგი (Router + useFetch)</h2>
+      <p>
+        ახლა ყველაფერს ერთად ვხედავთ: ორგვერდიანი აპლიკაცია, სადაც ერთ გვერდზე მომხმარებლების სიაა (API-დან, ძებნით URL-ში), მეორეზე —
+        კონკრეტული მომხმარებლის დეტალები. გამოვიყენებთ <code>useFetch</code>-ს და React Router-ს. პროექტი:
+      </p>
+      <pre><code>npm create vite@latest users-catalog -- --template react
+cd users-catalog
+npm install
+npm install react-router        # (ან react-router@7, თუ Node/React ვერსიები არ ემთხვევა v8-ის მოთხოვნებს)
+npm run dev
+
+src/
+├── main.jsx
+├── App.jsx
+├── hooks/useFetch.js           # გაუმჯობესებული ვერსია, ზემოთ
+└── pages/
+    ├── Layout.jsx
+    ├── Home.jsx
+    ├── UsersPage.jsx
+    ├── UserDetailsPage.jsx
+    └── NotFound.jsx</code></pre>
+
+      <pre><code>// src/pages/UsersPage.jsx
+import { Link, useSearchParams } from "react-router";
+import { useFetch } from "../hooks/useFetch";
+
+const API = "https://jsonplaceholder.typicode.com";
+
+function UsersPage() {
+  const { data: users, loading, error, reload } = useFetch(`${API}/users`);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") ?? "";
+
+  if (loading) return &lt;p role="status"&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return (
+    &lt;div role="alert"&gt;
+      &lt;p&gt;შეცდომა: {error}&lt;/p&gt;
+      &lt;button onClick={reload}&gt;სცადე ხელახლა&lt;/button&gt;
+    &lt;/div&gt;
+  );
+
+  // გაფილტვრა რენდერისას — ცალკე state არ გვჭირდება
+  const visible = users.filter((u) =&gt;
+    u.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    &lt;section&gt;
+      &lt;h1&gt;მომხმარებლები&lt;/h1&gt;
+
+      &lt;input
+        value={search}
+        onChange={(e) =&gt; setSearchParams(e.target.value ? { search: e.target.value } : {})}
+        placeholder="ძებნა სახელით..."
+        aria-label="ძებნა"
+      /&gt;
+
+      {visible.length === 0 ? (
+        &lt;p&gt;ვერაფერი მოიძებნა.&lt;/p&gt;
+      ) : (
+        &lt;ul&gt;
+          {visible.map((u) =&gt; (
+            &lt;li key={u.id}&gt;
+              &lt;Link to={`/users/${u.id}`}&gt;{u.name}&lt;/Link&gt; — {u.email}
+            &lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      )}
+    &lt;/section&gt;
+  );
+}
+
+export default UsersPage;</code></pre>
+
+      <pre><code>// src/pages/UserDetailsPage.jsx
+import { Link, useParams } from "react-router";
+import { useFetch } from "../hooks/useFetch";
+
+const API = "https://jsonplaceholder.typicode.com";
+
+function UserDetailsPage() {
+  const { userId } = useParams();
+  const { data: user, loading, error } = useFetch(`${API}/users/${userId}`);
+
+  if (loading) return &lt;p role="status"&gt;იტვირთება...&lt;/p&gt;;
+  if (error) return &lt;p role="alert"&gt;მომხმარებელი ვერ ჩაიტვირთა ({error}).&lt;/p&gt;;
+
+  return (
+    &lt;article&gt;
+      &lt;p&gt;&lt;Link to="/users"&gt;← სიაში დაბრუნება&lt;/Link&gt;&lt;/p&gt;
+      &lt;h1&gt;{user.name}&lt;/h1&gt;
+      &lt;ul&gt;
+        &lt;li&gt;ელფოსტა: {user.email}&lt;/li&gt;
+        &lt;li&gt;ტელეფონი: {user.phone}&lt;/li&gt;
+        &lt;li&gt;ქალაქი: {user.address.city}&lt;/li&gt;
+        &lt;li&gt;კომპანია: {user.company.name}&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/article&gt;
+  );
+}
+
+export default UserDetailsPage;</code></pre>
+      <p>
+        <code>Layout</code>, <code>Home</code>, <code>NotFound</code> და <code>App.jsx</code> წინა სექციებში აღწერილი სტრუქტურით
+        ააწყე. გამოცდა: გახსენი <code>/users/3</code> პირდაპირ (გვერდი განაახლე), სცადე არარსებული მისამართი
+        (<code>/abc</code>) და არარსებული ID (<code>/users/999</code> — API <code>404</code>-ს დააბრუნებს, <code>useFetch</code>-ი კი შეცდომას აჩვენებს).
+      </p>
+
+      <!-- ========================= MISTAKES ========================= -->
+      <h2 id="mistakes">9. ხშირი შეცდომები და უსაფრთხოება</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>შეცდომა</th><th>სიმპტომი</th><th>გამოსწორება</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>fetch</code>-ზე <code>res.ok</code>-ის შემოწმება დავიწყებია</td>
+              <td>404/500 „წარმატებად“ ითვლება; <code>res.json()</code> უცნაურ შეცდომას აგდებს</td>
+              <td><code>if (!res.ok) throw new Error(...)</code></td>
+            </tr>
+            <tr>
+              <td><code>useEffect(async () =&gt; ...)</code></td>
+              <td>გაფრთხილება ეფექტის დაბრუნებულ მნიშვნელობაზე</td>
+              <td>async ფუნქცია ეფექტის შიგნით ან <code>.then()</code></td>
+            </tr>
+            <tr>
+              <td>cleanup/გაუქმება არ არის</td>
+              <td>ძველი პასუხი ახალს გადააწერს; „state update on unmounted component“ ტიპის ქცევა</td>
+              <td><code>AbortController</code> და cleanup</td>
+            </tr>
+            <tr>
+              <td>ობიექტი/ფუნქცია ეფექტის dependency-ში</td>
+              <td>უსასრულო მოთხოვნები</td>
+              <td>პრიმიტივი, ან გადაიტანე ეფექტის შიგნით</td>
+            </tr>
+            <tr>
+              <td>დაუმუშავებელი შეცდომა — მხოლოდ „წარმატების“ UI</td>
+              <td>თეთრი ეკრანი ან უსასრულო spinner</td>
+              <td>loading/error/empty მდგომარეობების დამუშავება</td>
+            </tr>
+            <tr>
+              <td>CORS შეცდომა</td>
+              <td>„blocked by CORS policy“ კონსოლში</td>
+              <td>სერვერის CORS კონფიგურაცია, development-ში Vite proxy</td>
+            </tr>
+            <tr>
+              <td><code>&lt;a href&gt;</code> შიდა ნავიგაციისთვის</td>
+              <td>გვერდი სრულად იტვირთება, state იკარგება</td>
+              <td><code>&lt;Link to&gt;</code> / <code>&lt;NavLink&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>useParams</code> მნიშვნელობის რიცხვთან შედარება <code>===</code>-ით</td>
+              <td>ელემენტი ვერ მოიძებნა (<code>"5" !== 5</code>)</td>
+              <td><code>Number(userId)</code></td>
+            </tr>
+            <tr>
+              <td>გვერდის F5-ზე 404 production-ში</td>
+              <td>პირდაპირი მისამართი არ იხსნება</td>
+              <td>SPA fallback / <code>HashRouter</code></td>
+            </tr>
+            <tr>
+              <td><code>react-router-dom</code> ახალ პროექტში</td>
+              <td>v8-ში პაკეტი აღარ არსებობს; ძველი ტუტორიალის კოდი არ მუშაობს</td>
+              <td><code>react-router</code>, <code>react-router/dom</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>უსაფრთხოება frontend-იდან API-სთან მუშაობისას</h3>
+      <ul style="padding-left: 20px; list-style: disc; margin-bottom: 16px;">
+        <li><strong>საიდუმლო გასაღები frontend-ში არ ინახება</strong> — ყველაფერი, რაც ბრაუზერში ჩაიტვირთება, ხილულია (იხ. <code>.env</code> შენიშვნა).</li>
+        <li><strong>ტოკენების შენახვა:</strong> <code>localStorage</code> ხელმისაწვდომია ნებისმიერი JS-ისთვის გვერდზე, ამიტომ XSS შეტევის შემთხვევაში ტოკენი ქურდობას ექვემდებარება. უფრო უსაფრთხოა სერვერის მიერ დაყენებული <code>HttpOnly</code> cookie. სასწავლო პროექტში ეს მისაღებია, რეალურ პროექტში — არა.</li>
+        <li><strong>ნუ ენდობი სერვერის პასუხს „ბრმად“:</strong> თუ ველი შეიძლება არ არსებობდეს, გამოიყენე <code>?.</code> (<code>user.address?.city</code>).</li>
+        <li><strong>ნუ გამოიყენებ <code>dangerouslySetInnerHTML</code>-ს</strong> API-დან მიღებულ ტექსტზე — JSX თავისთავად ექრანირებს ტექსტს და იცავს XSS-ისგან.</li>
+        <li><strong>პაკეტები:</strong> lock ფაილი, <code>npm ci</code>, <code>npm audit</code>; ახალი დამოკიდებულებები გააკონტროლე (იხ. Axios-ის ინციდენტი).</li>
+        <li><strong>საჯარო სატესტო API-ები</strong> (jsonplaceholder და მსგავსი) ტესტისთვისაა: მონაცემი „რეალურად“ არ ინახება და სერვისი შეიძლება ცვალებადი ან მიუწვდომელი იყოს.</li>
+      </ul>
+
+      <!-- ========================= SELF CHECK ========================= -->
+      <h2 id="selfcheck">10. თვითშემოწმება</h2>
+      <div class="qa">
+        <details>
+          <summary>1. რატომ არ შეიძლება <code>useEffect</code>-ის callback იყოს <code>async</code>?</summary>
+          <p>async ფუნქცია Promise-ს აბრუნებს, React კი ეფექტისგან ელოდება ან არაფერს, ან cleanup ფუნქციას. async ფუნქცია ეფექტის შიგნით განვსაზღვროთ და იქვე გამოვიძახოთ.</p>
+        </details>
+        <details>
+          <summary>2. რა განსხვავებაა HTTP შეცდომების დამუშავებაში <code>fetch</code>-სა და Axios-ს შორის?</summary>
+          <p><code>fetch</code> Promise-ს მხოლოდ ქსელის შეცდომაზე აუქმებს; 404/500-ზე „წარმატებით“ სრულდება და <code>res.ok</code> უნდა შევამოწმოთ. Axios ნებისმიერ არა-2xx სტატუსზე გადადის <code>catch</code>-ში, ხოლო <code>err.response</code>-ში სერვერის პასუხია.</p>
+        </details>
+        <details>
+          <summary>3. რას ნიშნავს <code>loading</code>/<code>error</code>/<code>empty</code> მდგომარეობების დამუშავება და რატომ არის ის მნიშვნელოვანი?</summary>
+          <p>კარგი UI მომხმარებელს ყველა სიტუაციაში ეუბნება, რა ხდება: იტვირთება, შეცდომაა (და როგორ გავასწოროთ), მონაცემი არ არის, ან წარმატებაა. მხოლოდ „წარმატების“ დაწერა თეთრ ეკრანს ან უსასრულო spinner-ს იძლევა.</p>
+        </details>
+        <details>
+          <summary>4. რას წყვეტს <code>AbortController</code> მონაცემების წამოღებისას?</summary>
+          <p>ძველი ან აღარაქტუალური მოთხოვნის გაუქმებას (კომპონენტის მოხსნისას ან dependency-ს შეცვლისას), რათა ნელმა ძველმა პასუხმა ახალი მონაცემი არ გადააწეროს (race condition).</p>
+        </details>
+        <details>
+          <summary>5. რა არის Custom Hook და რას იზიარებს ის სხვადასხვა კომპონენტებს შორის?</summary>
+          <p>ეს არის <code>use</code>-ით დაწყებული ფუნქცია, რომელიც სხვა Hooks-ს იყენებს. ის იზიარებს ლოგიკას და არა state-ს: ყოველი კომპონენტი თავის დამოუკიდებელ state-ს იღებს.</p>
+        </details>
+        <details>
+          <summary>6. რატომ არ ინახება API-ის საიდუმლო გასაღები <code>VITE_</code> ცვლადში?</summary>
+          <p><code>VITE_</code> ცვლადები build-ისას JavaScript-ში ჩაიწერება და ბრაუზერში ყველასთვის ხილულია. საიდუმლო მონაცემები backend-ზე უნდა ინახებოდეს.</p>
+        </details>
+        <details>
+          <summary>7. რა დასკვნა გამოვიტანოთ Axios-ის 2026 წლის მარტის ინციდენტიდან?</summary>
+          <p>ნებისმიერი პოპულარული npm პაკეტი შეიძლება კომპრომეტირებული გახდეს. გამოიყენე lock ფაილი და <code>npm ci</code>, გააკონტროლე ახალი ვერსიები და დამოკიდებულებები, გაუშვი <code>npm audit</code>.</p>
+        </details>
+        <details>
+          <summary>8. როგორ მუშაობს Virtual DOM და რას აკეთებს <code>key</code>?</summary>
+          <p>React ინახავს UI-ის აღწერას მეხსიერებაში, ადარებს ახალ და ძველ ხეს და რეალურ DOM-ში მხოლოდ სხვაობას ცვლის. <code>key</code> ეხმარება სიებში ელემენტების ამოცნობაში.</p>
+        </details>
+        <details>
+          <summary>9. რით განსხვავდება <code>&lt;Link&gt;</code> <code>&lt;a&gt;</code>-სგან?</summary>
+          <p><code>&lt;Link&gt;</code> ნავიგაციას React Router-ის მეშვეობით აკეთებს, გვერდის სრული გადატვირთვის გარეშე (state რჩება). <code>&lt;a href&gt;</code> ბრაუზერს ახალი გვერდის ჩატვირთვას აიძულებს.</p>
+        </details>
+        <details>
+          <summary>10. რა პაკეტიდან ვიმპორტებთ <code>Routes</code>, <code>Link</code>, <code>useParams</code>-ს დღეს და რატომ?</summary>
+          <p><code>react-router</code>-იდან. v7-ში <code>react-router-dom</code> გაერთიანდა <code>react-router</code>-ში, ხოლო v8-ში <code>react-router-dom</code> ამოიღეს; <code>RouterProvider</code> ბრაუზერისთვის <code>react-router/dom</code>-იდან იმპორტირდება.</p>
+        </details>
+      </div>
 
       <div class="resources">
         <h3 style="margin-top: 0;">დამატებითი საკითხავი</h3>
         <ul style="padding-left: 20px; list-style: disc;">
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank" rel="noopener">MDN — Using the Fetch API</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS" target="_blank" rel="noopener">MDN — CORS (Cross-Origin Resource Sharing)</a></li>
           <li><a href="https://axios-http.com/docs/intro" target="_blank" rel="noopener">Axios — ოფიციალური დოკუმენტაცია</a></li>
+          <li><a href="https://www.stepsecurity.io/blog/axios-compromised-on-npm-malicious-versions-drop-remote-access-trojan" target="_blank" rel="noopener">StepSecurity — Axios npm-ის კომპრომეტაციის ანალიზი (2026 წლის მარტი)</a></li>
+          <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank" rel="noopener">React — Synchronizing with Effects</a></li>
+          <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank" rel="noopener">React — You Might Not Need an Effect (მონაცემების წამოღება)</a></li>
           <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank" rel="noopener">React — Reusing Logic with Custom Hooks</a></li>
+          <li><a href="https://tanstack.com/query/latest" target="_blank" rel="noopener">TanStack Query — დოკუმენტაცია</a></li>
+          <li><a href="https://vite.dev/guide/env-and-mode" target="_blank" rel="noopener">Vite — Env Variables and Modes</a></li>
           <li><a href="https://mui.com/material-ui/getting-started/" target="_blank" rel="noopener">Material UI — Getting started</a></li>
-          <li><a href="https://reactrouter.com/en/main/start/tutorial" target="_blank" rel="noopener">React Router — ოფიციალური tutorial</a></li>
+          <li><a href="https://styled-components.com/docs" target="_blank" rel="noopener">Styled Components — დოკუმენტაცია</a></li>
+          <li><a href="https://react.dev/learn/render-and-commit" target="_blank" rel="noopener">React — Render and Commit</a></li>
+          <li><a href="https://legacy.reactjs.org/docs/reconciliation.html" target="_blank" rel="noopener">React — Reconciliation (diffing ალგორითმის ახსნა)</a></li>
+          <li><a href="https://reactrouter.com/start/data/installation" target="_blank" rel="noopener">React Router — ოფიციალური დოკუმენტაცია</a></li>
+          <li><a href="https://reactrouter.com/upgrading/v7" target="_blank" rel="noopener">React Router — გადასვლა v7-დან v8-ზე</a></li>
+          <li><a href="https://remix.run/blog/react-router-v8" target="_blank" rel="noopener">React Router v8 — გამოშვების პოსტი</a></li>
         </ul>
       </div>
 
       <div class="exercises">
         <h3 style="margin-top: 0;">პრაქტიკული დავალებები</h3>
         <ol style="padding-left: 20px;">
-          <li>დააინსტალირე axios და გადაწერე ერთი <code>fetch</code> მოთხოვნა Axios-ის გამოყენებით.</li>
-          <li>დაწერე <code>loading</code>/<code>error</code> state-ის სრული მართვა ერთი კომპონენტისთვის.</li>
-          <li>გამოიტანე ეს ლოგიკა <code>useFetch</code> custom hook-ად და გამოიყენე ის ორ სხვადასხვა კომპონენტში.</li>
-          <li>დააინსტალირე <code>react-router-dom</code> და ააწყვე მინიმუმ 2 „გვერდი" (მარშრუტი) ნავიგაციის ბმულებით.</li>
-          <li><em>(რთული)</em> გააერთიანე Custom Hook და Router — შექმენი გვერდი, რომელიც URL-ის პარამეტრით (<code>useParams</code>) იღებს ID-ს და <code>useFetch</code>-ის გამოყენებით ტვირთავს კონკრეტული ერთეულის დეტალურ ინფორმაციას.</li>
+          <li>გამოიყენე საჯარო სატესტო API (<code>https://jsonplaceholder.typicode.com/posts</code>) და გამოსახე პოსტების სია <code>fetch</code>-ით: <code>loading</code>, <code>error</code>, ცარიელი და წარმატების მდგომარეობები; შეამოწმე <code>res.ok</code>. სცადე არასწორი URL და ნახე, როგორ იმუშავებს შეცდომა.</li>
+          <li>დააინსტალირე <code>axios</code> (შეამოწმე ვერსია <code>npm ls axios</code>-ით და დარწმუნდი, რომ <code>package-lock.json</code> არსებობს) და გადაწერე ერთი <code>fetch</code> მოთხოვნა Axios-ის გამოყენებით. შექმენი <code>axios.create</code> instance <code>baseURL</code>-ით.</li>
+          <li>დაწერე <code>loading</code>/<code>error</code> state-ის სრული მართვა ერთი კომპონენტისთვის, დაამატე „სცადე ხელახლა“ ღილაკი და გაუქმება <code>AbortController</code>-ით.</li>
+          <li>გამოიტანე ეს ლოგიკა <code>useFetch</code> custom hook-ად და გამოიყენე ის ორ სხვადასხვა კომპონენტში (მაგ. პოსტები და მომხმარებლები). დაწერე <code>useDebounce</code> და გამოიყენე ძებნისთვის.</li>
+          <li>დააინსტალირე <code>react-router</code> და ააწყვე მინიმუმ 3 „გვერდი“ (მარშრუტი) <code>Layout</code>-ით, <code>NavLink</code>-ებით და <code>*</code> (404) გვერდით.</li>
+          <li>დაამატე MUI ან CSS Modules: გაალამაზე სია — ბარათები, <code>CircularProgress</code> / <code>Alert</code> (MUI) ან საკუთარი სპინერი და შეცდომის ბლოკი.</li>
+          <li><strong>ძირითადი:</strong> ააწყვე გაკვეთილის „მომხმარებლების კატალოგი“ (სია, ძებნა URL-ში, დეტალების გვერდი <code>useParams</code>-ით, <code>useFetch</code>, 404).</li>
+          <li><em>(რთული)</em> გააერთიანე Custom Hook და Router — შექმენი გვერდი, რომელიც URL-ის პარამეტრით (<code>useParams</code>) იღებს ID-ს და <code>useFetch</code>-ის გამოყენებით ტვირთავს კონკრეტული ერთეულის დეტალურ ინფორმაციას. დაამატე პოსტების გვერდი: <code>/users/:userId/posts</code> (ჩადგმული მარშრუტი, API: <code>/users/ID/posts</code>).</li>
+          <li><em>(ბონუსი)</em> იგივე „კატალოგი“ გადააკეთე TanStack Query-ით (<code>useQuery</code>) და შეადარე კოდის ზომა და ქცევა (ქეშირება: დაბრუნება სიაში არ ხდის ახალ „იტვირთება...“).</li>
         </ol>
       </div>
 
